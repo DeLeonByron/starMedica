@@ -1,0 +1,24 @@
+<main class="login-page">
+  <section class="login-panel" aria-labelledby="login-title">
+    <a class="login-panel__brand" routerLink="/auth/login" aria-label="Star Médica, inicio">
+      <span class="login-panel__brand-mark">SM</span>
+      <span>Star Médica</span>
+    </a>
+
+    <p class="login-panel__eyebrow">Clínica pediátrica</p>
+    <h1 id="login-title">Acceso al sistema</h1>
+    <p class="login-panel__description">Ingresa con tu cuenta autorizada de Google.</p>
+
+    <div #googleButton class="login-panel__google"></div>
+
+    @if (auth.isLoading()) {
+      <p class="login-panel__status" role="status">Verificando tu cuenta...</p>
+    }
+
+    @if (auth.error()) {
+      <p class="login-panel__error" role="alert">{{ auth.error() }}</p>
+    }
+
+    <p class="login-panel__notice">El acceso requiere autorización del administrador.</p>
+  </section>
+</main>

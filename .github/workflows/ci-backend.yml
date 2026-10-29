@@ -1,0 +1,27 @@
+name: CI Backend
+
+on:
+  push:
+    paths:
+      - 'StarMedica/**'
+      - '.github/workflows/ci-backend.yml'
+  pull_request:
+    paths:
+      - 'StarMedica/**'
+      - '.github/workflows/ci-backend.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore
+        run: dotnet restore StarMedica/StarMedica.sln
+
+      - name: Build
+        run: dotnet build StarMedica/StarMedica.sln --no-restore --configuration Release

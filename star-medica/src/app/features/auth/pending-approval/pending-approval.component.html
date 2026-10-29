@@ -1,0 +1,11 @@
+<main class="pending-page">
+  <section class="pending-panel" aria-labelledby="pending-title">
+    <p class="pending-panel__eyebrow">Cuenta verificada</p>
+    <h1 id="pending-title">Acceso pendiente</h1>
+    <p>
+      {{ auth.user()?.fullName }}, tu cuenta todavía no tiene un rol asignado.
+      Contacta al administrador de Star Médica para habilitar el acceso clínico.
+    </p>
+    <button type="button" (click)="logout()">Cerrar sesión</button>
+  </section>
+</main>

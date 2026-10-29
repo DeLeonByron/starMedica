@@ -1,0 +1,35 @@
+name: CI Frontend
+
+on:
+  push:
+    paths:
+      - 'star-medica/**'
+      - '.github/workflows/ci-frontend.yml'
+  pull_request:
+    paths:
+      - 'star-medica/**'
+      - '.github/workflows/ci-frontend.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: npm
+          cache-dependency-path: star-medica/package-lock.json
+
+      - name: Install dependencies
+        working-directory: star-medica
+        run: npm ci
+
+      - name: Build staging
+        working-directory: star-medica
+        run: npm run build:staging
+
+      - name: Build production
+        working-directory: star-medica
+        run: npm run build:prod

@@ -1,0 +1,6 @@
+@StarMedica.API_HostAddress = http://localhost:5067
+
+GET {{StarMedica.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

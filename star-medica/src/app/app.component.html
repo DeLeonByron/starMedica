@@ -1,0 +1,23 @@
+﻿<div class="app-shell">
+  @if (auth.isLoggedIn()) {
+    <aside class="app-shell__sidebar">
+      <a class="app-shell__brand" routerLink="/patients" aria-label="Star Médica, pacientes">
+        <span class="app-shell__brand-mark">SM</span>
+        <strong>Star Médica</strong>
+      </a>
+
+      <nav class="app-shell__nav" aria-label="Navegación principal">
+        <a routerLink="/patients" routerLinkActive="is-active">Pacientes</a>
+      </nav>
+
+      <div class="app-shell__account">
+        <span>{{ auth.user()?.fullName }}</span>
+        <button type="button" (click)="logout()">Cerrar sesión</button>
+      </div>
+    </aside>
+  }
+
+  <main class="app-shell__content">
+    <router-outlet />
+  </main>
+</div>

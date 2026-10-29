@@ -1,0 +1,56 @@
+:host {
+  --sm-ink: #17362f;
+  --sm-muted: #60756e;
+  --sm-primary: #176f5b;
+  display: block;
+}
+
+.pending-page {
+  min-height: calc(100vh - 4rem);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: #edf4ef;
+}
+
+.pending-panel {
+  width: min(100%, 540px);
+  box-sizing: border-box;
+  padding: 2rem;
+  border: 1px solid #d3e2dc;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--sm-ink);
+}
+
+.pending-panel__eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--sm-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.pending-panel h1 {
+  margin: 0;
+  font-size: 1.7rem;
+}
+
+.pending-panel p:not(.pending-panel__eyebrow) {
+  color: var(--sm-muted);
+  line-height: 1.6;
+}
+
+.pending-panel button {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--sm-primary);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}

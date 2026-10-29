@@ -1,0 +1,107 @@
+<section class="sm-patients">
+  <header class="sm-patients__header">
+    <div>
+      <p class="sm-patients__eyebrow">Gestión clínica</p>
+      <h1 class="sm-patients__title">Pacientes</h1>
+    </div>
+    <button type="button" class="sm-patients__button" (click)="openForm()">
+      Nuevo paciente
+    </button>
+  </header>
+
+  @if (isLoading()) {
+    <p class="sm-patients__status" role="status">Cargando pacientes...</p>
+  } @else if (error()) {
+    <div class="sm-patients__error" role="alert">{{ error() }}</div>
+  } @else if (patients().length === 0) {
+    <p class="sm-patients__empty">No hay pacientes registrados.</p>
+  } @else {
+    <div class="sm-patients__grid">
+      @for (patient of patients(); track patient.id) {
+        <article class="sm-patient-card">
+          <div class="sm-patient-card__top">
+            <span class="sm-patient-card__code">{{ patient.code }}</span>
+            <span class="sm-patient-card__status" [class.sm-patient-card__status--active]="patient.isActive">
+              {{ patient.isActive ? 'Activo' : 'Inactivo' }}
+            </span>
+          </div>
+
+          <h2 class="sm-patient-card__name">{{ patient.fullName }}</h2>
+          <ul class="sm-patient-card__details">
+            <li><strong>DPI:</strong> {{ patient.documentNumber }}</li>
+            <li><strong>Teléfono:</strong> {{ patient.phone }}</li>
+            <li><strong>Email:</strong> {{ patient.email || 'Sin correo' }}</li>
+          </ul>
+        </article>
+      }
+    </div>
+  }
+</section>
+
+@if (isFormOpen()) {
+  <div class="sm-patients__backdrop" (click)="closeForm()">
+    <section
+      class="sm-patients__dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="patient-form-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="sm-patients__dialog-header">
+        <div>
+          <p class="sm-patients__eyebrow">Registro clínico</p>
+          <h2 id="patient-form-title">Nuevo paciente</h2>
+        </div>
+        <button type="button" class="sm-patients__close" aria-label="Cerrar" (click)="closeForm()">
+          ×
+        </button>
+      </header>
+
+      <form #patientForm="ngForm" (ngSubmit)="createPatient()">
+        <div class="sm-patients__form-grid">
+          <label>
+            Código <span aria-hidden="true">*</span>
+            <input name="code" [(ngModel)]="form.code" required maxlength="50" />
+          </label>
+          <label>
+            Nombre completo <span aria-hidden="true">*</span>
+            <input name="fullName" [(ngModel)]="form.fullName" required maxlength="200" />
+          </label>
+          <label>
+            Documento <span aria-hidden="true">*</span>
+            <input name="documentNumber" [(ngModel)]="form.documentNumber" required maxlength="50" />
+          </label>
+          <label>
+            Fecha de nacimiento
+            <input name="dateOfBirth" type="date" [(ngModel)]="form.dateOfBirth" />
+          </label>
+          <label>
+            Teléfono <span aria-hidden="true">*</span>
+            <input name="phone" [(ngModel)]="form.phone" required maxlength="30" />
+          </label>
+          <label>
+            Correo electrónico
+            <input name="email" type="email" [(ngModel)]="form.email" maxlength="200" />
+          </label>
+          <label class="sm-patients__form-wide">
+            Dirección
+            <input name="address" [(ngModel)]="form.address" maxlength="300" />
+          </label>
+        </div>
+
+        @if (formError()) {
+          <p class="sm-patients__error" role="alert">{{ formError() }}</p>
+        }
+
+        <footer class="sm-patients__actions">
+          <button type="button" class="sm-patients__cancel" (click)="closeForm()">
+            Cancelar
+          </button>
+          <button type="submit" class="sm-patients__button" [disabled]="patientForm.invalid || isSaving()">
+            {{ isSaving() ? 'Guardando...' : 'Guardar paciente' }}
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+}

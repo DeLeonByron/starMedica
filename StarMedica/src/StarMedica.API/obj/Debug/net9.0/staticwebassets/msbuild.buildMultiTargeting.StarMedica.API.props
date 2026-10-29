@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\StarMedica.API.props" />
+</Project>

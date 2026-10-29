@@ -1,0 +1,15 @@
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\bin\Debug\net9.0\StarMedica.Application.deps.json
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\bin\Debug\net9.0\StarMedica.Application.dll
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\bin\Debug\net9.0\StarMedica.Application.pdb
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\bin\Debug\net9.0\StarMedica.Domain.dll
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\bin\Debug\net9.0\StarMedica.Domain.pdb
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\obj\Debug\net9.0\StarMedica.Application.csproj.AssemblyReference.cache
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\obj\Debug\net9.0\StarMedica.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\obj\Debug\net9.0\StarMedica.Application.AssemblyInfoInputs.cache
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\obj\Debug\net9.0\StarMedica.Application.AssemblyInfo.cs
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\obj\Debug\net9.0\StarMedica.Application.csproj.CoreCompileInputs.cache
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\obj\Debug\net9.0\StarMedi.A02E31B9.Up2Date
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\obj\Debug\net9.0\StarMedica.Application.dll
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\obj\Debug\net9.0\refint\StarMedica.Application.dll
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\obj\Debug\net9.0\StarMedica.Application.pdb
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\obj\Debug\net9.0\ref\StarMedica.Application.dll
