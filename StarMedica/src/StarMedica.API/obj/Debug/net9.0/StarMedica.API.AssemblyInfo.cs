@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("StarMedica.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b2e58e75240ac34c202cd7b5825a4300bf9b78c9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a40bb6ed5886661b5121e942a2420aefee8e0937")]
 [assembly: System.Reflection.AssemblyProductAttribute("StarMedica.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StarMedica.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
