@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "IDFDfTEZ9v8=",
+  "dgSpecHash": "UZE5y5fqbME=",
   "success": true,
   "projectFilePath": "C:\\repositorios\\agente_ia\\StarMedica\\src\\StarMedica.Infrastructure\\StarMedica.Infrastructure.csproj",
   "expectedPackageFiles": [
@@ -152,20 +152,20 @@
     "C:\\Users\\byron\\.nuget\\packages\\system.threading.channels\\7.0.0\\system.threading.channels.7.0.0.nupkg.sha512",
     "C:\\Users\\byron\\.nuget\\packages\\system.threading.tasks\\4.3.0\\system.threading.tasks.4.3.0.nupkg.sha512",
     "C:\\Users\\byron\\.nuget\\packages\\system.threading.tasks.extensions\\4.5.4\\system.threading.tasks.extensions.4.5.4.nupkg.sha512",
-    "C:\\Users\\byron\\.nuget\\packages\\system.windows.extensions\\6.0.0\\system.windows.extensions.6.0.0.nupkg.sha512",
-    "C:\\Users\\byron\\.nuget\\packages\\microsoft.netcore.app.ref\\9.0.15\\microsoft.netcore.app.ref.9.0.15.nupkg.sha512",
-    "C:\\Users\\byron\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\9.0.15\\microsoft.windowsdesktop.app.ref.9.0.15.nupkg.sha512",
-    "C:\\Users\\byron\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\9.0.15\\microsoft.aspnetcore.app.ref.9.0.15.nupkg.sha512"
+    "C:\\Users\\byron\\.nuget\\packages\\system.windows.extensions\\6.0.0\\system.windows.extensions.6.0.0.nupkg.sha512"
   ],
   "logs": [
     {
-      "code": "NU1900",
+      "code": "NU1902",
       "level": "Warning",
-      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.",
+      "message": "El paquete \"MailKit\" 4.8.0 tiene una vulnerabilidad de gravedad moderada conocida, https://github.com/advisories/GHSA-9j88-vvj5-vhgr",
       "projectPath": "C:\\repositorios\\agente_ia\\StarMedica\\src\\StarMedica.Infrastructure\\StarMedica.Infrastructure.csproj",
       "warningLevel": 1,
       "filePath": "C:\\repositorios\\agente_ia\\StarMedica\\src\\StarMedica.Infrastructure\\StarMedica.Infrastructure.csproj",
-      "targetGraphs": []
+      "libraryId": "MailKit",
+      "targetGraphs": [
+        "net9.0"
+      ]
     }
   ]
 }
