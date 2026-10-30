@@ -1,13 +1,26 @@
 {
   "version": 2,
-  "dgSpecHash": "pNDt5dZCXJ0=",
+  "dgSpecHash": "/bSAGcbHYeM=",
   "success": true,
   "projectFilePath": "C:\\repositorios\\agente_ia\\StarMedica\\src\\StarMedica.Domain\\StarMedica.Domain.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\byron\\.nuget\\packages\\fluentvalidation\\11.11.0\\fluentvalidation.11.11.0.nupkg.sha512",
     "C:\\Users\\byron\\.nuget\\packages\\mediatr\\12.4.1\\mediatr.12.4.1.nupkg.sha512",
     "C:\\Users\\byron\\.nuget\\packages\\mediatr.contracts\\2.0.1\\mediatr.contracts.2.0.1.nupkg.sha512",
-    "C:\\Users\\byron\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0\\microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512"
+    "C:\\Users\\byron\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0\\microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\byron\\.nuget\\packages\\microsoft.netcore.app.ref\\9.0.15\\microsoft.netcore.app.ref.9.0.15.nupkg.sha512",
+    "C:\\Users\\byron\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\9.0.15\\microsoft.windowsdesktop.app.ref.9.0.15.nupkg.sha512",
+    "C:\\Users\\byron\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\9.0.15\\microsoft.aspnetcore.app.ref.9.0.15.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1900",
+      "level": "Warning",
+      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.",
+      "projectPath": "C:\\repositorios\\agente_ia\\StarMedica\\src\\StarMedica.Domain\\StarMedica.Domain.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\repositorios\\agente_ia\\StarMedica\\src\\StarMedica.Domain\\StarMedica.Domain.csproj",
+      "targetGraphs": []
+    }
+  ]
 }

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "2dJjY6lbnN0=",
+  "dgSpecHash": "4uNTSi0xNwI=",
   "success": true,
   "projectFilePath": "C:\\repositorios\\agente_ia\\StarMedica\\src\\StarMedica.Application\\StarMedica.Application.csproj",
   "expectedPackageFiles": [
@@ -12,18 +12,20 @@
     "C:\\Users\\byron\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0\\microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\byron\\.nuget\\packages\\microsoft.extensions.options\\6.0.0\\microsoft.extensions.options.6.0.0.nupkg.sha512",
     "C:\\Users\\byron\\.nuget\\packages\\microsoft.extensions.primitives\\6.0.0\\microsoft.extensions.primitives.6.0.0.nupkg.sha512",
-    "C:\\Users\\byron\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"
+    "C:\\Users\\byron\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512",
+    "C:\\Users\\byron\\.nuget\\packages\\microsoft.netcore.app.ref\\9.0.15\\microsoft.netcore.app.ref.9.0.15.nupkg.sha512",
+    "C:\\Users\\byron\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\9.0.15\\microsoft.windowsdesktop.app.ref.9.0.15.nupkg.sha512",
+    "C:\\Users\\byron\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\9.0.15\\microsoft.aspnetcore.app.ref.9.0.15.nupkg.sha512"
   ],
   "logs": [
     {
-      "code": "NU1903",
+      "code": "NU1900",
       "level": "Warning",
+      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.",
+      "projectPath": "C:\\repositorios\\agente_ia\\StarMedica\\src\\StarMedica.Application\\StarMedica.Application.csproj",
       "warningLevel": 1,
-      "message": "El paquete \"AutoMapper\" 13.0.1 tiene una vulnerabilidad de gravedad alta conocida, https://github.com/advisories/GHSA-rvv3-g6hj-g44x",
-      "libraryId": "AutoMapper",
-      "targetGraphs": [
-        "net9.0"
-      ]
+      "filePath": "C:\\repositorios\\agente_ia\\StarMedica\\src\\StarMedica.Application\\StarMedica.Application.csproj",
+      "targetGraphs": []
     }
   ]
 }
