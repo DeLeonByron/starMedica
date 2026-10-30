@@ -33,5 +33,14 @@ export const routes: Routes = [
         (component) => component.PatientsListComponent
       )
   },
+  {
+    path: 'appointments',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['SuperAdmin', 'Médico', 'Recepcionista'] },
+    loadComponent: () =>
+      import('./features/appointments/appointments-list.component').then(
+        (component) => component.AppointmentsListComponent
+      )
+  },
   { path: '**', redirectTo: 'auth/login' }
 ];

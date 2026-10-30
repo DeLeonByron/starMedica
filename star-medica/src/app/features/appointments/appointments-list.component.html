@@ -1,0 +1,157 @@
+<section class="sm-appointments" aria-label="Agenda de citas">
+  <header class="sm-appointments__header">
+    <div>
+      <p class="sm-appointments__eyebrow">Agenda clínica</p>
+      <h1>Citas</h1>
+    </div>
+    <button
+      type="button"
+      class="sm-appointments__primary"
+      (click)="openForm()"
+      [disabled]="options().patients.length === 0 || options().doctors.length === 0"
+    >
+      Nueva cita
+    </button>
+  </header>
+
+  <div class="sm-appointments__toolbar">
+    <button type="button" class="sm-appointments__day-button" aria-label="Día anterior" (click)="moveDay(-1)">
+      ‹
+    </button>
+    <label class="sm-appointments__date-label">
+      <span>{{ dayLabel() }}</span>
+      <input type="date" [value]="selectedDate()" (change)="changeDateFromInput($event)" />
+    </label>
+    <button type="button" class="sm-appointments__day-button" aria-label="Día siguiente" (click)="moveDay(1)">
+      ›
+    </button>
+  </div>
+
+  @if (error()) {
+    <p class="sm-appointments__error" role="alert">{{ error() }}</p>
+  }
+
+  @if (options().patients.length === 0 || options().doctors.length === 0) {
+    <p class="sm-appointments__notice">
+      Para agendar, registra un paciente activo y un usuario con rol Médico.
+    </p>
+  }
+
+  @if (isLoading()) {
+    <p class="sm-appointments__muted" role="status">Cargando agenda...</p>
+  } @else if (appointments().length === 0) {
+    <p class="sm-appointments__empty">No hay citas para este día.</p>
+  } @else {
+    <div class="sm-appointments__list">
+      @for (appointment of appointments(); track appointment.id) {
+        <article class="sm-appointment" [class.sm-appointment--cancelled]="appointment.status === 'Cancelled'">
+          <div class="sm-appointment__time">
+            <time>{{ formatTime(appointment.startsAt) }}</time>
+            <span>{{ appointment.durationMinutes }} min</span>
+          </div>
+          <div class="sm-appointment__details">
+            <div class="sm-appointment__title-row">
+              <h2>{{ appointment.patientName }}</h2>
+              <span class="sm-appointment__status"
+                [class.sm-appointment__status--scheduled]="appointment.status === 'Scheduled'"
+                [class.sm-appointment__status--confirmed]="appointment.status === 'Confirmed'"
+                [class.sm-appointment__status--completed]="appointment.status === 'Completed'"
+                [class.sm-appointment__status--cancelled]="appointment.status === 'Cancelled'"
+                [class.sm-appointment__status--no-show]="appointment.status === 'NoShow'">
+                {{ statusLabel(appointment.status) }}
+              </span>
+            </div>
+            <p>{{ appointment.reason }}</p>
+            <span class="sm-appointment__doctor">Dra./Dr. {{ appointment.doctorName }}</span>
+          </div>
+          @if (canClose(appointment)) {
+            <div class="sm-appointment__actions">
+              @if (appointment.status === 'Scheduled') {
+                <button type="button" (click)="changeStatus(appointment, 'Confirmed')">Confirmar</button>
+              } @else {
+                <button type="button" (click)="changeStatus(appointment, 'Completed')">Completar</button>
+              }
+              <button type="button" class="sm-appointment__cancel" (click)="changeStatus(appointment, 'Cancelled')">
+                Cancelar
+              </button>
+              @if (canMarkNoShow(appointment)) {
+                <button type="button" class="sm-appointment__no-show" (click)="changeStatus(appointment, 'NoShow')">
+                  No asistió
+                </button>
+              }
+            </div>
+          }
+        </article>
+      }
+    </div>
+  }
+</section>
+
+@if (isFormOpen()) {
+  <div class="sm-appointments__backdrop" (click)="closeForm()">
+    <section
+      class="sm-appointments__dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="appointment-form-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="sm-appointments__dialog-header">
+        <div>
+          <p class="sm-appointments__eyebrow">Programación</p>
+          <h2 id="appointment-form-title">Nueva cita</h2>
+        </div>
+        <button type="button" class="sm-appointments__close" aria-label="Cerrar" (click)="closeForm()">×</button>
+      </header>
+
+      <form #appointmentForm="ngForm" (ngSubmit)="createAppointment()">
+        <div class="sm-appointments__form-grid">
+          <label>
+            Paciente
+            <select name="patientId" [(ngModel)]="form.patientId" required>
+              @for (patient of options().patients; track patient.id) {
+                <option [ngValue]="patient.id">{{ patient.name }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            Médico
+            <select name="doctorId" [(ngModel)]="form.doctorId" required>
+              @for (doctor of options().doctors; track doctor.id) {
+                <option [ngValue]="doctor.id">{{ doctor.name }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            Fecha y hora
+            <input name="startsAt" type="datetime-local" [(ngModel)]="form.startsAt" required />
+          </label>
+          <label>
+            Duración
+            <select name="durationMinutes" [(ngModel)]="form.durationMinutes" required>
+              <option [ngValue]="15">15 minutos</option>
+              <option [ngValue]="30">30 minutos</option>
+              <option [ngValue]="45">45 minutos</option>
+              <option [ngValue]="60">60 minutos</option>
+            </select>
+          </label>
+          <label class="sm-appointments__form-wide">
+            Motivo
+            <input name="reason" [(ngModel)]="form.reason" required maxlength="500" />
+          </label>
+        </div>
+
+        @if (formError()) {
+          <p class="sm-appointments__error" role="alert">{{ formError() }}</p>
+        }
+
+        <footer class="sm-appointments__form-actions">
+          <button type="button" class="sm-appointments__secondary" (click)="closeForm()">Cerrar</button>
+          <button type="submit" class="sm-appointments__primary" [disabled]="appointmentForm.invalid || isSaving()">
+            {{ isSaving() ? 'Guardando...' : 'Guardar cita' }}
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+}

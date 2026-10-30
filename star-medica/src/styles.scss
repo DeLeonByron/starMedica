@@ -1,1 +1,33 @@
 /* You can add global styles to this file, and also import other style files */
+
+.sm-appointment {
+	display: grid;
+	grid-template-columns: 78px minmax(0, 1fr) auto;
+	gap: 1rem;
+	padding: 1rem;
+	border: 1px solid var(--sm-border);
+	border-left: 4px solid var(--sm-primary);
+	border-radius: 10px;
+	background: var(--sm-soft);
+}
+
+.sm-appointment--cancelled { border-left-color: var(--sm-muted); opacity: 0.75; }
+.sm-appointment__time { display: grid; align-content: start; gap: 0.25rem; }
+.sm-appointment__time time { font-size: 1.2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.sm-appointment__time span, .sm-appointment__doctor { color: var(--sm-muted); font-size: 0.82rem; }
+.sm-appointment__details { min-width: 0; }
+.sm-appointment__title-row { flex-wrap: wrap; }
+.sm-appointment__title-row h2 { margin: 0; font-size: 1rem; }
+.sm-appointment__details p { margin: 0.45rem 0; overflow-wrap: anywhere; }
+.sm-appointment__status { padding: 0.2rem 0.5rem; border-radius: 999px; background: var(--sm-warning-soft); color: var(--sm-warning); font-size: 0.74rem; white-space: nowrap; }
+.sm-appointment__status--confirmed, .sm-appointment__status--completed { background: var(--sm-success-soft); color: var(--sm-success); }
+.sm-appointment__status--cancelled, .sm-appointment__status--no-show { background: var(--sm-danger-soft); color: var(--sm-danger); }
+.sm-appointment__actions { display: grid; align-content: center; gap: 0.35rem; }
+.sm-appointment__actions button { min-height: 32px; border: 0; border-radius: 6px; padding: 0.35rem 0.6rem; background: var(--sm-primary); color: var(--sm-surface); font: inherit; font-size: 0.78rem; cursor: pointer; }
+.sm-appointment__actions .sm-appointment__cancel, .sm-appointment__actions .sm-appointment__no-show { background: transparent; color: var(--sm-muted); }
+.sm-appointment__actions .sm-appointment__cancel:hover { color: var(--sm-danger); }
+
+@media (max-width: 760px) {
+	.sm-appointment { grid-template-columns: 64px minmax(0, 1fr); }
+	.sm-appointment__actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: flex-end; }
+}

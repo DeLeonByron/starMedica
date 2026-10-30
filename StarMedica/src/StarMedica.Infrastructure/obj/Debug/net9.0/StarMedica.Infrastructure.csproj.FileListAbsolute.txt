@@ -36,3 +36,4 @@ C:\repositorios\agente_ia\StarMedica\src\StarMedica.Infrastructure\obj\Debug\net
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.Infrastructure\obj\Debug\net9.0\StarMedica.Infrastructure.pdb
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.Infrastructure\obj\Debug\net9.0\StarMedica.Infrastructure.genruntimeconfig.cache
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.Infrastructure\obj\Debug\net9.0\ref\StarMedica.Infrastructure.dll
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.Infrastructure\obj\Debug\net9.0\StarMedica.Infrastructure.sourcelink.json

@@ -10,3 +10,4 @@ C:\repositorios\agente_ia\StarMedica\src\StarMedica.Domain\obj\Debug\net9.0\Star
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.Domain\obj\Debug\net9.0\refint\StarMedica.Domain.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.Domain\obj\Debug\net9.0\StarMedica.Domain.pdb
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.Domain\obj\Debug\net9.0\ref\StarMedica.Domain.dll
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.Domain\obj\Debug\net9.0\StarMedica.Domain.sourcelink.json

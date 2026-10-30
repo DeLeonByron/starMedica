@@ -13,3 +13,4 @@ C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\obj\Debug\net9.0
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\obj\Debug\net9.0\refint\StarMedica.Application.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\obj\Debug\net9.0\StarMedica.Application.pdb
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\obj\Debug\net9.0\ref\StarMedica.Application.dll
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.Application\obj\Debug\net9.0\StarMedica.Application.sourcelink.json

@@ -1,0 +1,50 @@
+:host {
+  --sm-ink: #17362f;
+  --sm-muted: #60756e;
+  --sm-primary: #176f5b;
+  --sm-border: #d3e2dc;
+  --sm-surface: #fff;
+  --sm-soft: #f5f9f6;
+  --sm-danger: #a83939;
+  --sm-danger-soft: #fff1f0;
+  --sm-success: #216b4b;
+  --sm-success-soft: #e3f3e9;
+  --sm-warning: #855b13;
+  --sm-warning-soft: #fff3d9;
+  display: block;
+}
+
+.sm-appointments { padding: 1.5rem; border: 1px solid var(--sm-border); border-radius: 12px; background: var(--sm-surface); color: var(--sm-ink); }
+.sm-appointments__header, .sm-appointments__toolbar, .sm-appointments__title-row, .sm-appointments__form-actions { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.sm-appointments__header { margin-bottom: 1.25rem; }
+.sm-appointments__header h1 { margin: .3rem 0 0; font-size: 1.8rem; }
+.sm-appointments__eyebrow { margin: 0; color: var(--sm-primary); font-size: .76rem; font-weight: 700; text-transform: uppercase; }
+.sm-appointments__primary, .sm-appointments__secondary { min-height: 42px; border: 0; border-radius: 8px; padding: .65rem 1rem; font: inherit; font-weight: 700; cursor: pointer; }
+.sm-appointments__primary { background: var(--sm-primary); color: var(--sm-surface); }
+.sm-appointments__primary:hover:not(:disabled) { background: #105544; }
+.sm-appointments__primary:disabled { cursor: not-allowed; opacity: .55; }
+.sm-appointments__secondary { border: 1px solid var(--sm-border); background: var(--sm-surface); color: var(--sm-ink); }
+.sm-appointments__toolbar { justify-content: center; margin: 1.25rem 0; padding: .85rem; border-block: 1px solid var(--sm-border); }
+.sm-appointments__day-button, .sm-appointments__close { width: 40px; height: 40px; border: 1px solid var(--sm-border); border-radius: 8px; background: var(--sm-surface); color: var(--sm-ink); font-size: 1.3rem; cursor: pointer; }
+.sm-appointments__date-label { display: grid; gap: .3rem; text-align: center; font-weight: 700; text-transform: capitalize; }
+.sm-appointments__date-label input { border: 0; color: var(--sm-muted); font: inherit; text-align: center; }
+.sm-appointments__list { display: grid; gap: .75rem; }
+.sm-appointments__muted, .sm-appointments__empty { color: var(--sm-muted); }
+.sm-appointments__notice, .sm-appointments__error { margin: .75rem 0; padding: .75rem 1rem; border-radius: 8px; }
+.sm-appointments__notice { background: var(--sm-warning-soft); color: var(--sm-warning); }
+.sm-appointments__error { border: 1px solid var(--sm-danger); background: var(--sm-danger-soft); color: var(--sm-danger); }
+.sm-appointments__backdrop { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; overflow-y: auto; padding: 1rem; background: rgba(11, 27, 24, .58); }
+.sm-appointments__dialog { width: min(100%, 620px); max-height: calc(100vh - 2rem); overflow-y: auto; box-sizing: border-box; padding: 1.5rem; border: 1px solid var(--sm-border); border-radius: 12px; background: var(--sm-surface); }
+.sm-appointments__dialog-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+.sm-appointments__dialog-header h2 { margin: .3rem 0 0; font-size: 1.35rem; }
+.sm-appointments__form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.sm-appointments__form-grid label { display: grid; gap: .4rem; color: var(--sm-ink); font-size: .9rem; font-weight: 600; }
+.sm-appointments__form-grid input, .sm-appointments__form-grid select { width: 100%; min-height: 42px; box-sizing: border-box; border: 1px solid var(--sm-border); border-radius: 8px; padding: .6rem .7rem; background: var(--sm-surface); color: var(--sm-ink); font: inherit; }
+.sm-appointments__form-grid input:focus-visible, .sm-appointments__form-grid select:focus-visible { outline: 2px solid var(--sm-primary); outline-offset: 1px; }
+.sm-appointments__form-wide { grid-column: 1 / -1; }
+.sm-appointments__form-actions { justify-content: flex-end; margin-top: 1.5rem; }
+@media (max-width: 520px) {
+  .sm-appointments { padding: 1rem; }
+  .sm-appointments__form-grid { grid-template-columns: 1fr; }
+  .sm-appointments__form-wide { grid-column: auto; }
+}

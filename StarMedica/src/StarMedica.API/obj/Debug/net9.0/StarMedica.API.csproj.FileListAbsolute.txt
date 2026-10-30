@@ -137,12 +137,6 @@ C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\scopedc
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\staticwebassets.build.json
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\staticwebassets.development.json
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\staticwebassets.build.endpoints.json
-C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\staticwebassets\msbuild.StarMedica.API.Microsoft.AspNetCore.StaticWebAssets.props
-C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\staticwebassets\msbuild.StarMedica.API.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
-C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\staticwebassets\msbuild.build.StarMedica.API.props
-C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\staticwebassets\msbuild.buildMultiTargeting.StarMedica.API.props
-C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\staticwebassets\msbuild.buildTransitive.StarMedica.API.props
-C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\staticwebassets.pack.json
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\StarMedi.ED0DB0F5.Up2Date
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\StarMedica.API.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\refint\StarMedica.API.dll
@@ -229,3 +223,10 @@ C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\ru\Micr
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\StarMedica.API.sourcelink.json
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\staticwebassets\msbuild.StarMedica.API.Microsoft.AspNetCore.StaticWebAssets.props
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\staticwebassets\msbuild.StarMedica.API.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\staticwebassets\msbuild.build.StarMedica.API.props
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\staticwebassets\msbuild.buildMultiTargeting.StarMedica.API.props
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\staticwebassets\msbuild.buildTransitive.StarMedica.API.props
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\staticwebassets.pack.json

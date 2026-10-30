@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<Patient> Patients => Set<Patient>();
+    public DbSet<Appointment> Appointments => Set<Appointment>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
