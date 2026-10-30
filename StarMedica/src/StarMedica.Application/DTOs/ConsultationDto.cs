@@ -1,0 +1,25 @@
+namespace StarMedica.Application.DTOs;
+
+public sealed record ConsultationDto(
+    int Id,
+    int PatientId,
+    string PatientName,
+    int DoctorId,
+    string DoctorName,
+    int? AppointmentId,
+    DateTimeOffset ConsultedAt,
+    string ChiefComplaint,
+    string PresentIllness,
+    string PhysicalExam,
+    string DiagnosisCode,
+    string DiagnosisDescription,
+    string TreatmentPlan,
+    string? Notes,
+    decimal? WeightKg,
+    decimal? HeightCm,
+    decimal? TemperatureCelsius,
+    int? HeartRateBpm,
+    int? RespiratoryRatePerMinute,
+    int? SystolicBloodPressure,
+    int? DiastolicBloodPressure,
+    int? OxygenSaturationPercent);

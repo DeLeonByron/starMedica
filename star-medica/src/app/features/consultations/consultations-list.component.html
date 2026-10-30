@@ -1,0 +1,145 @@
+<section class="sm-consultations" aria-label="Expediente clínico">
+  <header class="sm-consultations__header">
+    <div>
+      <p class="sm-consultations__eyebrow">Atención pediátrica</p>
+      <h1>Expediente clínico</h1>
+    </div>
+    <label class="sm-consultations__patient-select">
+      <span>Paciente</span>
+      <select [value]="selectedPatientId() ?? ''" (change)="selectPatient($event)" [disabled]="isLoadingPatients()">
+        <option value="">Selecciona un paciente</option>
+        @for (patient of patients(); track patient.id) {
+          <option [value]="patient.id">{{ patient.fullName }}</option>
+        }
+      </select>
+    </label>
+  </header>
+
+  @if (error()) {
+    <p class="sm-consultations__error" role="alert">{{ error() }}</p>
+  }
+
+  @if (!selectedPatientId() && !isLoadingPatients()) {
+    <p class="sm-consultations__empty">Selecciona un paciente para consultar o crear su expediente.</p>
+  } @else if (selectedPatientId()) {
+    <div class="sm-consultations__section-heading">
+      <h2>Historial</h2>
+      <button type="button" class="sm-consultations__primary" (click)="openForm()">Nueva consulta</button>
+    </div>
+
+    @if (isLoadingHistory()) {
+      <p class="sm-consultations__muted" role="status">Cargando expediente...</p>
+    } @else if (consultations().length === 0) {
+      <p class="sm-consultations__empty">Este paciente aún no tiene consultas registradas.</p>
+    } @else {
+      <div class="sm-consultations__history">
+        @for (consultation of consultations(); track consultation.id) {
+          <article class="sm-consultation">
+            <header class="sm-consultation__header">
+              <div>
+                <time>{{ consultation.consultedAt | date:'dd/MM/yyyy HH:mm':'America/Guatemala' }}</time>
+                <h3>{{ consultation.diagnosisCode }} · {{ consultation.diagnosisDescription }}</h3>
+              </div>
+              <span>Dr. {{ consultation.doctorName }}</span>
+            </header>
+            <dl class="sm-consultation__summary">
+              <div><dt>Motivo</dt><dd>{{ consultation.chiefComplaint }}</dd></div>
+              <div><dt>Historia actual</dt><dd>{{ consultation.presentIllness }}</dd></div>
+              <div><dt>Examen físico</dt><dd>{{ consultation.physicalExam }}</dd></div>
+              <div><dt>Plan</dt><dd>{{ consultation.treatmentPlan }}</dd></div>
+            </dl>
+            <div class="sm-consultation__vitals">
+              @if (consultation.weightKg !== null) { <span>Peso {{ consultation.weightKg }} kg</span> }
+              @if (consultation.heightCm !== null) { <span>Talla {{ consultation.heightCm }} cm</span> }
+              @if (consultation.temperatureCelsius !== null) { <span>Temp. {{ consultation.temperatureCelsius }} °C</span> }
+              @if (consultation.heartRateBpm !== null) { <span>FC {{ consultation.heartRateBpm }} lpm</span> }
+              @if (consultation.respiratoryRatePerMinute !== null) { <span>FR {{ consultation.respiratoryRatePerMinute }}/min</span> }
+              @if (consultation.systolicBloodPressure !== null && consultation.diastolicBloodPressure !== null) {
+                <span>PA {{ consultation.systolicBloodPressure }}/{{ consultation.diastolicBloodPressure }} mmHg</span>
+              }
+              @if (consultation.oxygenSaturationPercent !== null) { <span>SpO₂ {{ consultation.oxygenSaturationPercent }}%</span> }
+            </div>
+            @if (consultation.notes) { <p class="sm-consultation__notes">{{ consultation.notes }}</p> }
+          </article>
+        }
+      </div>
+    }
+  }
+</section>
+
+@if (isFormOpen()) {
+  <div class="sm-consultations__backdrop" (click)="closeForm()">
+    <section class="sm-consultations__dialog" role="dialog" aria-modal="true" aria-labelledby="consultation-form-title" (click)="$event.stopPropagation()">
+      <header class="sm-consultations__dialog-header">
+        <div><p class="sm-consultations__eyebrow">Registro clínico</p><h2 id="consultation-form-title">Nueva consulta</h2></div>
+        <button type="button" class="sm-consultations__close" aria-label="Cerrar" (click)="closeForm()">×</button>
+      </header>
+
+      <form #consultationForm="ngForm" (ngSubmit)="createConsultation()">
+        <div class="sm-consultations__form-grid">
+          <label class="sm-consultations__wide">
+            Cita relacionada (opcional)
+            <select name="appointmentId" [ngModel]="form.appointmentId" (change)="selectAppointment($event)">
+              <option [ngValue]="null">Consulta sin cita</option>
+              @for (appointment of appointments(); track appointment.id) {
+                <option [ngValue]="appointment.id">
+                  {{ appointment.startsAt | date:'dd/MM/yyyy HH:mm':'America/Guatemala' }} · {{ appointment.reason }}
+                </option>
+              }
+            </select>
+          </label>
+          <label>
+            Motivo de consulta <span>*</span>
+            <input name="chiefComplaint" [(ngModel)]="form.chiefComplaint" required maxlength="300" />
+          </label>
+          <label>
+            Código CIE-10 <span>*</span>
+            <input name="diagnosisCode" [(ngModel)]="form.diagnosisCode" required maxlength="10" pattern="[A-Za-z][0-9][0-9A-Za-z](\.[0-9A-Za-z]{1,4})?" />
+          </label>
+          <label class="sm-consultations__wide">
+            Descripción diagnóstica <span>*</span>
+            <input name="diagnosisDescription" [(ngModel)]="form.diagnosisDescription" required maxlength="500" />
+          </label>
+          <label class="sm-consultations__wide">
+            Historia de la enfermedad actual <span>*</span>
+            <textarea name="presentIllness" [(ngModel)]="form.presentIllness" required maxlength="2000" rows="3"></textarea>
+          </label>
+          <label class="sm-consultations__wide">
+            Examen físico <span>*</span>
+            <textarea name="physicalExam" [(ngModel)]="form.physicalExam" required maxlength="5000" rows="3"></textarea>
+          </label>
+          <fieldset class="sm-consultations__wide">
+            <legend>Signos vitales</legend>
+            <div class="sm-consultations__vital-grid">
+              <label>Peso (kg)<input name="weightKg" type="number" min="0.1" max="200" step="0.01" [(ngModel)]="form.weightKg" /></label>
+              <label>Talla (cm)<input name="heightCm" type="number" min="20" max="250" step="0.1" [(ngModel)]="form.heightCm" /></label>
+              <label>Temperatura (°C)<input name="temperatureCelsius" type="number" min="30" max="45" step="0.1" [(ngModel)]="form.temperatureCelsius" /></label>
+              <label>Frecuencia cardíaca<input name="heartRateBpm" type="number" min="20" max="250" [(ngModel)]="form.heartRateBpm" /></label>
+              <label>Frecuencia respiratoria<input name="respiratoryRatePerMinute" type="number" min="5" max="100" [(ngModel)]="form.respiratoryRatePerMinute" /></label>
+              <label>Presión sistólica<input name="systolicBloodPressure" type="number" min="40" max="250" [(ngModel)]="form.systolicBloodPressure" /></label>
+              <label>Presión diastólica<input name="diastolicBloodPressure" type="number" min="20" max="150" [(ngModel)]="form.diastolicBloodPressure" /></label>
+              <label>Saturación O₂ (%)<input name="oxygenSaturationPercent" type="number" min="50" max="100" [(ngModel)]="form.oxygenSaturationPercent" /></label>
+            </div>
+          </fieldset>
+          <label class="sm-consultations__wide">
+            Plan de tratamiento <span>*</span>
+            <textarea name="treatmentPlan" [(ngModel)]="form.treatmentPlan" required maxlength="3000" rows="3"></textarea>
+          </label>
+          <label class="sm-consultations__wide">
+            Notas adicionales
+            <textarea name="notes" [(ngModel)]="form.notes" maxlength="2000" rows="2"></textarea>
+          </label>
+        </div>
+
+        @if (formError()) { <p class="sm-consultations__error" role="alert">{{ formError() }}</p> }
+
+        <footer class="sm-consultations__form-actions">
+          <button type="button" class="sm-consultations__secondary" (click)="closeForm()">Cerrar</button>
+          <button type="submit" class="sm-consultations__primary" [disabled]="consultationForm.invalid || isSaving()">
+            {{ isSaving() ? 'Guardando...' : 'Guardar expediente' }}
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+}

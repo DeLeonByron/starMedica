@@ -114,4 +114,31 @@ public sealed class AppointmentRepository : Repository<Appointment>, IAppointmen
             .OrderBy(doctor => doctor.FullName)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<Appointment>> GetAvailableForConsultationAsync(
+        int patientId,
+        CancellationToken cancellationToken = default)
+    {
+        var now = DateTimeOffset.UtcNow;
+        return await _context.Appointments
+            .AsNoTracking()
+            .Include(appointment => appointment.Doctor)
+            .Where(appointment => appointment.PatientId == patientId &&
+                appointment.StartsAt <= now &&
+                (appointment.Status == AppointmentStatus.Scheduled ||
+                 appointment.Status == AppointmentStatus.Confirmed) &&
+                !_context.Consultations.Any(consultation => consultation.AppointmentId == appointment.Id))
+            .OrderByDescending(appointment => appointment.StartsAt)
+            .Select(appointment => new Appointment
+            {
+                Id = appointment.Id,
+                PatientId = appointment.PatientId,
+                DoctorId = appointment.DoctorId,
+                Doctor = appointment.Doctor,
+                StartsAt = appointment.StartsAt,
+                Reason = appointment.Reason
+            })
+            .Take(100)
+            .ToListAsync(cancellationToken);
+    }
 }

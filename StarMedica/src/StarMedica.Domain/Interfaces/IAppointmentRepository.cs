@@ -14,4 +14,7 @@ public interface IAppointmentRepository : IRepository<Appointment>
         CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Patient>> GetActivePatientsAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<User>> GetActiveDoctorsAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Appointment>> GetAvailableForConsultationAsync(
+        int patientId,
+        CancellationToken cancellationToken = default);
 }

@@ -1,0 +1,26 @@
+# .NET build outputs
+**/bin/
+**/obj/
+**/TestResults/
+*.user
+*.suo
+
+# Angular build outputs and dependencies
+**/node_modules/
+**/dist/
+**/.angular/
+
+# Local secrets and logs
+**/appsettings.Development.json
+**/appsettings.Staging.json
+**/appsettings.Production.json
+**/logs/
+**/*.log
+**/.env
+**/.env.*
+
+# IDE and OS files
+.vs/
+.idea/
+.DS_Store
+Thumbs.db

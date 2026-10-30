@@ -53,3 +53,13 @@ En Staging/Production, configura mediante el proveedor de secretos:
 - `BootstrapAdminEmail` solo durante el bootstrap inicial
 
 La aplicación falla al iniciar si falta conexión, clave JWT, issuer, audience u origen permitido. No hay despliegue remoto configurado en este workspace.
+
+## Expediente clínico
+
+Las consultas clínicas son registros inmutables: se crean con `POST /api/consultations` y se leen por `GET /api/consultations/{id}` o `GET /api/consultations/patients/{patientId}`. Solo perfiles `Médico` y `SuperAdmin` pueden acceder. El médico se obtiene del JWT, no del body. El command valida el formato CIE-10, los rangos de signos vitales y la presión arterial; al vincular una cita, la completa en la misma transacción y no permite reutilizarla.
+
+Validación local del backend:
+
+```powershell
+dotnet test StarMedica.sln
+```
