@@ -1,0 +1,327 @@
+:host {
+  --sm-ink: #17362f;
+  --sm-muted: #60756e;
+  --sm-primary: #176f5b;
+  --sm-border: #d3e2dc;
+  --sm-surface: #fff;
+  --sm-soft: #f5f9f6;
+  --sm-warning: #855b13;
+  --sm-warning-soft: #fff3d9;
+  --sm-danger: #a83939;
+  --sm-danger-soft: #fff1f0;
+  --sm-success: #216b4b;
+  display: block;
+}
+
+.sm-billing {
+  padding: 1.5rem;
+  border: 1px solid var(--sm-border);
+  border-radius: 12px;
+  background: var(--sm-surface);
+  color: var(--sm-ink);
+}
+
+.sm-billing__header,
+.sm-billing__section-header,
+.sm-billing__lines-header,
+.sm-billing__form-footer,
+.sm-billing__draft-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.sm-billing__header {
+  margin-bottom: 1rem;
+}
+
+.sm-billing__header h1,
+.sm-billing__section-header h2,
+.sm-billing__lines-header h3,
+.sm-billing__draft h3 {
+  margin: 0.3rem 0 0;
+}
+
+.sm-billing__header h1 {
+  font-size: 1.8rem;
+}
+
+.sm-billing__section-header h2 {
+  font-size: 1.1rem;
+}
+
+.sm-billing__eyebrow {
+  margin: 0;
+  color: var(--sm-primary);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.sm-billing__notice {
+  margin: 1rem 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid #e8d7ad;
+  border-radius: 8px;
+  background: var(--sm-warning-soft);
+  color: var(--sm-warning);
+}
+
+.sm-billing__section {
+  margin-top: 1.5rem;
+  padding: 1.15rem;
+  border: 1px solid var(--sm-border);
+  border-radius: 10px;
+  background: var(--sm-soft);
+}
+
+.sm-billing__section-header {
+  margin-bottom: 1rem;
+}
+
+.sm-billing__form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.sm-billing__form-grid label,
+.sm-billing__line label {
+  display: grid;
+  gap: 0.4rem;
+  color: var(--sm-ink);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.sm-billing__form-grid label span,
+.sm-billing__line label span {
+  color: var(--sm-danger);
+}
+
+.sm-billing__form-grid input,
+.sm-billing__form-grid textarea,
+.sm-billing__line input {
+  width: 100%;
+  min-height: 42px;
+  box-sizing: border-box;
+  border: 1px solid var(--sm-border);
+  border-radius: 8px;
+  padding: 0.6rem 0.7rem;
+  background: var(--sm-surface);
+  color: var(--sm-ink);
+  font: inherit;
+}
+
+.sm-billing__form-grid textarea {
+  resize: vertical;
+}
+
+.sm-billing__form-grid input:focus-visible,
+.sm-billing__form-grid textarea:focus-visible,
+.sm-billing__line input:focus-visible {
+  outline: 2px solid var(--sm-primary);
+  outline-offset: 1px;
+}
+
+.sm-billing__wide {
+  grid-column: 1 / -1;
+}
+
+.sm-billing__lines-header {
+  margin: 1.4rem 0 0.8rem;
+}
+
+.sm-billing__lines {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.sm-billing__line {
+  display: grid;
+  grid-template-columns: minmax(12rem, 2fr) minmax(7rem, 0.7fr) minmax(9rem, 0.9fr) auto auto;
+  align-items: end;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border: 1px solid var(--sm-border);
+  border-radius: 8px;
+  background: var(--sm-surface);
+}
+
+.sm-billing__line-total {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 7rem;
+  padding-bottom: 0.55rem;
+  color: var(--sm-muted);
+  font-size: 0.8rem;
+}
+
+.sm-billing__line-total strong {
+  color: var(--sm-ink);
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.sm-billing__primary,
+.sm-billing__secondary,
+.sm-billing__remove {
+  min-height: 40px;
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sm-billing__primary {
+  border: 0;
+  background: var(--sm-primary);
+  color: var(--sm-surface);
+}
+
+.sm-billing__secondary {
+  border: 1px solid var(--sm-border);
+  background: var(--sm-surface);
+  color: var(--sm-ink);
+}
+
+.sm-billing__remove {
+  border: 1px solid #e8c5c2;
+  background: var(--sm-danger-soft);
+  color: var(--sm-danger);
+}
+
+.sm-billing__primary:disabled,
+.sm-billing__secondary:disabled,
+.sm-billing__remove:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.sm-billing__form-footer {
+  justify-content: flex-end;
+  margin-top: 1.2rem;
+}
+
+.sm-billing__form-footer p {
+  margin-right: auto;
+  font-size: 1.05rem;
+}
+
+.sm-billing__form-footer strong,
+.sm-billing__draft-header > strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.sm-billing__error,
+.sm-billing__success {
+  margin: 0.75rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+}
+
+.sm-billing__error {
+  border: 1px solid var(--sm-danger);
+  background: var(--sm-danger-soft);
+  color: var(--sm-danger);
+}
+
+.sm-billing__success {
+  border: 1px solid #b5d8c4;
+  background: #eef8f1;
+  color: var(--sm-success);
+}
+
+.sm-billing__empty,
+.sm-billing__muted {
+  color: var(--sm-muted);
+}
+
+.sm-billing__draft-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.sm-billing__draft {
+  padding: 1rem;
+  border: 1px solid var(--sm-border);
+  border-radius: 9px;
+  background: var(--sm-surface);
+}
+
+.sm-billing__draft-header h3 {
+  margin-top: 0;
+  font-size: 1rem;
+}
+
+.sm-billing__draft-header time,
+.sm-billing__draft .sm-billing__muted {
+  color: var(--sm-muted);
+  font-size: 0.85rem;
+}
+
+.sm-billing__customer {
+  margin: 0.75rem 0;
+  font-weight: 600;
+}
+
+.sm-billing__draft details {
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--sm-border);
+}
+
+.sm-billing__draft summary {
+  color: var(--sm-primary);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sm-billing__draft-lines {
+  display: grid;
+  gap: 0.45rem;
+  padding-left: 1.25rem;
+}
+
+.sm-billing__draft-lines li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+@media (max-width: 850px) {
+  .sm-billing__line {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .sm-billing {
+    padding: 1rem;
+  }
+
+  .sm-billing__section {
+    padding: 0.85rem;
+  }
+
+  .sm-billing__form-grid,
+  .sm-billing__line {
+    grid-template-columns: 1fr;
+  }
+
+  .sm-billing__wide {
+    grid-column: auto;
+  }
+
+  .sm-billing__form-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .sm-billing__draft-lines li {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+}

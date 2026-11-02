@@ -63,3 +63,17 @@ Validación local del backend:
 ```powershell
 dotnet test StarMedica.sln
 ```
+
+## Facturación interna (borradores)
+
+La primera entrega de facturación permite crear y consultar borradores internos mediante `/api/billing/drafts`. No emite ni certifica documentos FEL, no calcula impuestos y no procesa pagos. El módulo está limitado a `SuperAdmin` y `Recepcionista`; los totales se calculan en el servidor a partir de conceptos manuales.
+
+El esquema local se define en `database/20261101_CreateBillingDrafts.sql`. Ejecútalo antes de registrar la migración EF en una base existente:
+
+```powershell
+sqlcmd -S '(localdb)\MSSQLLocalDB' -E -d StarMedicaDB -b -i database\20261101_CreateBillingDrafts.sql
+$env:ASPNETCORE_ENVIRONMENT = 'Development'
+dotnet tool run dotnet-ef database update --project src\StarMedica.Infrastructure --startup-project src\StarMedica.API
+```
+
+La migración `20261101_CreateBillingDrafts` verifica las tablas antes de crearlas para que el flujo SQL → EF sea repetible. No se debe presentar un borrador como factura fiscal.

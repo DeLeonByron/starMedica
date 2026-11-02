@@ -1,0 +1,108 @@
+<section class="sm-pharmacy" aria-label="Farmacia e inventario">
+  <header class="sm-pharmacy__header">
+    <div><p class="sm-pharmacy__eyebrow">Inventario clínico</p><h1>Farmacia</h1></div>
+    <div class="sm-pharmacy__toolbar">
+      @if (isSuperAdmin()) { <button type="button" class="sm-pharmacy__secondary" (click)="openMedicineForm()">Nuevo medicamento</button> }
+      @if (canManageStock() && medicines().length > 0) {
+        <button type="button" class="sm-pharmacy__secondary" (click)="openReceiptForm()">Recibir lote</button>
+        <button type="button" class="sm-pharmacy__primary" (click)="openDispenseForm()">Despachar</button>
+      }
+    </div>
+  </header>
+
+  @if (error()) { <p class="sm-pharmacy__error" role="alert">{{ error() }}</p> }
+  @if (isLoading()) {
+    <p class="sm-pharmacy__muted" role="status">Cargando inventario...</p>
+  } @else if (medicines().length === 0) {
+    <p class="sm-pharmacy__empty">No hay medicamentos en el catálogo. Un SuperAdmin puede agregarlos.</p>
+  } @else {
+    <section class="sm-pharmacy__section" aria-labelledby="inventory-title">
+      <header class="sm-pharmacy__section-header"><h2 id="inventory-title">Existencias por lote</h2></header>
+      <div class="sm-pharmacy__medicine-list">
+        @for (medicine of medicines(); track medicine.id) {
+          <article class="sm-medicine">
+            <header class="sm-medicine__header">
+              <div><span class="sm-medicine__code">{{ medicine.code }}</span><h3>{{ medicine.name }}</h3><p>{{ medicine.activeIngredient }} · {{ medicine.strength }} · {{ medicine.dosageForm }}</p></div>
+              <div class="sm-medicine__total" [class.sm-medicine__total--low]="isBelowReorderLevel(medicine)">
+                <strong>{{ availableQuantity(medicine.id) }} {{ medicine.stockUnit }}</strong>
+                <span>{{ isBelowReorderLevel(medicine) ? 'Bajo mínimo' : 'Disponible' }}</span>
+              </div>
+            </header>
+            @if (stockForMedicine(medicine.id).length === 0) {
+              <p class="sm-medicine__empty">Sin lotes registrados.</p>
+            } @else {
+              <div class="sm-medicine__batches">
+                @for (batch of stockForMedicine(medicine.id); track batch.id) {
+                  <div class="sm-batch" [class.sm-batch--expired]="isExpired(batch)">
+                    <span>Lote {{ batch.batchNumber }}</span>
+                    <span>{{ batch.quantityAvailable }} {{ medicine.stockUnit }}</span>
+                    <span>Vence {{ batch.expiresOn | date:'dd/MM/yyyy':'America/Guatemala' }}</span>
+                    @if (isExpired(batch)) { <strong>Vencido</strong> }
+                  </div>
+                }
+              </div>
+            }
+          </article>
+        }
+      </div>
+    </section>
+  }
+
+  <section class="sm-pharmacy__section" aria-labelledby="movement-title">
+    <header class="sm-pharmacy__section-header"><h2 id="movement-title">Movimientos recientes</h2></header>
+    @if (movements().length === 0) {
+      <p class="sm-pharmacy__empty">Aún no hay movimientos de inventario.</p>
+    } @else {
+      <div class="sm-pharmacy__movement-list">
+        @for (movement of movements(); track movement.id) {
+          <article class="sm-movement">
+            <div><span class="sm-movement__type" [class.sm-movement__type--dispensed]="movement.type === 'Dispensed'">{{ movementTypeLabel(movement.type) }}</span><h3>{{ movement.medicineName }}</h3><span>Lote {{ movement.batchNumber }}</span></div>
+            <div class="sm-movement__meta"><strong>{{ movement.quantity }}</strong><time>{{ movement.occurredAt | date:'dd/MM/yyyy HH:mm':'America/Guatemala' }}</time><span>{{ movement.performedByName }}</span></div>
+            @if (movement.patientName) { <span class="sm-movement__patient">Paciente: {{ movement.patientName }}</span> }
+            @if (movement.reference) { <span class="sm-movement__reference">Ref. {{ movement.reference }}</span> }
+          </article>
+        }
+      </div>
+    }
+  </section>
+</section>
+
+@if (isMedicineFormOpen()) {
+  <div class="sm-pharmacy__backdrop" (click)="closeForms()"><section class="sm-pharmacy__dialog" role="dialog" aria-modal="true" aria-labelledby="medicine-form-title" (click)="$event.stopPropagation()">
+    <header class="sm-pharmacy__dialog-header"><div><p class="sm-pharmacy__eyebrow">Catálogo</p><h2 id="medicine-form-title">Nuevo medicamento</h2></div><button type="button" class="sm-pharmacy__close" aria-label="Cerrar" (click)="closeForms()">×</button></header>
+    <form #medicineFormElement="ngForm" (ngSubmit)="createMedicine()"><div class="sm-pharmacy__form-grid">
+      <label>Código <span>*</span><input name="code" [(ngModel)]="medicineForm.code" required maxlength="40" /></label>
+      <label>Nombre <span>*</span><input name="name" [(ngModel)]="medicineForm.name" required maxlength="200" /></label>
+      <label>Principio activo <span>*</span><input name="activeIngredient" [(ngModel)]="medicineForm.activeIngredient" required maxlength="200" /></label>
+      <label>Concentración <span>*</span><input name="strength" [(ngModel)]="medicineForm.strength" required maxlength="100" /></label>
+      <label>Forma farmacéutica <span>*</span><input name="dosageForm" [(ngModel)]="medicineForm.dosageForm" required maxlength="100" /></label>
+      <label>Unidad de inventario <span>*</span><input name="stockUnit" [(ngModel)]="medicineForm.stockUnit" required maxlength="40" /></label>
+      <label>Mínimo de reposición <span>*</span><input name="reorderLevel" type="number" min="0" step="0.001" [(ngModel)]="medicineForm.reorderLevel" required /></label>
+    </div>@if (formError()) { <p class="sm-pharmacy__error" role="alert">{{ formError() }}</p> }<footer class="sm-pharmacy__form-actions"><button type="button" class="sm-pharmacy__secondary" (click)="closeForms()">Cerrar</button><button type="submit" class="sm-pharmacy__primary" [disabled]="medicineFormElement.invalid || isSaving()">Guardar medicamento</button></footer></form>
+  </section></div>
+}
+
+@if (isReceiptFormOpen()) {
+  <div class="sm-pharmacy__backdrop" (click)="closeForms()"><section class="sm-pharmacy__dialog" role="dialog" aria-modal="true" aria-labelledby="receipt-form-title" (click)="$event.stopPropagation()">
+    <header class="sm-pharmacy__dialog-header"><div><p class="sm-pharmacy__eyebrow">Entrada de inventario</p><h2 id="receipt-form-title">Recibir lote</h2></div><button type="button" class="sm-pharmacy__close" aria-label="Cerrar" (click)="closeForms()">×</button></header>
+    <form #receiptFormElement="ngForm" (ngSubmit)="receiveStock()"><div class="sm-pharmacy__form-grid">
+      <label class="sm-pharmacy__wide">Medicamento <span>*</span><select name="medicineId" [(ngModel)]="receiptForm.medicineId" required>@for (medicine of medicines(); track medicine.id) { <option [ngValue]="medicine.id">{{ medicine.code }} · {{ medicine.name }}</option> }</select></label>
+      <label>Lote <span>*</span><input name="batchNumber" [(ngModel)]="receiptForm.batchNumber" required maxlength="100" /></label>
+      <label>Cantidad <span>*</span><input name="quantity" type="number" min="0.001" step="0.001" [(ngModel)]="receiptForm.quantity" required /></label>
+      <label>Vencimiento <span>*</span><input name="expiresOn" type="date" [(ngModel)]="receiptForm.expiresOn" required /></label>
+      <label>Referencia de recepción<input name="reference" [(ngModel)]="receiptForm.reference" maxlength="100" /></label>
+    </div>@if (formError()) { <p class="sm-pharmacy__error" role="alert">{{ formError() }}</p> }<footer class="sm-pharmacy__form-actions"><button type="button" class="sm-pharmacy__secondary" (click)="closeForms()">Cerrar</button><button type="submit" class="sm-pharmacy__primary" [disabled]="receiptFormElement.invalid || isSaving()">Registrar recepción</button></footer></form>
+  </section></div>
+}
+
+@if (isDispenseFormOpen()) {
+  <div class="sm-pharmacy__backdrop" (click)="closeForms()"><section class="sm-pharmacy__dialog" role="dialog" aria-modal="true" aria-labelledby="dispense-form-title" (click)="$event.stopPropagation()">
+    <header class="sm-pharmacy__dialog-header"><div><p class="sm-pharmacy__eyebrow">Salida de inventario</p><h2 id="dispense-form-title">Despachar cantidad</h2></div><button type="button" class="sm-pharmacy__close" aria-label="Cerrar" (click)="closeForms()">×</button></header>
+    <form #dispenseFormElement="ngForm" (ngSubmit)="dispense()"><div class="sm-pharmacy__form-grid">
+      <label class="sm-pharmacy__wide">Medicamento <span>*</span><select name="medicineId" [(ngModel)]="dispenseForm.medicineId" required>@for (medicine of medicines(); track medicine.id) { <option [ngValue]="medicine.id">{{ medicine.code }} · {{ medicine.name }}</option> }</select></label>
+      <label>Paciente <span>*</span><select name="patientId" [(ngModel)]="dispenseForm.patientId" required>@for (patient of patients(); track patient.id) { <option [ngValue]="patient.id">{{ patient.fullName }}</option> }</select></label>
+      <label>Cantidad <span>*</span><input name="quantity" type="number" min="0.001" step="0.001" [(ngModel)]="dispenseForm.quantity" required /></label>
+      <label class="sm-pharmacy__wide">Referencia<input name="reference" [(ngModel)]="dispenseForm.reference" maxlength="100" /></label>
+    </div>@if (formError()) { <p class="sm-pharmacy__error" role="alert">{{ formError() }}</p> }<footer class="sm-pharmacy__form-actions"><button type="button" class="sm-pharmacy__secondary" (click)="closeForms()">Cerrar</button><button type="submit" class="sm-pharmacy__primary" [disabled]="dispenseFormElement.invalid || isDispensing()">{{ isDispensing() ? 'Procesando...' : 'Confirmar despacho' }}</button></footer></form>
+  </section></div>
+}

@@ -1,0 +1,198 @@
+<section class="sm-billing" aria-label="Borradores de facturación">
+  <header class="sm-billing__header">
+    <div>
+      <p class="sm-billing__eyebrow">Sprint 7 · Facturación</p>
+      <h1>Borradores internos</h1>
+    </div>
+  </header>
+
+  <aside class="sm-billing__notice" role="note">
+    Estos registros son borradores internos: no son facturas FEL, no calculan impuestos y no registran pagos.
+  </aside>
+
+  @if (error()) {
+    <p class="sm-billing__error" role="alert">{{ error() }}</p>
+  }
+
+  @if (notice()) {
+    <p class="sm-billing__success" role="status">{{ notice() }}</p>
+  }
+
+  <section class="sm-billing__section" aria-labelledby="create-draft-title">
+    <header class="sm-billing__section-header">
+      <div>
+        <p class="sm-billing__eyebrow">Documento no fiscal</p>
+        <h2 id="create-draft-title">Nuevo borrador</h2>
+      </div>
+    </header>
+
+    <form (ngSubmit)="createDraft()">
+      <div class="sm-billing__form-grid">
+        <label class="sm-billing__wide">
+          Nombre del cliente <span>*</span>
+          <input
+            name="customerName"
+            [ngModel]="form().customerName"
+            (ngModelChange)="updateCustomerName($event)"
+            required
+            maxlength="200"
+          />
+        </label>
+        <label>
+          NIT (referencia interna)
+          <input
+            name="customerNit"
+            [ngModel]="form().customerNit"
+            (ngModelChange)="updateCustomerNit($event)"
+            maxlength="20"
+          />
+        </label>
+        <label>
+          Dirección
+          <input
+            name="customerAddress"
+            [ngModel]="form().customerAddress"
+            (ngModelChange)="updateCustomerAddress($event)"
+            maxlength="300"
+          />
+        </label>
+        <label class="sm-billing__wide">
+          Notas
+          <textarea
+            name="notes"
+            [ngModel]="form().notes"
+            (ngModelChange)="updateNotes($event)"
+            maxlength="500"
+            rows="2"
+          ></textarea>
+        </label>
+      </div>
+
+      <div class="sm-billing__lines-header">
+        <h3>Conceptos</h3>
+        <button
+          type="button"
+          class="sm-billing__secondary"
+          (click)="addLine()"
+          [disabled]="form().lines.length >= 100"
+        >
+          Agregar concepto
+        </button>
+      </div>
+
+      <div class="sm-billing__lines">
+        @for (line of form().lines; track $index; let index = $index) {
+          <div class="sm-billing__line">
+            <label>
+              Descripción <span>*</span>
+              <input
+                [name]="'description-' + index"
+                [ngModel]="line.description"
+                (ngModelChange)="updateDescription(index, $event)"
+                required
+                maxlength="300"
+              />
+            </label>
+            <label>
+              Cantidad <span>*</span>
+              <input
+                [name]="'quantity-' + index"
+                type="number"
+                min="0.001"
+                max="100000"
+                step="0.001"
+                [ngModel]="line.quantity"
+                (ngModelChange)="updateQuantity(index, $event)"
+                required
+              />
+            </label>
+            <label>
+              Precio unitario (Q) <span>*</span>
+              <input
+                [name]="'unitPrice-' + index"
+                type="number"
+                min="0"
+                max="100000"
+                step="0.01"
+                [ngModel]="line.unitPrice"
+                (ngModelChange)="updateUnitPrice(index, $event)"
+                required
+              />
+            </label>
+            <div class="sm-billing__line-total">
+              <span>Total del concepto</span>
+              <strong>Q {{ lineAmount(line.quantity, line.unitPrice) | number:'1.2-2':'en-US' }}</strong>
+            </div>
+            <button
+              type="button"
+              class="sm-billing__remove"
+              [disabled]="form().lines.length <= 1"
+              [attr.aria-label]="'Quitar concepto ' + (index + 1)"
+              (click)="removeLine(index)"
+            >
+              Quitar
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (formError()) {
+        <p class="sm-billing__error" role="alert">{{ formError() }}</p>
+      }
+
+      <footer class="sm-billing__form-footer">
+        <p>Total interno: <strong>Q {{ total() | number:'1.2-2':'en-US' }}</strong></p>
+        <button type="submit" class="sm-billing__primary" [disabled]="!canSubmit()">
+          {{ isSaving() ? 'Guardando...' : 'Guardar borrador' }}
+        </button>
+      </footer>
+    </form>
+  </section>
+
+  <section class="sm-billing__section" aria-labelledby="draft-list-title">
+    <header class="sm-billing__section-header">
+      <div>
+        <p class="sm-billing__eyebrow">Últimos 100</p>
+        <h2 id="draft-list-title">Borradores guardados</h2>
+      </div>
+    </header>
+
+    @if (isLoading()) {
+      <p class="sm-billing__muted" role="status">Cargando borradores...</p>
+    } @else if (drafts().length === 0) {
+      <p class="sm-billing__empty">Aún no hay borradores de facturación.</p>
+    } @else {
+      <div class="sm-billing__draft-list">
+        @for (draft of drafts(); track draft.id) {
+          <article class="sm-billing__draft">
+            <header class="sm-billing__draft-header">
+              <div>
+                <h3>Borrador interno #{{ draft.id }}</h3>
+                <time>{{ draft.createdAt | date:'dd/MM/yyyy HH:mm':'America/Guatemala' }}</time>
+              </div>
+              <strong>Q {{ draft.total | number:'1.2-2':'en-US' }}</strong>
+            </header>
+            <p class="sm-billing__customer">{{ draft.customerName }}</p>
+            @if (draft.customerNit) {
+              <p class="sm-billing__muted">NIT de referencia: {{ draft.customerNit }}</p>
+            }
+            <details>
+              <summary>Ver {{ draft.lines.length }} conceptos</summary>
+              <ol class="sm-billing__draft-lines">
+                @for (line of draft.lines; track line.lineNumber) {
+                  <li>
+                    <span>{{ line.description }} · {{ line.quantity }} × Q {{ line.unitPrice | number:'1.2-2':'en-US' }}</span>
+                    <strong>Q {{ line.lineTotal | number:'1.2-2':'en-US' }}</strong>
+                  </li>
+                }
+              </ol>
+              @if (draft.notes) {
+                <p class="sm-billing__muted">Notas: {{ draft.notes }}</p>
+              }
+            </details>
+          </article>
+        }
+      </div>
+    }
+  </section>
+</section>

@@ -60,5 +60,23 @@ export const routes: Routes = [
         (component) => component.VaccinesListComponent
       )
   },
+  {
+    path: 'pharmacy',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['SuperAdmin', 'Farmacéutico'] },
+    loadComponent: () =>
+      import('./features/pharmacy/pharmacy-list.component').then(
+        (component) => component.PharmacyListComponent
+      )
+  },
+  {
+    path: 'billing',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['SuperAdmin', 'Recepcionista'] },
+    loadComponent: () =>
+      import('./features/billing/billing-drafts/billing-drafts.component').then(
+        (component) => component.BillingDraftsComponent
+      )
+  },
   { path: '**', redirectTo: 'auth/login' }
 ];

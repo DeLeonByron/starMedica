@@ -14,6 +14,11 @@ public class AppDbContext : DbContext
     public DbSet<Consultation> Consultations => Set<Consultation>();
     public DbSet<Vaccine> Vaccines => Set<Vaccine>();
     public DbSet<PatientVaccination> PatientVaccinations => Set<PatientVaccination>();
+    public DbSet<Medicine> Medicines => Set<Medicine>();
+    public DbSet<MedicineBatch> MedicineBatches => Set<MedicineBatch>();
+    public DbSet<StockMovement> StockMovements => Set<StockMovement>();
+    public DbSet<BillingDraft> BillingDrafts => Set<BillingDraft>();
+    public DbSet<BillingDraftLine> BillingDraftLines => Set<BillingDraftLine>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();

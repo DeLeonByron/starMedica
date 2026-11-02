@@ -35,6 +35,14 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
                 Description = "Gestión de pacientes y recepción",
                 IsActive = true,
                 CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            },
+            new Role
+            {
+                Id = 4,
+                Name = "Farmacéutico",
+                Description = "Gestión de inventario y dispensación de farmacia",
+                IsActive = true,
+                CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             });
     }
 }

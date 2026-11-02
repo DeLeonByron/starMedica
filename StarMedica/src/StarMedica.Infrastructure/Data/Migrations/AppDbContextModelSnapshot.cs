@@ -79,6 +79,118 @@ namespace StarMedica.Infrastructure.Data.Migrations
                     b.ToTable("Appointments", (string)null);
                 });
 
+            modelBuilder.Entity("StarMedica.Domain.Entities.BillingDraft", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CustomerAddress")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("CustomerNit")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("Total")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt", "Id")
+                        .IsDescending();
+
+                    b.ToTable("BillingDrafts", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_BillingDrafts_Total", "[Total] >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("StarMedica.Domain.Entities.BillingDraftLine", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BillingDraftId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<int>("LineNumber")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("LineTotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(12, 3)
+                        .HasColumnType("decimal(12,3)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BillingDraftId", "LineNumber")
+                        .IsUnique();
+
+                    b.ToTable("BillingDraftLines", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_BillingDraftLines_LineNumber", "[LineNumber] > 0");
+
+                            t.HasCheckConstraint("CK_BillingDraftLines_LineTotal", "[LineTotal] >= 0 AND [LineTotal] = ROUND([Quantity] * [UnitPrice], 2)");
+
+                            t.HasCheckConstraint("CK_BillingDraftLines_Quantity", "[Quantity] > 0");
+
+                            t.HasCheckConstraint("CK_BillingDraftLines_UnitPrice", "[UnitPrice] >= 0");
+                        });
+                });
+
             modelBuilder.Entity("StarMedica.Domain.Entities.Consultation", b =>
                 {
                     b.Property<int>("Id")
@@ -183,6 +295,122 @@ namespace StarMedica.Infrastructure.Data.Migrations
                     b.HasIndex("PatientId", "ConsultedAt");
 
                     b.ToTable("Consultations", (string)null);
+                });
+
+            modelBuilder.Entity("StarMedica.Domain.Entities.Medicine", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActiveIngredient")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DosageForm")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal>("ReorderLevel")
+                        .HasPrecision(12, 3)
+                        .HasColumnType("decimal(12,3)");
+
+                    b.Property<string>("StockUnit")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("Strength")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("Medicines", (string)null);
+                });
+
+            modelBuilder.Entity("StarMedica.Domain.Entities.MedicineBatch", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BatchNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("ExpiresOn")
+                        .HasColumnType("date");
+
+                    b.Property<int>("MedicineId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("QuantityAvailable")
+                        .HasPrecision(12, 3)
+                        .HasColumnType("decimal(12,3)");
+
+                    b.Property<DateTimeOffset>("ReceivedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MedicineId", "BatchNumber")
+                        .IsUnique();
+
+                    b.HasIndex("MedicineId", "ExpiresOn");
+
+                    b.ToTable("MedicineBatches", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_MedicineBatches_QuantityAvailable_NonNegative", "[QuantityAvailable] >= 0");
+                        });
                 });
 
             modelBuilder.Entity("StarMedica.Domain.Entities.Patient", b =>
@@ -388,6 +616,82 @@ namespace StarMedica.Infrastructure.Data.Migrations
                             Description = "Gestión de pacientes y recepción",
                             IsActive = true,
                             Name = "Recepcionista"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Gestión de inventario y dispensación de farmacia",
+                            IsActive = true,
+                            Name = "Farmacéutico"
+                        });
+                });
+
+            modelBuilder.Entity("StarMedica.Domain.Entities.StockMovement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ConsultationId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MedicineBatchId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int?>("PatientId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PerformedById")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(12, 3)
+                        .HasColumnType("decimal(12,3)");
+
+                    b.Property<string>("Reference")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConsultationId");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("PerformedById");
+
+                    b.HasIndex("MedicineBatchId", "OccurredAt");
+
+                    b.ToTable("StockMovements", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_StockMovements_Quantity_Positive", "[Quantity] > 0");
                         });
                 });
 
@@ -550,6 +854,17 @@ namespace StarMedica.Infrastructure.Data.Migrations
                     b.Navigation("Patient");
                 });
 
+            modelBuilder.Entity("StarMedica.Domain.Entities.BillingDraftLine", b =>
+                {
+                    b.HasOne("StarMedica.Domain.Entities.BillingDraft", "BillingDraft")
+                        .WithMany("Lines")
+                        .HasForeignKey("BillingDraftId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BillingDraft");
+                });
+
             modelBuilder.Entity("StarMedica.Domain.Entities.Consultation", b =>
                 {
                     b.HasOne("StarMedica.Domain.Entities.Appointment", "Appointment")
@@ -574,6 +889,17 @@ namespace StarMedica.Infrastructure.Data.Migrations
                     b.Navigation("Doctor");
 
                     b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("StarMedica.Domain.Entities.MedicineBatch", b =>
+                {
+                    b.HasOne("StarMedica.Domain.Entities.Medicine", "Medicine")
+                        .WithMany()
+                        .HasForeignKey("MedicineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Medicine");
                 });
 
             modelBuilder.Entity("StarMedica.Domain.Entities.PatientVaccination", b =>
@@ -603,6 +929,39 @@ namespace StarMedica.Infrastructure.Data.Migrations
                     b.Navigation("Vaccine");
                 });
 
+            modelBuilder.Entity("StarMedica.Domain.Entities.StockMovement", b =>
+                {
+                    b.HasOne("StarMedica.Domain.Entities.Consultation", "Consultation")
+                        .WithMany()
+                        .HasForeignKey("ConsultationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("StarMedica.Domain.Entities.MedicineBatch", "MedicineBatch")
+                        .WithMany()
+                        .HasForeignKey("MedicineBatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("StarMedica.Domain.Entities.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("StarMedica.Domain.Entities.User", "PerformedBy")
+                        .WithMany()
+                        .HasForeignKey("PerformedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Consultation");
+
+                    b.Navigation("MedicineBatch");
+
+                    b.Navigation("Patient");
+
+                    b.Navigation("PerformedBy");
+                });
+
             modelBuilder.Entity("StarMedica.Domain.Entities.UserRole", b =>
                 {
                     b.HasOne("StarMedica.Domain.Entities.Role", "Role")
@@ -620,6 +979,11 @@ namespace StarMedica.Infrastructure.Data.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("StarMedica.Domain.Entities.BillingDraft", b =>
+                {
+                    b.Navigation("Lines");
                 });
 
             modelBuilder.Entity("StarMedica.Domain.Entities.Role", b =>
