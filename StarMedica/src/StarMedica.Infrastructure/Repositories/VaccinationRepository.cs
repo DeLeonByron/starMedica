@@ -136,6 +136,7 @@ public sealed class VaccinationRepository : IVaccinationRepository
     {
         return await _context.PatientVaccinations
             .AsNoTracking()
+            .Include(vaccination => vaccination.Patient)
             .Include(vaccination => vaccination.Vaccine)
             .Include(vaccination => vaccination.AdministeredBy)
             .Where(vaccination => vaccination.PatientId == patientId)

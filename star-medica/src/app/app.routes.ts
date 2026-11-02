@@ -51,5 +51,14 @@ export const routes: Routes = [
         (component) => component.ConsultationsListComponent
       )
   },
+  {
+    path: 'vaccines',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['SuperAdmin', 'Médico', 'Recepcionista'] },
+    loadComponent: () =>
+      import('./features/vaccines/vaccines-list.component').then(
+        (component) => component.VaccinesListComponent
+      )
+  },
   { path: '**', redirectTo: 'auth/login' }
 ];
