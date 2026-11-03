@@ -1,0 +1,13 @@
+<div
+  class="sm-loader"
+  [class.sm-loader--small]="size() === 'small'"
+  [class.sm-loader--medium]="size() === 'medium'"
+  [class.sm-loader--large]="size() === 'large'"
+  [class.sm-loader--inline]="inline()"
+  role="status"
+  aria-live="polite"
+  [attr.aria-label]="label()"
+>
+  <span class="sm-loader__spinner" aria-hidden="true"></span>
+  <span class="sm-loader__label">{{ label() }}</span>
+</div>

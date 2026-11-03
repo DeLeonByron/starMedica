@@ -1,0 +1,12 @@
+<article
+  class="sm-card"
+  [class.sm-card--default]="variant() === 'default'"
+  [class.sm-card--outlined]="variant() === 'outlined'"
+  [class.sm-card--elevated]="variant() === 'elevated'"
+  [class.sm-card--padding-none]="padding() === 'none'"
+  [class.sm-card--padding-compact]="padding() === 'compact'"
+  [class.sm-card--padding-comfortable]="padding() === 'comfortable'"
+  [attr.aria-label]="ariaLabel() || null"
+>
+  <ng-content />
+</article>

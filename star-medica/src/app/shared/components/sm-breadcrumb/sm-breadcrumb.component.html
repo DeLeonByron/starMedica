@@ -1,0 +1,13 @@
+<nav class="sm-breadcrumb" aria-label="Ruta de navegación">
+  <ol class="sm-breadcrumb__list">
+    @for (item of items(); track $index; let last = $last) {
+      <li class="sm-breadcrumb__item">
+        @if (item.route && !last) {
+          <a [routerLink]="item.route">{{ item.label }}</a>
+        } @else {
+          <span [attr.aria-current]="last ? 'page' : null">{{ item.label }}</span>
+        }
+      </li>
+    }
+  </ol>
+</nav>

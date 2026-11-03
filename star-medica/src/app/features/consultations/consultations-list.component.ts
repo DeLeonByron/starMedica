@@ -4,6 +4,7 @@ import {
   Component,
   DestroyRef,
   OnInit,
+  computed,
   inject,
   signal
 } from '@angular/core';
@@ -11,13 +12,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
 import { AuthService } from '../../core/services/auth.service';
+import { SmGrowthChartComponent, SmGrowthMeasurement } from '../../shared/components/sm-growth-chart/sm-growth-chart.component';
 import { AvailableConsultationAppointment, Consultation, ConsultationPatient, CreateConsultationRequest } from './consultations.model';
 import { ConsultationsService } from './consultations.service';
 
 @Component({
   selector: 'sm-consultations-list',
   standalone: true,
-  imports: [DatePipe, FormsModule],
+  imports: [DatePipe, FormsModule, SmGrowthChartComponent],
   templateUrl: './consultations-list.component.html',
   styleUrl: './consultations-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -37,6 +39,22 @@ export class ConsultationsListComponent implements OnInit {
   readonly error = signal<string | null>(null);
   readonly formError = signal<string | null>(null);
   readonly form: CreateConsultationRequest = this.emptyForm();
+  readonly weightMeasurements = computed<readonly SmGrowthMeasurement[]>(() =>
+    this.consultations()
+      .flatMap((consultation) =>
+        consultation.weightKg === null
+          ? []
+          : [{ date: consultation.consultedAt, value: consultation.weightKg }]
+      )
+  );
+  readonly heightMeasurements = computed<readonly SmGrowthMeasurement[]>(() =>
+    this.consultations()
+      .flatMap((consultation) =>
+        consultation.heightCm === null
+          ? []
+          : [{ date: consultation.consultedAt, value: consultation.heightCm }]
+      )
+  );
 
   ngOnInit(): void {
     this.loadPatients();

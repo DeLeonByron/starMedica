@@ -1,0 +1,31 @@
+.sm-modal {
+  width: min(calc(100% - 2rem), 680px);
+  max-height: calc(100dvh - 2rem);
+  box-sizing: border-box;
+  overflow: auto;
+  padding: 1.5rem;
+  border: 1px solid #d3e2dc;
+  border-radius: 12px;
+  background: #fff;
+  color: #17362f;
+  box-shadow: 0 24px 70px rgba(11, 27, 24, 0.25);
+
+  &::backdrop {
+    background: rgba(11, 27, 24, 0.58);
+  }
+
+  &--small {
+    max-width: 420px;
+  }
+
+  &--large {
+    max-width: 960px;
+  }
+}
+
+@media (max-width: 600px) {
+  .sm-modal {
+    max-height: calc(100dvh - 1rem);
+    padding: 1rem;
+  }
+}

@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { catchError, map, Observable, throwError } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { BillingDraft, CreateBillingDraftRequest } from './billing.model';
+import { BillingDraft, BillingDraftPage, CreateBillingDraftRequest } from './billing.model';
 
 interface ApiResult<T> {
   isSuccess: boolean;
@@ -17,12 +17,18 @@ export class BillingService {
   private readonly http = inject(HttpClient);
   private readonly draftsUrl = `${environment.apiUrl}/billing/drafts`;
 
-  getDrafts(): Observable<BillingDraft[]> {
-    return this.unwrap(this.http.get<ApiResult<BillingDraft[]>>(this.draftsUrl));
+  getDrafts(search: string, pageNumber: number, pageSize: number): Observable<BillingDraftPage> {
+    return this.unwrap(this.http.get<ApiResult<BillingDraftPage>>(this.draftsUrl, {
+      params: { search, pageNumber, pageSize }
+    }));
   }
 
   createDraft(request: CreateBillingDraftRequest): Observable<BillingDraft> {
     return this.unwrap(this.http.post<ApiResult<BillingDraft>>(this.draftsUrl, request));
+  }
+
+  updateDraft(id: number, request: CreateBillingDraftRequest): Observable<BillingDraft> {
+    return this.unwrap(this.http.put<ApiResult<BillingDraft>>(`${this.draftsUrl}/${id}`, request));
   }
 
   private unwrap<T>(response: Observable<ApiResult<T>>): Observable<T> {

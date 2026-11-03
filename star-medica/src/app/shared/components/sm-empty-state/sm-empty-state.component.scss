@@ -1,0 +1,27 @@
+:host {
+  display: block;
+}
+
+.sm-empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  padding: 2rem 1rem;
+  border: 1px dashed #b7ccc2;
+  border-radius: 10px;
+  background: #f8fbf9;
+  color: #17362f;
+  text-align: center;
+}
+
+.sm-empty-state__title {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.sm-empty-state__message {
+  max-width: 38rem;
+  margin: 0;
+  color: #60756e;
+  line-height: 1.5;
+}

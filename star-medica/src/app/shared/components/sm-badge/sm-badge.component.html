@@ -1,0 +1,10 @@
+<span
+  class="sm-badge"
+  [class.sm-badge--neutral]="variant() === 'neutral'"
+  [class.sm-badge--success]="variant() === 'success'"
+  [class.sm-badge--warning]="variant() === 'warning'"
+  [class.sm-badge--danger]="variant() === 'danger'"
+  [class.sm-badge--info]="variant() === 'info'"
+>
+  <ng-content />
+</span>

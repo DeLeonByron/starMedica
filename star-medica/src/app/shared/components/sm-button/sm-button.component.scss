@@ -1,0 +1,103 @@
+:host {
+  display: inline-flex;
+}
+
+.sm-button {
+  display: inline-flex;
+  min-height: 2.625rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  font: inherit;
+  font-weight: 700;
+  line-height: 1.25;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+
+  &:focus-visible {
+    outline: 2px solid #176f5b;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+  }
+
+  &--primary {
+    background: #176f5b;
+    color: #fff;
+
+    &:hover:not(:disabled) {
+      background: #105544;
+    }
+  }
+
+  &--secondary {
+    border-color: #d3e2dc;
+    background: #fff;
+    color: #17362f;
+
+    &:hover:not(:disabled) {
+      background: #f5f9f6;
+    }
+  }
+
+  &--danger {
+    background: #a83939;
+    color: #fff;
+
+    &:hover:not(:disabled) {
+      background: #872d2d;
+    }
+  }
+
+  &--ghost {
+    background: transparent;
+    color: #176f5b;
+
+    &:hover:not(:disabled) {
+      background: #edf4ef;
+    }
+  }
+
+  &--small {
+    min-height: 2rem;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.875rem;
+  }
+
+  &--large {
+    min-height: 3rem;
+    padding: 0.75rem 1.25rem;
+  }
+
+  &__spinner {
+    width: 1em;
+    height: 1em;
+    flex: 0 0 auto;
+    border: 2px solid currentColor;
+    border-inline-end-color: transparent;
+    border-radius: 50%;
+    animation: sm-button-spin 700ms linear infinite;
+  }
+}
+
+@keyframes sm-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sm-button {
+    transition: none;
+
+    &__spinner {
+      animation-duration: 1.5s;
+    }
+  }
+}

@@ -28,6 +28,7 @@
 .sm-consultations__primary:disabled { cursor: not-allowed; opacity: .55; }
 .sm-consultations__secondary { border: 1px solid var(--sm-border); background: var(--sm-surface); color: var(--sm-ink); }
 .sm-consultations__history { display: grid; gap: .75rem; }
+.sm-consultations__measurements { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
 .sm-consultations__empty, .sm-consultations__muted { color: var(--sm-muted); }
 .sm-consultations__error { margin: .75rem 0; padding: .75rem 1rem; border: 1px solid var(--sm-danger); border-radius: 8px; background: var(--sm-danger-soft); color: var(--sm-danger); }
 .sm-consultation { padding: 1rem; border: 1px solid var(--sm-border); border-left: 4px solid var(--sm-primary); border-radius: 10px; background: var(--sm-soft); }

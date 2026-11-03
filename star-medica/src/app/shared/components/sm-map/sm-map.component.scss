@@ -1,0 +1,34 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.sm-map {
+  min-height: 12rem;
+  overflow: hidden;
+  border: 1px solid #d3e2dc;
+  border-radius: 10px;
+  background: #f5f9f6;
+}
+
+.sm-map__canvas {
+  width: 100%;
+  min-height: 20rem;
+  background: #e8efeb;
+
+  &--hidden {
+    display: none;
+  }
+}
+
+.sm-map__status {
+  display: grid;
+  min-height: 12rem;
+  place-items: center;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 1.5rem;
+  color: #60756e;
+  line-height: 1.5;
+  text-align: center;
+}

@@ -498,32 +498,47 @@ ng build --configuration=production           # Build prod (minificado)
 ## 🔄 REGISTRO DE PROGRESO — Actualizar en cada sesión
 
 ```
-Sprint activo: ___
-Última feature completada: ___
-Ambiente actual de pruebas: [ ] Development  [ ] Staging  [ ] Production
+Sprint activo: 0 — Infraestructura + Scaffolding (reconciliación de aceptación pendiente para Sprints 0–6; no iniciar features nuevas fuera del orden)
+Última feature implementada: Componentes shared `sm-button`, `sm-input`, `sm-modal`, `sm-table`, `sm-alert`, `sm-loader`, `sm-badge`, `sm-confirm-dialog`, `sm-card`, `sm-sidebar`, `sm-breadcrumb`, `sm-empty-state`, `sm-map` y `sm-growth-chart` del Sprint 1; navegación principal, cuenta y cierre de sesión integrados en el shell real mediante `sm-sidebar`; breadcrumb actual vinculado a las rutas del router; tabla, alertas, estado de carga, badge de estado y empty state con acción de registro integrados en pacientes; gráficos de peso y talla con medidas existentes integrados en el expediente. `sm-growth-chart` representa solo mediciones observadas, sin percentiles ni valoración clínica. `sm-map` usa Leaflet con proveedor y coordenadas explícitos; el dominio aún no ofrece datos geográficos y el mapa no se conecta a direcciones de pacientes. `sm-confirm-dialog` y `sm-card` están listos para ser usados por las pantallas cuando exista el caso adecuado; no se ha agregado una acción ficticia para forzar su integración. Los errores conservan sus mensajes y su anuncio accesible. El catálogo de los 22 departamentos continúa aplicado y verificado. Los borradores internos de facturación siguen limitados a crear, consultar, editar, buscar y paginar; sin emisión fiscal.
+Ambiente actual de pruebas: [x] Development  [ ] Staging  [ ] Production
+
+Checkpoint verificado (02/11/2026): API local conectada a StarMedicaDB; health, Swagger y Angular respondieron HTTP 200. El catálogo local contiene exactamente los 22 departamentos oficiales, incluidos los acentos Unicode, y el script SQL se ejecutó dos veces sin duplicar registros. La migración `20261103041211_20261102_CreateDepartmentsCatalog` quedó aplicada y EF no detecta cambios pendientes en el modelo. Se aprobaron 36 pruebas .NET en validación previa; en esta sesión pasaron 52 pruebas Angular y los builds Development, Staging y Production con `sm-growth-chart`. Sprint 0 permanece abierto: el despliegue y la aceptación integral no están evidenciados.
+Reconciliación: [~] indica implementación parcial identificada, pendiente de criterios de aceptación y evidencia de cierre; [ ] indica bloqueado/no iniciado. Los sprints 0–7 siguen abiertos.
+Bloqueo Sprint 7: solicitar nombre y documentación técnica oficial del certificador FEL antes de diseñar/empezar la emisión. No solicitar ni incluir credenciales en este archivo.
+Bloqueo Sprint 8: no iniciar pantallas ni integrar APIs de citas, vacunas o expediente para pacientes/tutores hasta contar con discovery y matriz aprobada de autoridad, consentimiento y acceso pediátrico por responsables clínico y legal. No inferir reglas de edad o custodia. No se conservan demos con datos ficticios como funcionalidad.
+Aviso pendiente de evaluación: NuGet reporta NU1903 para AutoMapper 13.0.1 y NU1902 para MailKit 4.8.0; no cambiar versiones fijadas sin revisar compatibilidad con el stack.
 
 Sprints:
-  [ ] Sprint 0  — Infraestructura + Scaffolding
-  [ ] Sprint 1  — Auth + Design System
-  [ ] Sprint 2  — Pacientes + Geo
-  [ ] Sprint 3  — Citas + WhatsApp
-  [ ] Sprint 4  — Expediente clínico
-  [ ] Sprint 5  — Vacunación PNI
-  [ ] Sprint 6  — Farmacia + Recordatorios
-  [ ] Sprint 7  — Facturación FEL SAT
+  [~] Sprint 0  — Infraestructura + Scaffolding (solución, API, frontend y BD local; catálogo de 22 departamentos aplicado; despliegue externo y aceptación integral no evidenciados)
+  [~] Sprint 1  — Auth + Design System (GIS/JWT/guards implementados; componentes shared listados abajo implementados; sm-table, sm-alert, sm-loader, sm-badge y sm-empty-state integrados en pacientes; sm-sidebar y sm-breadcrumb integrados en el shell; sm-growth-chart integrado al historial real de consultas; proveedor cartográfico y origen autorizado de coordenadas pendientes)
+  [~] Sprint 2  — Pacientes + Geo (entidad/API/UI de pacientes existen; geografía/catálogos geográficos no identificados)
+  [~] Sprint 3  — Citas + WhatsApp (agenda y API de citas existen; WhatsApp no integrado)
+  [~] Sprint 4  — Expediente clínico (consultas inmutables y API existen; cierre integral del expediente no acreditado)
+  [~] Sprint 5  — Vacunación PNI (modelo, migración y superficies de vacunación existen; aceptación integral del sprint no acreditada)
+  [~] Sprint 6  — Farmacia + Recordatorios (inventario/farmacia existen; recordatorios no identificados)
+  [~] Sprint 7  — Facturación FEL SAT (borradores internos existen; emisión FEL bloqueada por falta de certificador/documentación)
   [ ] Sprint 8  — Portal Paciente/Tutor
   [ ] Sprint 9  — MCP + IA Asistente
   [ ] Sprint 10 — Reportes + Pulido final
 
+Orden de continuación: cerrar la reconciliación de criterios/evidencias empezando por Sprint 0 y avanzar en orden. No saltar a un sprint posterior porque sus pantallas o entidades ya existan. Las integraciones externas faltantes quedan como dependencias, sin reemplazarlas por demos.
+
 Migraciones EF aplicadas:
-  [ ] 20240101_InitialCreate
-  [ ] (agregar cada migración aquí)
+  [x] 20261029035503_InitialCreate
+  [x] 20261029040957_20261028_AuthRefreshIndexes
+  [x] 20261029041751_20261028_SeedAccessRoles
+  [x] 20261030000443_20261029_CreateAppointments
+  [x] 20261030005138_20261029_CreateConsultations
+  [x] 20261030013601_20261029_CreateVaccinationRecords
+  [x] 20261102024929_20261101_CreatePharmacyInventory
+  [x] 20261102034609_20261101_CreateBillingDrafts
+  [x] 20261103041211_20261102_CreateDepartmentsCatalog
 
 Componentes shared completados:
-  [ ] sm-input · [ ] sm-button · [ ] sm-modal · [ ] sm-table
-  [ ] sm-alert · [ ] sm-loader · [ ] sm-badge · [ ] sm-confirm-dialog
-  [ ] sm-card  · [ ] sm-sidebar · [ ] sm-breadcrumb · [ ] sm-empty-state
-  [ ] sm-map   · [ ] sm-growth-chart
+  [x] sm-input · [x] sm-button · [x] sm-modal · [x] sm-table
+  [x] sm-alert · [x] sm-loader · [x] sm-badge · [x] sm-confirm-dialog
+  [x] sm-card  · [x] sm-sidebar · [x] sm-breadcrumb · [x] sm-empty-state
+  [x] sm-map   · [x] sm-growth-chart
 
 APIs integradas:
   [ ] Google Identity Services (GIS) · [ ] WhatsApp Business · [ ] Cloudinary

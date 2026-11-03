@@ -1,0 +1,8 @@
+<div class="sm-table" role="region" tabindex="0" [attr.aria-label]="ariaLabel()">
+  <table class="sm-table__table">
+    @if (caption()) {
+      <caption class="sm-table__caption">{{ caption() }}</caption>
+    }
+    <ng-content />
+  </table>
+</div>

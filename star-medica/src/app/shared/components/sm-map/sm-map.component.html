@@ -1,0 +1,12 @@
+<section class="sm-map" aria-label="Visualización cartográfica">
+  @if (status()) {
+    <p class="sm-map__status" role="status" aria-live="polite">{{ status() }}</p>
+  }
+  <div
+    #mapContainer
+    class="sm-map__canvas"
+    [class.sm-map__canvas--hidden]="!mapAvailable()"
+    role="application"
+    [attr.aria-label]="mapLabel()"
+  ></div>
+</section>

@@ -1,0 +1,13 @@
+<dialog
+  #dialog
+  class="sm-modal"
+  [class.sm-modal--small]="size() === 'small'"
+  [class.sm-modal--medium]="size() === 'medium'"
+  [class.sm-modal--large]="size() === 'large'"
+  [attr.aria-labelledby]="labelledBy()"
+  [attr.aria-describedby]="describedBy() || null"
+  (cancel)="handleCancel($event)"
+  (click)="handleClick($event)"
+>
+  <ng-content />
+</dialog>

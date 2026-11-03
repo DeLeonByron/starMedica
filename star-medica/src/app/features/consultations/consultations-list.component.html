@@ -32,6 +32,25 @@
     } @else if (consultations().length === 0) {
       <p class="sm-consultations__empty">Este paciente aún no tiene consultas registradas.</p>
     } @else {
+      @if (weightMeasurements().length > 0 || heightMeasurements().length > 0) {
+        <section class="sm-consultations__measurements" aria-label="Evolución de medidas registradas">
+          @if (weightMeasurements().length > 0) {
+            <sm-growth-chart
+              title="Evolución de peso"
+              unit="kg"
+              [measurements]="weightMeasurements()"
+            />
+          }
+          @if (heightMeasurements().length > 0) {
+            <sm-growth-chart
+              title="Evolución de talla"
+              unit="cm"
+              [measurements]="heightMeasurements()"
+            />
+          }
+        </section>
+      }
+
       <div class="sm-consultations__history">
         @for (consultation of consultations(); track consultation.id) {
           <article class="sm-consultation">

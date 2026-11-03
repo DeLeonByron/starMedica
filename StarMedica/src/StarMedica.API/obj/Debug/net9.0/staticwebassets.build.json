@@ -1,12 +1,1 @@
-{
-  "Version": 1,
-  "Hash": "2uCiKmqZ0qGYnGHcJ+y2E/fWHiz4gC94/RLaJMPUZAw=",
-  "Source": "StarMedica.API",
-  "BasePath": "_content/StarMedica.API",
-  "Mode": "Default",
-  "ManifestType": "Build",
-  "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
-  "Assets": [],
-  "Endpoints": []
-}
+{"Version":1,"Hash":"J1oyRxnSy/zASMQtLXWC077k8QlCGU2Iy8is0a0zIP8=","Source":"StarMedica.API","BasePath":"/","Mode":"Root","ManifestType":"Build","ReferencedProjectsConfiguration":[],"DiscoveryPatterns":[],"Assets":[],"Endpoints":[]}

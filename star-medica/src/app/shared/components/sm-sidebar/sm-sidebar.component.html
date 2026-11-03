@@ -1,0 +1,29 @@
+<aside class="sm-sidebar">
+  <a
+    class="sm-sidebar__brand"
+    [routerLink]="brandLink()"
+    [attr.aria-label]="brand() + ', inicio'"
+  >
+    <span class="sm-sidebar__brand-mark" aria-hidden="true">SM</span>
+    <strong>{{ brand() }}</strong>
+  </a>
+
+  <nav class="sm-sidebar__nav" aria-label="Navegación principal">
+    @for (item of items(); track item.route) {
+      <a
+        [routerLink]="item.route"
+        routerLinkActive="is-active"
+        ariaCurrentWhenActive="page"
+      >
+        {{ item.label }}
+      </a>
+    }
+  </nav>
+
+  <div class="sm-sidebar__account">
+    @if (userName()) {
+      <span>{{ userName() }}</span>
+    }
+    <button type="button" (click)="logout.emit()">{{ logoutLabel() }}</button>
+  </div>
+</aside>

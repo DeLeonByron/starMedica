@@ -1,0 +1,85 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.sm-growth-chart {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid #d3e2dc;
+  border-radius: 10px;
+  background: #fff;
+  color: #17362f;
+}
+
+.sm-growth-chart__title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.sm-growth-chart__disclaimer,
+.sm-growth-chart__status {
+  margin: 0.5rem 0 0;
+  color: #60756e;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.sm-growth-chart__status[role='alert'] {
+  color: #872d2d;
+}
+
+.sm-growth-chart__svg {
+  display: block;
+  width: 100%;
+  max-height: 24rem;
+  margin-top: 1rem;
+  overflow: visible;
+}
+
+.sm-growth-chart__grid {
+  stroke: #e3ece7;
+  stroke-width: 1;
+}
+
+.sm-growth-chart__axis {
+  stroke: #91a59d;
+  stroke-width: 1.25;
+}
+
+.sm-growth-chart__axis-label,
+.sm-growth-chart__unit {
+  fill: #60756e;
+  font-size: 12px;
+}
+
+.sm-growth-chart__line {
+  fill: none;
+  stroke: #176f5b;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+}
+
+.sm-growth-chart__point {
+  fill: #176f5b;
+  stroke: #fff;
+  stroke-width: 2;
+}
+
+.sm-growth-chart__data {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sm-growth-chart__line,
+  .sm-growth-chart__point {
+    transition: none;
+  }
+}

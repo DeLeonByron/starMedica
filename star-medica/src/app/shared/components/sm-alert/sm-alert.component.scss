@@ -1,0 +1,77 @@
+:host {
+  display: block;
+}
+
+.sm-alert {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid transparent;
+  border-inline-start-width: 4px;
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+
+  &--info {
+    border-color: #8ab4d6;
+    background: #eef6fc;
+    color: #174e75;
+  }
+
+  &--success {
+    border-color: #72b58c;
+    background: #edf8f0;
+    color: #216b4b;
+  }
+
+  &--warning {
+    border-color: #d7a348;
+    background: #fff7e8;
+    color: #77500d;
+  }
+
+  &--error {
+    border-color: #c86c6c;
+    background: #fff1f0;
+    color: #872d2d;
+  }
+
+  &__content {
+    min-width: 0;
+  }
+
+  &__title {
+    margin: 0 0 0.25rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  &__message {
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  &__dismiss {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 1.35rem;
+    cursor: pointer;
+
+    &:hover {
+      background: rgb(0 0 0 / 8%);
+    }
+
+    &:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 1px;
+    }
+  }
+}

@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<Patient> Patients => Set<Patient>();
+    public DbSet<Department> Departments => Set<Department>();
     public DbSet<Appointment> Appointments => Set<Appointment>();
     public DbSet<Consultation> Consultations => Set<Consultation>();
     public DbSet<Vaccine> Vaccines => Set<Vaccine>();

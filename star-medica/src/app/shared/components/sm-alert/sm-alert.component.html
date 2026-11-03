@@ -1,0 +1,29 @@
+<section
+  class="sm-alert"
+  [class.sm-alert--info]="type() === 'info'"
+  [class.sm-alert--success]="type() === 'success'"
+  [class.sm-alert--warning]="type() === 'warning'"
+  [class.sm-alert--error]="type() === 'error'"
+  [attr.role]="type() === 'error' || type() === 'warning' ? 'alert' : 'status'"
+  [attr.aria-live]="type() === 'error' || type() === 'warning' ? 'assertive' : 'polite'"
+>
+  <div class="sm-alert__content">
+    @if (title()) {
+      <h2 class="sm-alert__title">{{ title() }}</h2>
+    }
+    <div class="sm-alert__message">
+      <ng-content />
+    </div>
+  </div>
+
+  @if (dismissible()) {
+    <button
+      class="sm-alert__dismiss"
+      type="button"
+      aria-label="Cerrar notificación"
+      (click)="dismiss()"
+    >
+      <span aria-hidden="true">×</span>
+    </button>
+  }
+</section>

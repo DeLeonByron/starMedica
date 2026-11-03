@@ -10,13 +10,31 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
+import { SmButtonComponent } from '../../shared/components/sm-button/sm-button.component';
+import { SmAlertComponent } from '../../shared/components/sm-alert/sm-alert.component';
+import { SmBadgeComponent } from '../../shared/components/sm-badge/sm-badge.component';
+import { SmEmptyStateComponent } from '../../shared/components/sm-empty-state/sm-empty-state.component';
+import { SmInputComponent } from '../../shared/components/sm-input/sm-input.component';
+import { SmLoaderComponent } from '../../shared/components/sm-loader/sm-loader.component';
+import { SmModalComponent } from '../../shared/components/sm-modal/sm-modal.component';
+import { SmTableComponent } from '../../shared/components/sm-table/sm-table.component';
 import { CreatePatientRequest, Patient } from './patients.model';
 import { PatientsService } from './patients.service';
 
 @Component({
   selector: 'sm-patients-list',
   standalone: true,
-  imports: [FormsModule],
+  imports: [
+    FormsModule,
+    SmAlertComponent,
+    SmBadgeComponent,
+    SmButtonComponent,
+    SmEmptyStateComponent,
+    SmInputComponent,
+    SmLoaderComponent,
+    SmModalComponent,
+    SmTableComponent
+  ],
   templateUrl: './patients-list.component.html',
   styleUrl: './patients-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -45,6 +63,14 @@ export class PatientsListComponent implements OnInit {
     if (!this.isSaving()) {
       this.isFormOpen.set(false);
     }
+  }
+
+  clearLoadError(): void {
+    this.error.set(null);
+  }
+
+  clearFormError(): void {
+    this.formError.set(null);
   }
 
   createPatient(): void {

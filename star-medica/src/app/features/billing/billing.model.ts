@@ -17,6 +17,14 @@ export interface BillingDraft {
   lines: BillingDraftLine[];
 }
 
+export interface BillingDraftPage {
+  items: BillingDraft[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 export interface CreateBillingDraftLineRequest {
   description: string;
   quantity: number;

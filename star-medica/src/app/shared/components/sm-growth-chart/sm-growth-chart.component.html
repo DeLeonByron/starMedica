@@ -1,0 +1,62 @@
+<section class="sm-growth-chart">
+  <h3 class="sm-growth-chart__title">{{ title() }}</h3>
+  <p class="sm-growth-chart__disclaimer">
+    Representación de las mediciones registradas; no incluye percentiles ni valoración clínica.
+  </p>
+
+  @if (validationError()) {
+    <p class="sm-growth-chart__status" role="alert">{{ validationError() }}</p>
+  } @else if (measurements().length === 0) {
+    <p class="sm-growth-chart__status" role="status">No hay mediciones registradas para mostrar.</p>
+  } @else {
+    <svg
+      class="sm-growth-chart__svg"
+      viewBox="0 0 720 300"
+      role="img"
+      [attr.aria-label]="title() + ', ' + measurements().length + ' mediciones en ' + unit()"
+    >
+      @for (tick of chart()!.yTicks; track $index) {
+        <line class="sm-growth-chart__grid" x1="76" [attr.y1]="tick.y" x2="700" [attr.y2]="tick.y" />
+        <text class="sm-growth-chart__axis-label" x="68" [attr.y]="tick.y + 4" text-anchor="end">
+          {{ tick.value | number:'1.0-1' }}
+        </text>
+      }
+
+      <line class="sm-growth-chart__axis" x1="76" y1="24" x2="76" y2="246" />
+      <line class="sm-growth-chart__axis" x1="76" y1="246" x2="700" y2="246" />
+
+      @for (tick of chart()!.xTicks; track $index) {
+        <text class="sm-growth-chart__axis-label" [attr.x]="tick.x" y="270" text-anchor="middle">
+          {{ tick.date | date:'dd/MM/yy':'America/Guatemala' }}
+        </text>
+      }
+
+      <polyline class="sm-growth-chart__line" [attr.points]="chart()!.polyline" />
+      @for (point of chart()!.points; track $index) {
+        <circle class="sm-growth-chart__point" [attr.cx]="point.x" [attr.cy]="point.y" r="5">
+          <title>
+            {{ point.date | date:'dd/MM/yyyy':'America/Guatemala' }}:
+            {{ point.value | number:'1.0-2' }} {{ unit() }}
+          </title>
+        </circle>
+      }
+
+      <text class="sm-growth-chart__unit" x="76" y="15">{{ unit() }}</text>
+    </svg>
+
+    <table class="sm-growth-chart__data">
+      <caption>{{ title() }}: datos de origen</caption>
+      <thead>
+        <tr><th scope="col">Fecha</th><th scope="col">Medición ({{ unit() }})</th></tr>
+      </thead>
+      <tbody>
+        @for (measurement of chart()!.points; track $index) {
+          <tr>
+            <td>{{ measurement.date | date:'dd/MM/yyyy':'America/Guatemala' }}</td>
+            <td>{{ measurement.value | number:'1.0-2' }} {{ unit() }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

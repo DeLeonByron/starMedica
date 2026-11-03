@@ -1,0 +1,31 @@
+<sm-modal
+  [open]="open()"
+  [labelledBy]="id() + '-title'"
+  [describedBy]="id() + '-description'"
+  size="small"
+  [closeOnBackdrop]="false"
+  (dismissed)="cancel()"
+>
+  <section class="sm-confirm-dialog">
+    <h2 class="sm-confirm-dialog__title" [id]="id() + '-title'">{{ title() }}</h2>
+    <p class="sm-confirm-dialog__message" [id]="id() + '-description'">{{ message() }}</p>
+
+    <div class="sm-confirm-dialog__actions">
+      <sm-button
+        variant="secondary"
+        [disabled]="loading()"
+        (click)="cancel()"
+      >
+        {{ cancelText() }}
+      </sm-button>
+      <sm-button
+        [variant]="confirmVariant()"
+        [disabled]="disabled()"
+        [loading]="loading()"
+        (click)="confirm()"
+      >
+        {{ confirmText() }}
+      </sm-button>
+    </div>
+  </section>
+</sm-modal>

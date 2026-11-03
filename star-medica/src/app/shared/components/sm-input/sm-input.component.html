@@ -1,0 +1,34 @@
+<div class="sm-input">
+  <label class="sm-input__label" [for]="id()">
+    {{ label() }}
+    @if (required()) {
+      <span class="sm-input__required" aria-hidden="true">*</span>
+    }
+  </label>
+
+  <input
+    class="sm-input__control"
+    [id]="id()"
+    [attr.name]="name()"
+    [type]="type()"
+    [value]="value()"
+    [placeholder]="placeholder()"
+    [attr.autocomplete]="autocomplete() || null"
+    [attr.maxlength]="maxLength()"
+    [required]="required()"
+    [disabled]="isDisabled()"
+    [attr.aria-required]="required()"
+    [attr.aria-invalid]="error() ? 'true' : null"
+    [attr.aria-describedby]="error() ? id() + '-error' : (hint() ? id() + '-hint' : null)"
+    (input)="updateValue($event)"
+    (blur)="markTouched()"
+  />
+
+  @if (hint() && !error()) {
+    <span class="sm-input__hint" [id]="id() + '-hint'">{{ hint() }}</span>
+  }
+
+  @if (error()) {
+    <span class="sm-input__error" [id]="id() + '-error'" role="alert">{{ error() }}</span>
+  }
+</div>

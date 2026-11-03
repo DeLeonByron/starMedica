@@ -4,4 +4,7 @@ using StarMedica.Domain.Common;
 
 namespace StarMedica.Application.Features.Billing.Queries.GetBillingDrafts;
 
-public sealed record GetBillingDraftsQuery : IRequest<Result<IReadOnlyList<BillingDraftDto>>>;
+public sealed record GetBillingDraftsQuery(
+    string? Search,
+    int PageNumber,
+    int PageSize) : IRequest<Result<PagedResultDto<BillingDraftDto>>>;

@@ -1,0 +1,48 @@
+:host {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.sm-badge {
+  display: inline-flex;
+  min-height: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+
+  &--neutral {
+    border-color: #d3e2dc;
+    background: #f5f9f6;
+    color: #405c53;
+  }
+
+  &--success {
+    border-color: #b7dfc3;
+    background: #e3f3e9;
+    color: #216b4b;
+  }
+
+  &--warning {
+    border-color: #f0d399;
+    background: #fff3d6;
+    color: #77500d;
+  }
+
+  &--danger {
+    border-color: #edc0bd;
+    background: #fff1f0;
+    color: #872d2d;
+  }
+
+  &--info {
+    border-color: #bdd8eb;
+    background: #eef6fc;
+    color: #174e75;
+  }
+}

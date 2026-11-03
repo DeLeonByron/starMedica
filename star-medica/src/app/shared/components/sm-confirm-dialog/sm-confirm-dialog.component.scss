@@ -1,0 +1,30 @@
+.sm-confirm-dialog {
+  display: grid;
+  gap: 1rem;
+}
+
+.sm-confirm-dialog__title {
+  margin: 0;
+  color: #17362f;
+  font-size: 1.25rem;
+}
+
+.sm-confirm-dialog__message {
+  margin: 0;
+  color: #405c53;
+  line-height: 1.5;
+}
+
+.sm-confirm-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 420px) {
+  .sm-confirm-dialog__actions {
+    flex-direction: column-reverse;
+  }
+}

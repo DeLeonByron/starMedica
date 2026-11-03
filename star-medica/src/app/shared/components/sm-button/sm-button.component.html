@@ -1,0 +1,18 @@
+<button
+  class="sm-button"
+  [class.sm-button--primary]="variant() === 'primary'"
+  [class.sm-button--secondary]="variant() === 'secondary'"
+  [class.sm-button--danger]="variant() === 'danger'"
+  [class.sm-button--ghost]="variant() === 'ghost'"
+  [class.sm-button--small]="size() === 'small'"
+  [class.sm-button--medium]="size() === 'medium'"
+  [class.sm-button--large]="size() === 'large'"
+  [type]="type()"
+  [disabled]="disabled() || loading()"
+  [attr.aria-busy]="loading() ? 'true' : null"
+>
+  @if (loading()) {
+    <span class="sm-button__spinner" aria-hidden="true"></span>
+  }
+  <ng-content />
+</button>

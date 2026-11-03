@@ -18,15 +18,17 @@
     <p class="sm-billing__success" role="status">{{ notice() }}</p>
   }
 
-  <section class="sm-billing__section" aria-labelledby="create-draft-title">
+  <section class="sm-billing__section" aria-labelledby="draft-form-title">
     <header class="sm-billing__section-header">
       <div>
         <p class="sm-billing__eyebrow">Documento no fiscal</p>
-        <h2 id="create-draft-title">Nuevo borrador</h2>
+        <h2 id="draft-form-title">
+          {{ editingDraftId() === null ? 'Nuevo borrador' : 'Editar borrador interno #' + editingDraftId() }}
+        </h2>
       </div>
     </header>
 
-    <form (ngSubmit)="createDraft()">
+    <form (ngSubmit)="saveDraft()">
       <div class="sm-billing__form-grid">
         <label class="sm-billing__wide">
           Nombre del cliente <span>*</span>
@@ -142,8 +144,13 @@
 
       <footer class="sm-billing__form-footer">
         <p>Total interno: <strong>Q {{ total() | number:'1.2-2':'en-US' }}</strong></p>
+        @if (editingDraftId() !== null) {
+          <button type="button" class="sm-billing__secondary" [disabled]="isSaving()" (click)="cancelEditing()">
+            Cancelar edición
+          </button>
+        }
         <button type="submit" class="sm-billing__primary" [disabled]="!canSubmit()">
-          {{ isSaving() ? 'Guardando...' : 'Guardar borrador' }}
+          {{ isSaving() ? 'Guardando...' : editingDraftId() === null ? 'Guardar borrador' : 'Guardar cambios' }}
         </button>
       </footer>
     </form>
@@ -152,16 +159,40 @@
   <section class="sm-billing__section" aria-labelledby="draft-list-title">
     <header class="sm-billing__section-header">
       <div>
-        <p class="sm-billing__eyebrow">Últimos 100</p>
+        <p class="sm-billing__eyebrow">Listado paginado</p>
         <h2 id="draft-list-title">Borradores guardados</h2>
       </div>
     </header>
 
+    @if (totalCount() > 0 || appliedSearch()) {
+      <form class="sm-billing__search" (ngSubmit)="searchDrafts()">
+        <label for="draft-search">Buscar por cliente, NIT, concepto o número de borrador</label>
+        <div class="sm-billing__search-controls">
+          <input
+            id="draft-search"
+            type="search"
+            name="draftSearch"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="updateSearchTerm($event)"
+            maxlength="200"
+          />
+          <button type="submit" class="sm-billing__secondary">Buscar</button>
+          @if (appliedSearch()) {
+            <button type="button" class="sm-billing__secondary" (click)="clearSearch()">Limpiar</button>
+          }
+        </div>
+      </form>
+    }
+
     @if (isLoading()) {
       <p class="sm-billing__muted" role="status">Cargando borradores...</p>
-    } @else if (drafts().length === 0) {
+    } @else if (!error() && totalCount() === 0 && appliedSearch()) {
+      <p class="sm-billing__empty">
+        No hay borradores que coincidan con la búsqueda.
+      </p>
+    } @else if (!error() && totalCount() === 0) {
       <p class="sm-billing__empty">Aún no hay borradores de facturación.</p>
-    } @else {
+    } @else if (!error()) {
       <div class="sm-billing__draft-list">
         @for (draft of drafts(); track draft.id) {
           <article class="sm-billing__draft">
@@ -190,9 +221,38 @@
                 <p class="sm-billing__muted">Notas: {{ draft.notes }}</p>
               }
             </details>
+            <footer class="sm-billing__draft-actions">
+              <button type="button" class="sm-billing__secondary" [disabled]="isSaving()" (click)="startEditing(draft)">
+                Editar borrador
+              </button>
+            </footer>
           </article>
         }
       </div>
+      <footer class="sm-billing__pagination" aria-label="Paginación de borradores">
+        <p>
+          {{ totalCount() }} borrador{{ totalCount() === 1 ? '' : 'es' }}
+          · Página {{ pageNumber() }} de {{ totalPages() }}
+        </p>
+        <div>
+          <button
+            type="button"
+            class="sm-billing__secondary"
+            [disabled]="pageNumber() <= 1 || isLoading()"
+            (click)="goToPage(pageNumber() - 1)"
+          >
+            Anterior
+          </button>
+          <button
+            type="button"
+            class="sm-billing__secondary"
+            [disabled]="pageNumber() >= totalPages() || isLoading()"
+            (click)="goToPage(pageNumber() + 1)"
+          >
+            Siguiente
+          </button>
+        </div>
+      </footer>
     }
   </section>
 </section>

@@ -1,0 +1,30 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.sm-table {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid #d3e2dc;
+  border-radius: 10px;
+  background: #fff;
+
+  &:focus-visible {
+    outline: 2px solid #176f5b;
+    outline-offset: 2px;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+
+  &__caption {
+    padding: 0.85rem 1rem;
+    color: #60756e;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+}

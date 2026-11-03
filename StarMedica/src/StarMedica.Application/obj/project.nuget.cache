@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "2dJjY6lbnN0=",
+  "dgSpecHash": "wGwOXW+FLnE=",
   "success": true,
   "projectFilePath": "C:\\repositorios\\agente_ia\\StarMedica\\src\\StarMedica.Application\\StarMedica.Application.csproj",
   "expectedPackageFiles": [
@@ -18,8 +18,10 @@
     {
       "code": "NU1903",
       "level": "Warning",
-      "warningLevel": 1,
       "message": "El paquete \"AutoMapper\" 13.0.1 tiene una vulnerabilidad de gravedad alta conocida, https://github.com/advisories/GHSA-rvv3-g6hj-g44x",
+      "projectPath": "C:\\repositorios\\agente_ia\\StarMedica\\src\\StarMedica.Application\\StarMedica.Application.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\repositorios\\agente_ia\\StarMedica\\src\\StarMedica.Application\\StarMedica.Application.csproj",
       "libraryId": "AutoMapper",
       "targetGraphs": [
         "net9.0"
