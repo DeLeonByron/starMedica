@@ -11,11 +11,15 @@
   </aside>
 
   @if (error()) {
-    <p class="sm-billing__error" role="alert">{{ error() }}</p>
+    <sm-alert type="error" [dismissible]="true" (dismissed)="clearError()">
+      {{ error() }}
+    </sm-alert>
   }
 
   @if (notice()) {
-    <p class="sm-billing__success" role="status">{{ notice() }}</p>
+    <sm-alert type="success" [dismissible]="true" (dismissed)="clearNotice()">
+      {{ notice() }}
+    </sm-alert>
   }
 
   <section class="sm-billing__section" aria-labelledby="draft-form-title">
@@ -30,34 +34,29 @@
 
     <form (ngSubmit)="saveDraft()">
       <div class="sm-billing__form-grid">
-        <label class="sm-billing__wide">
-          Nombre del cliente <span>*</span>
-          <input
-            name="customerName"
-            [ngModel]="form().customerName"
-            (ngModelChange)="updateCustomerName($event)"
-            required
-            maxlength="200"
-          />
-        </label>
-        <label>
-          NIT (referencia interna)
-          <input
-            name="customerNit"
-            [ngModel]="form().customerNit"
-            (ngModelChange)="updateCustomerNit($event)"
-            maxlength="20"
-          />
-        </label>
-        <label>
-          Dirección
-          <input
-            name="customerAddress"
-            [ngModel]="form().customerAddress"
-            (ngModelChange)="updateCustomerAddress($event)"
-            maxlength="300"
-          />
-        </label>
+        <sm-input
+          id="billing-customer-name"
+          name="customerName"
+          label="Nombre del cliente"
+          [(ngModel)]="form().customerName"
+          [required]="true"
+          [maxLength]="200"
+          class="sm-billing__wide"
+        />
+        <sm-input
+          id="billing-customer-nit"
+          name="customerNit"
+          label="NIT (referencia interna)"
+          [(ngModel)]="form().customerNit"
+          [maxLength]="20"
+        />
+        <sm-input
+          id="billing-customer-address"
+          name="customerAddress"
+          label="Dirección"
+          [(ngModel)]="form().customerAddress"
+          [maxLength]="300"
+        />
         <label class="sm-billing__wide">
           Notas
           <textarea
@@ -72,86 +71,74 @@
 
       <div class="sm-billing__lines-header">
         <h3>Conceptos</h3>
-        <button
-          type="button"
-          class="sm-billing__secondary"
-          (click)="addLine()"
-          [disabled]="form().lines.length >= 100"
-        >
+        <sm-button variant="secondary" type="button" (click)="addLine()" [disabled]="form().lines.length >= 100">
           Agregar concepto
-        </button>
+        </sm-button>
       </div>
 
       <div class="sm-billing__lines">
         @for (line of form().lines; track $index; let index = $index) {
           <div class="sm-billing__line">
-            <label>
-              Descripción <span>*</span>
-              <input
-                [name]="'description-' + index"
-                [ngModel]="line.description"
-                (ngModelChange)="updateDescription(index, $event)"
-                required
-                maxlength="300"
-              />
-            </label>
-            <label>
-              Cantidad <span>*</span>
-              <input
-                [name]="'quantity-' + index"
-                type="number"
-                min="0.001"
-                max="100000"
-                step="0.001"
-                [ngModel]="line.quantity"
-                (ngModelChange)="updateQuantity(index, $event)"
-                required
-              />
-            </label>
-            <label>
-              Precio unitario (Q) <span>*</span>
-              <input
-                [name]="'unitPrice-' + index"
-                type="number"
-                min="0"
-                max="100000"
-                step="0.01"
-                [ngModel]="line.unitPrice"
-                (ngModelChange)="updateUnitPrice(index, $event)"
-                required
-              />
-            </label>
+            <sm-input
+              [id]="'billing-line-description-' + index"
+              [name]="'description-' + index"
+              label="Descripción"
+              [ngModel]="line.description"
+              (ngModelChange)="updateDescription(index, $event)"
+              [required]="true"
+              [maxLength]="300"
+            />
+            <sm-input
+              [id]="'billing-line-quantity-' + index"
+              [name]="'quantity-' + index"
+              label="Cantidad"
+              type="number"
+              [ngModel]="line.quantity"
+              (ngModelChange)="updateQuantity(index, $event)"
+              [required]="true"
+            />
+            <sm-input
+              [id]="'billing-line-unit-price-' + index"
+              [name]="'unitPrice-' + index"
+              label="Precio unitario (Q)"
+              type="number"
+              [ngModel]="line.unitPrice"
+              (ngModelChange)="updateUnitPrice(index, $event)"
+              [required]="true"
+            />
             <div class="sm-billing__line-total">
               <span>Total del concepto</span>
               <strong>Q {{ lineAmount(line.quantity, line.unitPrice) | number:'1.2-2':'en-US' }}</strong>
             </div>
-            <button
+            <sm-button
+              variant="secondary"
               type="button"
-              class="sm-billing__remove"
               [disabled]="form().lines.length <= 1"
               [attr.aria-label]="'Quitar concepto ' + (index + 1)"
               (click)="removeLine(index)"
             >
               Quitar
-            </button>
+            </sm-button>
           </div>
         }
       </div>
 
       @if (formError()) {
-        <p class="sm-billing__error" role="alert">{{ formError() }}</p>
+        <sm-alert type="error" [dismissible]="true" (dismissed)="formError.set(null)">
+          {{ formError() }}
+        </sm-alert>
       }
 
       <footer class="sm-billing__form-footer">
         <p>Total interno: <strong>Q {{ total() | number:'1.2-2':'en-US' }}</strong></p>
         @if (editingDraftId() !== null) {
-          <button type="button" class="sm-billing__secondary" [disabled]="isSaving()" (click)="cancelEditing()">
+          <sm-button variant="secondary" type="button" [disabled]="isSaving()" (click)="cancelEditing()">
             Cancelar edición
-          </button>
+          </sm-button>
         }
-        <button type="submit" class="sm-billing__primary" [disabled]="!canSubmit()">
+        <sm-button type="submit" [disabled]="!canSubmit() || isSaving()" [loading]="isSaving()">
           {{ isSaving() ? 'Guardando...' : editingDraftId() === null ? 'Guardar borrador' : 'Guardar cambios' }}
-        </button>
+        </sm-button>
       </footer>
     </form>
   </section>
@@ -176,22 +163,26 @@
             (ngModelChange)="updateSearchTerm($event)"
             maxlength="200"
           />
-          <button type="submit" class="sm-billing__secondary">Buscar</button>
+          <sm-button type="submit" variant="secondary">Buscar</sm-button>
           @if (appliedSearch()) {
-            <button type="button" class="sm-billing__secondary" (click)="clearSearch()">Limpiar</button>
+            <sm-button type="button" variant="secondary" (click)="clearSearch()">Limpiar</sm-button>
           }
         </div>
       </form>
     }
 
     @if (isLoading()) {
-      <p class="sm-billing__muted" role="status">Cargando borradores...</p>
+      <sm-loader label="Cargando borradores..." />
     } @else if (!error() && totalCount() === 0 && appliedSearch()) {
-      <p class="sm-billing__empty">
-        No hay borradores que coincidan con la búsqueda.
-      </p>
+      <sm-empty-state
+        title="No hay borradores que coincidan con la búsqueda"
+        message="Prueba otra referencia o limpia los filtros para volver a la vista completa."
+      />
     } @else if (!error() && totalCount() === 0) {
-      <p class="sm-billing__empty">Aún no hay borradores de facturación.</p>
+      <sm-empty-state
+        title="Aún no hay borradores de facturación"
+        message="Cuando crees el primer documento no fiscal, aparecerá aquí el historial y el total."
+      />
     } @else if (!error()) {
       <div class="sm-billing__draft-list">
         @for (draft of drafts(); track draft.id) {
@@ -222,9 +213,9 @@
               }
             </details>
             <footer class="sm-billing__draft-actions">
-              <button type="button" class="sm-billing__secondary" [disabled]="isSaving()" (click)="startEditing(draft)">
+              <sm-button variant="secondary" type="button" [disabled]="isSaving()" (click)="startEditing(draft)">
                 Editar borrador
-              </button>
+              </sm-button>
             </footer>
           </article>
         }
@@ -235,22 +226,12 @@
           · Página {{ pageNumber() }} de {{ totalPages() }}
         </p>
         <div>
-          <button
-            type="button"
-            class="sm-billing__secondary"
-            [disabled]="pageNumber() <= 1 || isLoading()"
-            (click)="goToPage(pageNumber() - 1)"
-          >
+          <sm-button variant="secondary" type="button" [disabled]="pageNumber() <= 1 || isLoading()" (click)="goToPage(pageNumber() - 1)">
             Anterior
-          </button>
-          <button
-            type="button"
-            class="sm-billing__secondary"
-            [disabled]="pageNumber() >= totalPages() || isLoading()"
-            (click)="goToPage(pageNumber() + 1)"
-          >
+          </sm-button>
+          <sm-button variant="secondary" type="button" [disabled]="pageNumber() >= totalPages() || isLoading()" (click)="goToPage(pageNumber() + 1)">
             Siguiente
-          </button>
+          </sm-button>
         </div>
       </footer>
     }

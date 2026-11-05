@@ -12,14 +12,26 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
 import { AuthService } from '../../core/services/auth.service';
+import { SmAlertComponent } from '../../shared/components/sm-alert/sm-alert.component';
+import { SmButtonComponent } from '../../shared/components/sm-button/sm-button.component';
 import { SmGrowthChartComponent, SmGrowthMeasurement } from '../../shared/components/sm-growth-chart/sm-growth-chart.component';
+import { SmInputComponent } from '../../shared/components/sm-input/sm-input.component';
+import { SmLoaderComponent } from '../../shared/components/sm-loader/sm-loader.component';
 import { AvailableConsultationAppointment, Consultation, ConsultationPatient, CreateConsultationRequest } from './consultations.model';
 import { ConsultationsService } from './consultations.service';
 
 @Component({
   selector: 'sm-consultations-list',
   standalone: true,
-  imports: [DatePipe, FormsModule, SmGrowthChartComponent],
+  imports: [
+    DatePipe,
+    FormsModule,
+    SmAlertComponent,
+    SmButtonComponent,
+    SmGrowthChartComponent,
+    SmInputComponent,
+    SmLoaderComponent
+  ],
   templateUrl: './consultations-list.component.html',
   styleUrl: './consultations-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

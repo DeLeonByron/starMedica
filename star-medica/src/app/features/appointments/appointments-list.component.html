@@ -4,14 +4,12 @@
       <p class="sm-appointments__eyebrow">Agenda clínica</p>
       <h1>Citas</h1>
     </div>
-    <button
-      type="button"
-      class="sm-appointments__primary"
+    <sm-button
       (click)="openForm()"
       [disabled]="options().patients.length === 0 || options().doctors.length === 0"
     >
       Nueva cita
-    </button>
+    </sm-button>
   </header>
 
   <div class="sm-appointments__toolbar">
@@ -28,19 +26,24 @@
   </div>
 
   @if (error()) {
-    <p class="sm-appointments__error" role="alert">{{ error() }}</p>
+    <sm-alert type="error" [dismissible]="true" (dismissed)="clearError()">
+      {{ error() }}
+    </sm-alert>
   }
 
   @if (options().patients.length === 0 || options().doctors.length === 0) {
-    <p class="sm-appointments__notice">
+    <sm-alert type="warning">
       Para agendar, registra un paciente activo y un usuario con rol Médico.
-    </p>
+    </sm-alert>
   }
 
   @if (isLoading()) {
-    <p class="sm-appointments__muted" role="status">Cargando agenda...</p>
+    <sm-loader label="Cargando agenda..." />
   } @else if (appointments().length === 0) {
-    <p class="sm-appointments__empty">No hay citas para este día.</p>
+    <sm-empty-state
+      title="No hay citas para este día"
+      message="Programa la primera cita para la jornada y mantén la agenda al día."
+    />
   } @else {
     <div class="sm-appointments__list">
       @for (appointment of appointments(); track appointment.id) {
@@ -52,14 +55,9 @@
           <div class="sm-appointment__details">
             <div class="sm-appointment__title-row">
               <h2>{{ appointment.patientName }}</h2>
-              <span class="sm-appointment__status"
-                [class.sm-appointment__status--scheduled]="appointment.status === 'Scheduled'"
-                [class.sm-appointment__status--confirmed]="appointment.status === 'Confirmed'"
-                [class.sm-appointment__status--completed]="appointment.status === 'Completed'"
-                [class.sm-appointment__status--cancelled]="appointment.status === 'Cancelled'"
-                [class.sm-appointment__status--no-show]="appointment.status === 'NoShow'">
+              <sm-badge [variant]="statusVariant(appointment.status)">
                 {{ statusLabel(appointment.status) }}
-              </span>
+              </sm-badge>
             </div>
             <p>{{ appointment.reason }}</p>
             <span class="sm-appointment__doctor">Dra./Dr. {{ appointment.doctorName }}</span>
@@ -88,70 +86,75 @@
 </section>
 
 @if (isFormOpen()) {
-  <div class="sm-appointments__backdrop" (click)="closeForm()">
-    <section
-      class="sm-appointments__dialog"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="appointment-form-title"
-      (click)="$event.stopPropagation()"
-    >
-      <header class="sm-appointments__dialog-header">
-        <div>
-          <p class="sm-appointments__eyebrow">Programación</p>
-          <h2 id="appointment-form-title">Nueva cita</h2>
-        </div>
-        <button type="button" class="sm-appointments__close" aria-label="Cerrar" (click)="closeForm()">×</button>
-      </header>
+  <sm-modal [open]="isFormOpen()" labelledBy="appointment-form-title" (dismissed)="closeForm()">
+    <header class="sm-appointments__dialog-header">
+      <div>
+        <p class="sm-appointments__eyebrow">Programación</p>
+        <h2 id="appointment-form-title">Nueva cita</h2>
+      </div>
+      <button type="button" class="sm-appointments__close" aria-label="Cerrar" (click)="closeForm()">×</button>
+    </header>
 
-      <form #appointmentForm="ngForm" (ngSubmit)="createAppointment()">
-        <div class="sm-appointments__form-grid">
-          <label>
-            Paciente
-            <select name="patientId" [(ngModel)]="form.patientId" required>
-              @for (patient of options().patients; track patient.id) {
-                <option [ngValue]="patient.id">{{ patient.name }}</option>
-              }
-            </select>
-          </label>
-          <label>
-            Médico
-            <select name="doctorId" [(ngModel)]="form.doctorId" required>
-              @for (doctor of options().doctors; track doctor.id) {
-                <option [ngValue]="doctor.id">{{ doctor.name }}</option>
-              }
-            </select>
-          </label>
-          <label>
-            Fecha y hora
-            <input name="startsAt" type="datetime-local" [(ngModel)]="form.startsAt" required />
-          </label>
-          <label>
-            Duración
-            <select name="durationMinutes" [(ngModel)]="form.durationMinutes" required>
-              <option [ngValue]="15">15 minutos</option>
-              <option [ngValue]="30">30 minutos</option>
-              <option [ngValue]="45">45 minutos</option>
-              <option [ngValue]="60">60 minutos</option>
-            </select>
-          </label>
-          <label class="sm-appointments__form-wide">
-            Motivo
-            <input name="reason" [(ngModel)]="form.reason" required maxlength="500" />
-          </label>
-        </div>
+    <form #appointmentForm="ngForm" (ngSubmit)="createAppointment()">
+      <div class="sm-appointments__form-grid">
+        <label>
+          Paciente
+          <select name="patientId" [(ngModel)]="form.patientId" required>
+            @for (patient of options().patients; track patient.id) {
+              <option [ngValue]="patient.id">{{ patient.name }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          Médico
+          <select name="doctorId" [(ngModel)]="form.doctorId" required>
+            @for (doctor of options().doctors; track doctor.id) {
+              <option [ngValue]="doctor.id">{{ doctor.name }}</option>
+            }
+          </select>
+        </label>
+        <sm-input
+          id="appointment-starts-at"
+          name="startsAt"
+          label="Fecha y hora"
+          type="datetime-local"
+          [(ngModel)]="form.startsAt"
+          [required]="true"
+        />
+        <label>
+          Duración
+          <select name="durationMinutes" [(ngModel)]="form.durationMinutes" required>
+            <option [ngValue]="15">15 minutos</option>
+            <option [ngValue]="30">30 minutos</option>
+            <option [ngValue]="45">45 minutos</option>
+            <option [ngValue]="60">60 minutos</option>
+          </select>
+        </label>
+        <sm-input
+          id="appointment-reason"
+          name="reason"
+          label="Motivo"
+          [(ngModel)]="form.reason"
+          [required]="true"
+          [maxLength]="500"
+          class="sm-appointments__form-wide"
+        />
+      </div>
 
-        @if (formError()) {
-          <p class="sm-appointments__error" role="alert">{{ formError() }}</p>
-        }
+      @if (formError()) {
+        <sm-alert type="error" [dismissible]="true" (dismissed)="clearFormError()">
+          {{ formError() }}
+        </sm-alert>
+      }
 
-        <footer class="sm-appointments__form-actions">
-          <button type="button" class="sm-appointments__secondary" (click)="closeForm()">Cerrar</button>
-          <button type="submit" class="sm-appointments__primary" [disabled]="appointmentForm.invalid || isSaving()">
-            {{ isSaving() ? 'Guardando...' : 'Guardar cita' }}
-          </button>
-        </footer>
-      </form>
-    </section>
-  </div>
+      <footer class="sm-appointments__form-actions">
+        <sm-button variant="secondary" (click)="closeForm()">
+          Cerrar
+        </sm-button>
+        <sm-button type="submit" [disabled]="appointmentForm.invalid || isSaving()" [loading]="isSaving()">
+          {{ isSaving() ? 'Guardando...' : 'Guardar cita' }}
+        </sm-button>
+      </footer>
+    </form>
+  </sm-modal>
 }

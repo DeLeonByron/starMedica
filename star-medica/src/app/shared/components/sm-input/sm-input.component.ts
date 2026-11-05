@@ -39,7 +39,7 @@ export class SmInputComponent implements ControlValueAccessor, Validator, OnChan
   readonly id = input.required<string>();
   readonly name = input.required<string>();
   readonly label = input.required<string>();
-  readonly type = input<'text' | 'email' | 'tel' | 'date' | 'number' | 'search' | 'url' | 'password'>('text');
+  readonly type = input<'text' | 'email' | 'tel' | 'date' | 'datetime-local' | 'number' | 'search' | 'url' | 'password'>('text');
   readonly placeholder = input('');
   readonly autocomplete = input('');
   readonly required = input(false);
@@ -52,7 +52,7 @@ export class SmInputComponent implements ControlValueAccessor, Validator, OnChan
   private readonly formDisabled = signal(false);
   protected readonly isDisabled = computed(() => this.disabled() || this.formDisabled());
 
-  private onChange: (value: string) => void = () => undefined;
+  private onChange: (value: string | number | null) => void = () => undefined;
   private onTouched: () => void = () => undefined;
   private onValidatorChange: () => void = () => undefined;
 
@@ -60,11 +60,11 @@ export class SmInputComponent implements ControlValueAccessor, Validator, OnChan
     this.onValidatorChange();
   }
 
-  writeValue(value: string | null): void {
-    this.value.set(value ?? '');
+  writeValue(value: string | number | null): void {
+    this.value.set(value === null || value === undefined ? '' : String(value));
   }
 
-  registerOnChange(fn: (value: string) => void): void {
+  registerOnChange(fn: (value: string | number | null) => void): void {
     this.onChange = fn;
   }
 
@@ -102,8 +102,13 @@ export class SmInputComponent implements ControlValueAccessor, Validator, OnChan
       return;
     }
 
-    this.value.set(target.value);
-    this.onChange(target.value);
+    const rawValue = target.value;
+    const normalizedValue = this.type() === 'number'
+      ? (rawValue === '' ? null : Number(rawValue))
+      : rawValue;
+
+    this.value.set(rawValue);
+    this.onChange(normalizedValue);
   }
 
   protected markTouched(): void {

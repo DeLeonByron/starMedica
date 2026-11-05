@@ -17,11 +17,25 @@ import {
   CreateBillingDraftRequest
 } from '../billing.model';
 import { BillingService } from '../billing.service';
+import { SmAlertComponent } from '../../../shared/components/sm-alert/sm-alert.component';
+import { SmButtonComponent } from '../../../shared/components/sm-button/sm-button.component';
+import { SmEmptyStateComponent } from '../../../shared/components/sm-empty-state/sm-empty-state.component';
+import { SmInputComponent } from '../../../shared/components/sm-input/sm-input.component';
+import { SmLoaderComponent } from '../../../shared/components/sm-loader/sm-loader.component';
 
 @Component({
   selector: 'sm-billing-drafts',
   standalone: true,
-  imports: [DatePipe, DecimalPipe, FormsModule],
+  imports: [
+    DatePipe,
+    DecimalPipe,
+    FormsModule,
+    SmAlertComponent,
+    SmButtonComponent,
+    SmEmptyStateComponent,
+    SmInputComponent,
+    SmLoaderComponent
+  ],
   templateUrl: './billing-drafts.component.html',
   styleUrl: './billing-drafts.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -117,12 +131,14 @@ export class BillingDraftsComponent implements OnInit {
     this.updateLine(index, (line) => ({ ...line, description: value }));
   }
 
-  updateQuantity(index: number, value: number | null): void {
-    this.updateLine(index, (line) => ({ ...line, quantity: value ?? Number.NaN }));
+  updateQuantity(index: number, value: number | string | null): void {
+    const normalizedValue = value === null || value === '' ? Number.NaN : Number(value);
+    this.updateLine(index, (line) => ({ ...line, quantity: normalizedValue }));
   }
 
-  updateUnitPrice(index: number, value: number | null): void {
-    this.updateLine(index, (line) => ({ ...line, unitPrice: value ?? Number.NaN }));
+  updateUnitPrice(index: number, value: number | string | null): void {
+    const normalizedValue = value === null || value === '' ? Number.NaN : Number(value);
+    this.updateLine(index, (line) => ({ ...line, unitPrice: normalizedValue }));
   }
 
   addLine(): void {
@@ -172,6 +188,14 @@ export class BillingDraftsComponent implements OnInit {
     this.editingDraftId.set(null);
     this.formError.set(null);
     this.form.set(this.emptyForm());
+  }
+
+  clearError(): void {
+    this.error.set(null);
+  }
+
+  clearNotice(): void {
+    this.notice.set(null);
   }
 
   saveDraft(): void {

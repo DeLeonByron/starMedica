@@ -12,6 +12,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
 import { AuthService } from '../../core/services/auth.service';
+import { SmAlertComponent } from '../../shared/components/sm-alert/sm-alert.component';
+import { SmButtonComponent } from '../../shared/components/sm-button/sm-button.component';
+import { SmEmptyStateComponent } from '../../shared/components/sm-empty-state/sm-empty-state.component';
+import { SmInputComponent } from '../../shared/components/sm-input/sm-input.component';
+import { SmLoaderComponent } from '../../shared/components/sm-loader/sm-loader.component';
+import { SmModalComponent } from '../../shared/components/sm-modal/sm-modal.component';
 import {
   CreateMedicineRequest,
   DispenseStockRequest,
@@ -26,7 +32,16 @@ import { PharmacyService } from './pharmacy.service';
 @Component({
   selector: 'sm-pharmacy-list',
   standalone: true,
-  imports: [DatePipe, FormsModule],
+  imports: [
+    DatePipe,
+    FormsModule,
+    SmAlertComponent,
+    SmButtonComponent,
+    SmEmptyStateComponent,
+    SmInputComponent,
+    SmLoaderComponent,
+    SmModalComponent
+  ],
   templateUrl: './pharmacy-list.component.html',
   styleUrl: './pharmacy-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -107,6 +122,14 @@ export class PharmacyListComponent implements OnInit {
       this.isReceiptFormOpen.set(false);
       this.isDispenseFormOpen.set(false);
     }
+  }
+
+  clearError(): void {
+    this.error.set(null);
+  }
+
+  clearFormError(): void {
+    this.formError.set(null);
   }
 
   createMedicine(): void {

@@ -12,6 +12,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
 import { AuthService } from '../../core/services/auth.service';
+import { SmAlertComponent } from '../../shared/components/sm-alert/sm-alert.component';
+import { SmButtonComponent } from '../../shared/components/sm-button/sm-button.component';
+import { SmEmptyStateComponent } from '../../shared/components/sm-empty-state/sm-empty-state.component';
+import { SmInputComponent } from '../../shared/components/sm-input/sm-input.component';
+import { SmLoaderComponent } from '../../shared/components/sm-loader/sm-loader.component';
+import { SmModalComponent } from '../../shared/components/sm-modal/sm-modal.component';
 import { Patient } from '../patients/patients.model';
 import {
   AdministerVaccineRequest,
@@ -24,7 +30,16 @@ import { VaccinesService } from './vaccines.service';
 @Component({
   selector: 'sm-vaccines-list',
   standalone: true,
-  imports: [DatePipe, FormsModule],
+  imports: [
+    DatePipe,
+    FormsModule,
+    SmAlertComponent,
+    SmButtonComponent,
+    SmEmptyStateComponent,
+    SmInputComponent,
+    SmLoaderComponent,
+    SmModalComponent
+  ],
   templateUrl: './vaccines-list.component.html',
   styleUrl: './vaccines-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -91,6 +106,14 @@ export class VaccinesListComponent implements OnInit {
       this.isCatalogFormOpen.set(false);
       this.isAdministrationFormOpen.set(false);
     }
+  }
+
+  clearError(): void {
+    this.error.set(null);
+  }
+
+  clearFormError(): void {
+    this.formError.set(null);
   }
 
   maxDoseNumber(): number {

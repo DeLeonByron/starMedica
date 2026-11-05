@@ -16,7 +16,7 @@
   </header>
 
   @if (error()) {
-    <p class="sm-consultations__error" role="alert">{{ error() }}</p>
+    <sm-alert type="error" [dismissible]="false">{{ error() }}</sm-alert>
   }
 
   @if (!selectedPatientId() && !isLoadingPatients()) {
@@ -24,11 +24,11 @@
   } @else if (selectedPatientId()) {
     <div class="sm-consultations__section-heading">
       <h2>Historial</h2>
-      <button type="button" class="sm-consultations__primary" (click)="openForm()">Nueva consulta</button>
+      <sm-button type="button" (click)="openForm()">Nueva consulta</sm-button>
     </div>
 
     @if (isLoadingHistory()) {
-      <p class="sm-consultations__muted" role="status">Cargando expediente...</p>
+      <sm-loader label="Cargando expediente..." />
     } @else if (consultations().length === 0) {
       <p class="sm-consultations__empty">Este paciente aún no tiene consultas registradas.</p>
     } @else {
@@ -107,18 +107,32 @@
               }
             </select>
           </label>
-          <label>
-            Motivo de consulta <span>*</span>
-            <input name="chiefComplaint" [(ngModel)]="form.chiefComplaint" required maxlength="300" />
-          </label>
-          <label>
-            Código CIE-10 <span>*</span>
-            <input name="diagnosisCode" [(ngModel)]="form.diagnosisCode" required maxlength="10" pattern="[A-Za-z][0-9][0-9A-Za-z](\.[0-9A-Za-z]{1,4})?" />
-          </label>
-          <label class="sm-consultations__wide">
-            Descripción diagnóstica <span>*</span>
-            <input name="diagnosisDescription" [(ngModel)]="form.diagnosisDescription" required maxlength="500" />
-          </label>
+          <sm-input
+            id="consultation-chief-complaint"
+            name="chiefComplaint"
+            label="Motivo de consulta"
+            [(ngModel)]="form.chiefComplaint"
+            [required]="true"
+            [maxLength]="300"
+          />
+          <sm-input
+            id="consultation-diagnosis-code"
+            name="diagnosisCode"
+            label="Código CIE-10"
+            [(ngModel)]="form.diagnosisCode"
+            [required]="true"
+            [maxLength]="10"
+            placeholder="E10.9"
+          />
+          <sm-input
+            id="consultation-diagnosis-description"
+            name="diagnosisDescription"
+            label="Descripción diagnóstica"
+            [(ngModel)]="form.diagnosisDescription"
+            [required]="true"
+            [maxLength]="500"
+            class="sm-consultations__wide"
+          />
           <label class="sm-consultations__wide">
             Historia de la enfermedad actual <span>*</span>
             <textarea name="presentIllness" [(ngModel)]="form.presentIllness" required maxlength="2000" rows="3"></textarea>
@@ -130,14 +144,14 @@
           <fieldset class="sm-consultations__wide">
             <legend>Signos vitales</legend>
             <div class="sm-consultations__vital-grid">
-              <label>Peso (kg)<input name="weightKg" type="number" min="0.1" max="200" step="0.01" [(ngModel)]="form.weightKg" /></label>
-              <label>Talla (cm)<input name="heightCm" type="number" min="20" max="250" step="0.1" [(ngModel)]="form.heightCm" /></label>
-              <label>Temperatura (°C)<input name="temperatureCelsius" type="number" min="30" max="45" step="0.1" [(ngModel)]="form.temperatureCelsius" /></label>
-              <label>Frecuencia cardíaca<input name="heartRateBpm" type="number" min="20" max="250" [(ngModel)]="form.heartRateBpm" /></label>
-              <label>Frecuencia respiratoria<input name="respiratoryRatePerMinute" type="number" min="5" max="100" [(ngModel)]="form.respiratoryRatePerMinute" /></label>
-              <label>Presión sistólica<input name="systolicBloodPressure" type="number" min="40" max="250" [(ngModel)]="form.systolicBloodPressure" /></label>
-              <label>Presión diastólica<input name="diastolicBloodPressure" type="number" min="20" max="150" [(ngModel)]="form.diastolicBloodPressure" /></label>
-              <label>Saturación O₂ (%)<input name="oxygenSaturationPercent" type="number" min="50" max="100" [(ngModel)]="form.oxygenSaturationPercent" /></label>
+              <sm-input id="consultation-weight" name="weightKg" label="Peso (kg)" type="number" [(ngModel)]="form.weightKg" [maxLength]="10" />
+              <sm-input id="consultation-height" name="heightCm" label="Talla (cm)" type="number" [(ngModel)]="form.heightCm" [maxLength]="10" />
+              <sm-input id="consultation-temperature" name="temperatureCelsius" label="Temperatura (°C)" type="number" [(ngModel)]="form.temperatureCelsius" [maxLength]="10" />
+              <sm-input id="consultation-heart-rate" name="heartRateBpm" label="Frecuencia cardíaca" type="number" [(ngModel)]="form.heartRateBpm" [maxLength]="10" />
+              <sm-input id="consultation-respiratory-rate" name="respiratoryRatePerMinute" label="Frecuencia respiratoria" type="number" [(ngModel)]="form.respiratoryRatePerMinute" [maxLength]="10" />
+              <sm-input id="consultation-systolic" name="systolicBloodPressure" label="Presión sistólica" type="number" [(ngModel)]="form.systolicBloodPressure" [maxLength]="10" />
+              <sm-input id="consultation-diastolic" name="diastolicBloodPressure" label="Presión diastólica" type="number" [(ngModel)]="form.diastolicBloodPressure" [maxLength]="10" />
+              <sm-input id="consultation-saturation" name="oxygenSaturationPercent" label="Saturación O₂ (%)" type="number" [(ngModel)]="form.oxygenSaturationPercent" [maxLength]="10" />
             </div>
           </fieldset>
           <label class="sm-consultations__wide">
@@ -150,13 +164,15 @@
           </label>
         </div>
 
-        @if (formError()) { <p class="sm-consultations__error" role="alert">{{ formError() }}</p> }
+        @if (formError()) {
+          <sm-alert type="error" [dismissible]="false">{{ formError() }}</sm-alert>
+        }
 
         <footer class="sm-consultations__form-actions">
-          <button type="button" class="sm-consultations__secondary" (click)="closeForm()">Cerrar</button>
-          <button type="submit" class="sm-consultations__primary" [disabled]="consultationForm.invalid || isSaving()">
+          <sm-button variant="secondary" type="button" (click)="closeForm()">Cerrar</sm-button>
+          <sm-button type="submit" [disabled]="consultationForm.invalid || isSaving()" [loading]="isSaving()">
             {{ isSaving() ? 'Guardando...' : 'Guardar expediente' }}
-          </button>
+          </sm-button>
         </footer>
       </form>
     </section>

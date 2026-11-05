@@ -2,11 +2,15 @@
   <header class="sm-vaccines__header">
     <div><p class="sm-vaccines__eyebrow">Programa Nacional de Inmunizaciones</p><h1>Vacunación</h1></div>
     @if (isSuperAdmin()) {
-      <button type="button" class="sm-vaccines__primary" (click)="openCatalogForm()">Agregar vacuna al catálogo</button>
+      <sm-button (click)="openCatalogForm()">Agregar vacuna al catálogo</sm-button>
     }
   </header>
 
-  @if (error()) { <p class="sm-vaccines__error" role="alert">{{ error() }}</p> }
+  @if (error()) {
+    <sm-alert type="error" [dismissible]="true" (dismissed)="clearError()">
+      {{ error() }}
+    </sm-alert>
+  }
 
   <label class="sm-vaccines__patient-select">
     Paciente
@@ -21,9 +25,12 @@
   <section class="sm-vaccines__catalog" aria-labelledby="vaccine-catalog-heading">
     <header class="sm-vaccines__section-header"><h2 id="vaccine-catalog-heading">Catálogo activo</h2></header>
     @if (isLoading()) {
-      <p class="sm-vaccines__muted" role="status">Cargando catálogo...</p>
+      <sm-loader label="Cargando catálogo..." />
     } @else if (catalog().length === 0) {
-      <p class="sm-vaccines__empty">El catálogo aún no tiene vacunas configuradas.</p>
+      <sm-empty-state
+        title="El catálogo aún no tiene vacunas configuradas"
+        message="Configura el esquema de inmunización para que el equipo médico pueda registrar aplicaciones."
+      />
     } @else {
       <div class="sm-vaccines__catalog-list">
         @for (vaccine of catalog(); track vaccine.id) {
@@ -41,14 +48,17 @@
       <header class="sm-vaccines__section-header">
         <h2 id="vaccination-history-heading">Historial del paciente</h2>
         @if (isDoctor() && catalog().length > 0) {
-          <button type="button" class="sm-vaccines__primary" (click)="openAdministrationForm()">Registrar aplicación</button>
+          <sm-button (click)="openAdministrationForm()">Registrar aplicación</sm-button>
         }
       </header>
 
       @if (isLoadingHistory()) {
-        <p class="sm-vaccines__muted" role="status">Cargando historial...</p>
+        <sm-loader label="Cargando historial..." />
       } @else if (history().length === 0) {
-        <p class="sm-vaccines__empty">No hay aplicaciones registradas para este paciente.</p>
+        <sm-empty-state
+          title="No hay aplicaciones registradas"
+          message="Todavía no se ha documentado ninguna vacuna para este paciente."
+        />
       } @else {
         <div class="sm-vaccines__history-list">
           @for (record of history(); track record.id) {
@@ -71,54 +81,113 @@
 </section>
 
 @if (isCatalogFormOpen()) {
-  <div class="sm-vaccines__backdrop" (click)="closeForms()">
-    <section class="sm-vaccines__dialog" role="dialog" aria-modal="true" aria-labelledby="vaccine-catalog-form-title" (click)="$event.stopPropagation()">
-      <header class="sm-vaccines__dialog-header">
-        <div><p class="sm-vaccines__eyebrow">Configuración institucional</p><h2 id="vaccine-catalog-form-title">Agregar vacuna</h2></div>
-        <button type="button" class="sm-vaccines__close" aria-label="Cerrar" (click)="closeForms()">×</button>
-      </header>
-      <form #vaccineForm="ngForm" (ngSubmit)="createVaccine()">
-        <div class="sm-vaccines__form-grid">
-          <label>Código institucional <span>*</span><input name="code" [(ngModel)]="catalogForm.code" required maxlength="20" /></label>
-          <label>Nombre <span>*</span><input name="name" [(ngModel)]="catalogForm.name" required maxlength="150" /></label>
-          <label class="sm-vaccines__wide">Enfermedad objetivo <span>*</span><input name="targetDisease" [(ngModel)]="catalogForm.targetDisease" required maxlength="300" /></label>
-          <label>Dosis del esquema <span>*</span><input name="dosesRequired" type="number" [(ngModel)]="catalogForm.dosesRequired" required min="1" max="10" /></label>
-        </div>
-        @if (formError()) { <p class="sm-vaccines__error" role="alert">{{ formError() }}</p> }
-        <footer class="sm-vaccines__form-actions">
-          <button type="button" class="sm-vaccines__secondary" (click)="closeForms()">Cerrar</button>
-          <button type="submit" class="sm-vaccines__primary" [disabled]="vaccineForm.invalid || isSaving()">{{ isSaving() ? 'Guardando...' : 'Guardar vacuna' }}</button>
-        </footer>
-      </form>
-    </section>
-  </div>
+  <sm-modal [open]="isCatalogFormOpen()" labelledBy="vaccine-catalog-form-title" (dismissed)="closeForms()">
+    <header class="sm-vaccines__dialog-header">
+      <div><p class="sm-vaccines__eyebrow">Configuración institucional</p><h2 id="vaccine-catalog-form-title">Agregar vacuna</h2></div>
+      <button type="button" class="sm-vaccines__close" aria-label="Cerrar" (click)="closeForms()">×</button>
+    </header>
+    <form #vaccineForm="ngForm" (ngSubmit)="createVaccine()">
+      <div class="sm-vaccines__form-grid">
+        <sm-input
+          id="vaccine-code"
+          name="code"
+          label="Código institucional"
+          [(ngModel)]="catalogForm.code"
+          [required]="true"
+          [maxLength]="20"
+        />
+        <sm-input
+          id="vaccine-name"
+          name="name"
+          label="Nombre"
+          [(ngModel)]="catalogForm.name"
+          [required]="true"
+          [maxLength]="150"
+        />
+        <sm-input
+          id="vaccine-target-disease"
+          name="targetDisease"
+          label="Enfermedad objetivo"
+          [(ngModel)]="catalogForm.targetDisease"
+          [required]="true"
+          [maxLength]="300"
+          class="sm-vaccines__wide"
+        />
+        <sm-input
+          id="vaccine-doses-required"
+          name="dosesRequired"
+          label="Dosis del esquema"
+          type="number"
+          [(ngModel)]="catalogForm.dosesRequired"
+          [required]="true"
+        />
+      </div>
+      @if (formError()) {
+        <sm-alert type="error" [dismissible]="true" (dismissed)="clearFormError()">
+          {{ formError() }}
+        </sm-alert>
+      }
+      <footer class="sm-vaccines__form-actions">
+        <sm-button variant="secondary" (click)="closeForms()">Cerrar</sm-button>
+        <sm-button type="submit" [disabled]="vaccineForm.invalid || isSaving()" [loading]="isSaving()">
+          {{ isSaving() ? 'Guardando...' : 'Guardar vacuna' }}
+        </sm-button>
+      </footer>
+    </form>
+  </sm-modal>
 }
 
 @if (isAdministrationFormOpen()) {
-  <div class="sm-vaccines__backdrop" (click)="closeForms()">
-    <section class="sm-vaccines__dialog" role="dialog" aria-modal="true" aria-labelledby="vaccination-form-title" (click)="$event.stopPropagation()">
-      <header class="sm-vaccines__dialog-header">
-        <div><p class="sm-vaccines__eyebrow">Aplicación de dosis</p><h2 id="vaccination-form-title">Registrar vacuna</h2></div>
-        <button type="button" class="sm-vaccines__close" aria-label="Cerrar" (click)="closeForms()">×</button>
-      </header>
-      <form #vaccinationForm="ngForm" (ngSubmit)="administer()">
-        <div class="sm-vaccines__form-grid">
-          <label class="sm-vaccines__wide">Vacuna <span>*</span>
-            <select name="vaccineId" [(ngModel)]="administrationForm.vaccineId" required>
-              @for (vaccine of catalog(); track vaccine.id) { <option [ngValue]="vaccine.id">{{ vaccine.code }} · {{ vaccine.name }}</option> }
-            </select>
-          </label>
-          <label>Número de dosis <span>*</span><input name="doseNumber" type="number" [(ngModel)]="administrationForm.doseNumber" required min="1" [max]="maxDoseNumber()" /></label>
-          <label>Lote <span>*</span><input name="lotNumber" [(ngModel)]="administrationForm.lotNumber" required maxlength="100" /></label>
-          <label>Vencimiento del lote <span>*</span><input name="expiresOn" type="date" [(ngModel)]="administrationForm.expiresOn" required /></label>
-          <label class="sm-vaccines__wide">Evento adverso observado<textarea name="adverseEventNotes" [(ngModel)]="administrationForm.adverseEventNotes" maxlength="2000" rows="3"></textarea></label>
-        </div>
-        @if (formError()) { <p class="sm-vaccines__error" role="alert">{{ formError() }}</p> }
-        <footer class="sm-vaccines__form-actions">
-          <button type="button" class="sm-vaccines__secondary" (click)="closeForms()">Cerrar</button>
-          <button type="submit" class="sm-vaccines__primary" [disabled]="vaccinationForm.invalid || isAdministering()">{{ isAdministering() ? 'Guardando...' : 'Registrar aplicación' }}</button>
-        </footer>
-      </form>
-    </section>
-  </div>
+  <sm-modal [open]="isAdministrationFormOpen()" labelledBy="vaccination-form-title" (dismissed)="closeForms()">
+    <header class="sm-vaccines__dialog-header">
+      <div><p class="sm-vaccines__eyebrow">Aplicación de dosis</p><h2 id="vaccination-form-title">Registrar vacuna</h2></div>
+      <button type="button" class="sm-vaccines__close" aria-label="Cerrar" (click)="closeForms()">×</button>
+    </header>
+    <form #vaccinationForm="ngForm" (ngSubmit)="administer()">
+      <div class="sm-vaccines__form-grid">
+        <label class="sm-vaccines__wide">Vacuna <span>*</span>
+          <select name="vaccineId" [(ngModel)]="administrationForm.vaccineId" required>
+            @for (vaccine of catalog(); track vaccine.id) { <option [ngValue]="vaccine.id">{{ vaccine.code }} · {{ vaccine.name }}</option> }
+          </select>
+        </label>
+        <sm-input
+          id="vaccination-dose-number"
+          name="doseNumber"
+          label="Número de dosis"
+          type="number"
+          [(ngModel)]="administrationForm.doseNumber"
+          [required]="true"
+          [maxLength]="2"
+        />
+        <sm-input
+          id="vaccination-lot-number"
+          name="lotNumber"
+          label="Lote"
+          [(ngModel)]="administrationForm.lotNumber"
+          [required]="true"
+          [maxLength]="100"
+        />
+        <sm-input
+          id="vaccination-expires-on"
+          name="expiresOn"
+          label="Vencimiento del lote"
+          type="date"
+          [(ngModel)]="administrationForm.expiresOn"
+          [required]="true"
+        />
+        <label class="sm-vaccines__wide">Evento adverso observado<textarea name="adverseEventNotes" [(ngModel)]="administrationForm.adverseEventNotes" maxlength="2000" rows="3"></textarea></label>
+      </div>
+      @if (formError()) {
+        <sm-alert type="error" [dismissible]="true" (dismissed)="clearFormError()">
+          {{ formError() }}
+        </sm-alert>
+      }
+      <footer class="sm-vaccines__form-actions">
+        <sm-button variant="secondary" (click)="closeForms()">Cerrar</sm-button>
+        <sm-button type="submit" [disabled]="vaccinationForm.invalid || isAdministering()" [loading]="isAdministering()">
+          {{ isAdministering() ? 'Guardando...' : 'Registrar aplicación' }}
+        </sm-button>
+      </footer>
+    </form>
+  </sm-modal>
 }

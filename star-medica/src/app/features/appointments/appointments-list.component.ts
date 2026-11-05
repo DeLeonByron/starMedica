@@ -17,11 +17,27 @@ import {
   CreateAppointmentRequest
 } from './appointments.model';
 import { AppointmentsService } from './appointments.service';
+import { SmAlertComponent } from '../../shared/components/sm-alert/sm-alert.component';
+import { SmBadgeComponent } from '../../shared/components/sm-badge/sm-badge.component';
+import { SmButtonComponent } from '../../shared/components/sm-button/sm-button.component';
+import { SmEmptyStateComponent } from '../../shared/components/sm-empty-state/sm-empty-state.component';
+import { SmInputComponent } from '../../shared/components/sm-input/sm-input.component';
+import { SmLoaderComponent } from '../../shared/components/sm-loader/sm-loader.component';
+import { SmModalComponent } from '../../shared/components/sm-modal/sm-modal.component';
 
 @Component({
   selector: 'sm-appointments-list',
   standalone: true,
-  imports: [FormsModule],
+  imports: [
+    FormsModule,
+    SmAlertComponent,
+    SmBadgeComponent,
+    SmButtonComponent,
+    SmEmptyStateComponent,
+    SmInputComponent,
+    SmLoaderComponent,
+    SmModalComponent
+  ],
   templateUrl: './appointments-list.component.html',
   styleUrl: './appointments-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -85,6 +101,14 @@ export class AppointmentsListComponent implements OnInit {
     }
   }
 
+  clearError(): void {
+    this.error.set(null);
+  }
+
+  clearFormError(): void {
+    this.formError.set(null);
+  }
+
   createAppointment(): void {
     if (this.isSaving() || !this.form.startsAt || !this.form.patientId || !this.form.doctorId) {
       return;
@@ -131,6 +155,23 @@ export class AppointmentsListComponent implements OnInit {
       NoShow: 'No asistió'
     };
     return labels[status];
+  }
+
+  statusVariant(status: AppointmentStatus): 'neutral' | 'info' | 'success' | 'warning' | 'danger' {
+    switch (status) {
+      case 'Scheduled':
+        return 'info';
+      case 'Confirmed':
+        return 'warning';
+      case 'Completed':
+        return 'success';
+      case 'Cancelled':
+        return 'danger';
+      case 'NoShow':
+        return 'neutral';
+      default:
+        return 'neutral';
+    }
   }
 
   formatTime(value: string): string {
