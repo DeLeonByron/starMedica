@@ -144,14 +144,14 @@
           <fieldset class="sm-consultations__wide">
             <legend>Signos vitales</legend>
             <div class="sm-consultations__vital-grid">
-              <sm-input id="consultation-weight" name="weightKg" label="Peso (kg)" type="number" [(ngModel)]="form.weightKg" [maxLength]="10" />
-              <sm-input id="consultation-height" name="heightCm" label="Talla (cm)" type="number" [(ngModel)]="form.heightCm" [maxLength]="10" />
-              <sm-input id="consultation-temperature" name="temperatureCelsius" label="Temperatura (°C)" type="number" [(ngModel)]="form.temperatureCelsius" [maxLength]="10" />
-              <sm-input id="consultation-heart-rate" name="heartRateBpm" label="Frecuencia cardíaca" type="number" [(ngModel)]="form.heartRateBpm" [maxLength]="10" />
-              <sm-input id="consultation-respiratory-rate" name="respiratoryRatePerMinute" label="Frecuencia respiratoria" type="number" [(ngModel)]="form.respiratoryRatePerMinute" [maxLength]="10" />
-              <sm-input id="consultation-systolic" name="systolicBloodPressure" label="Presión sistólica" type="number" [(ngModel)]="form.systolicBloodPressure" [maxLength]="10" />
-              <sm-input id="consultation-diastolic" name="diastolicBloodPressure" label="Presión diastólica" type="number" [(ngModel)]="form.diastolicBloodPressure" [maxLength]="10" />
-              <sm-input id="consultation-saturation" name="oxygenSaturationPercent" label="Saturación O₂ (%)" type="number" [(ngModel)]="form.oxygenSaturationPercent" [maxLength]="10" />
+              <sm-input id="consultation-weight" name="weightKg" label="Peso (kg)" type="number" [(ngModel)]="form.weightKg" [min]="0.1" [max]="200" [step]="0.01" />
+              <sm-input id="consultation-height" name="heightCm" label="Talla (cm)" type="number" [(ngModel)]="form.heightCm" [min]="20" [max]="250" [step]="0.1" />
+              <sm-input id="consultation-temperature" name="temperatureCelsius" label="Temperatura (°C)" type="number" [(ngModel)]="form.temperatureCelsius" [min]="30" [max]="45" [step]="0.1" />
+              <sm-input id="consultation-heart-rate" name="heartRateBpm" label="Frecuencia cardíaca" type="number" [(ngModel)]="form.heartRateBpm" [min]="20" [max]="250" />
+              <sm-input id="consultation-respiratory-rate" name="respiratoryRatePerMinute" label="Frecuencia respiratoria" type="number" [(ngModel)]="form.respiratoryRatePerMinute" [min]="5" [max]="100" />
+              <sm-input id="consultation-systolic" name="systolicBloodPressure" label="Presión sistólica" type="number" [(ngModel)]="form.systolicBloodPressure" [min]="40" [max]="250" />
+              <sm-input id="consultation-diastolic" name="diastolicBloodPressure" label="Presión diastólica" type="number" [(ngModel)]="form.diastolicBloodPressure" [min]="20" [max]="150" />
+              <sm-input id="consultation-saturation" name="oxygenSaturationPercent" label="Saturación O₂ (%)" type="number" [(ngModel)]="form.oxygenSaturationPercent" [min]="50" [max]="100" />
             </div>
           </fieldset>
           <label class="sm-consultations__wide">

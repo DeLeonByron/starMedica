@@ -15,6 +15,7 @@ import {
   NG_VALUE_ACCESSOR,
   ValidationErrors,
   Validator,
+  ValidatorFn,
   Validators
 } from '@angular/forms';
 
@@ -44,6 +45,9 @@ export class SmInputComponent implements ControlValueAccessor, Validator, OnChan
   readonly autocomplete = input('');
   readonly required = input(false);
   readonly maxLength = input<number | null>(null);
+  readonly min = input<number | null>(null);
+  readonly max = input<number | null>(null);
+  readonly step = input<number | 'any'>(1);
   readonly hint = input('');
   readonly error = input('');
   readonly disabled = input(false);
@@ -77,7 +81,7 @@ export class SmInputComponent implements ControlValueAccessor, Validator, OnChan
   }
 
   validate(control: AbstractControl): ValidationErrors | null {
-    const validators = [];
+    const validators: ValidatorFn[] = [];
     if (this.required()) {
       validators.push(Validators.required);
     }
@@ -88,8 +92,45 @@ export class SmInputComponent implements ControlValueAccessor, Validator, OnChan
     if (maxLength !== null) {
       validators.push(Validators.maxLength(maxLength));
     }
+    if (this.type() === 'number') {
+      const min = this.min();
+      const max = this.max();
+      if (min !== null) {
+        validators.push(Validators.min(min));
+      }
+      if (max !== null) {
+        validators.push(Validators.max(max));
+      }
+    }
 
-    return Validators.compose(validators)?.(control) ?? null;
+    const validationErrors = Validators.compose(validators)?.(control) ?? null;
+    const step = this.step();
+    if (validationErrors || this.type() !== 'number') {
+      return validationErrors;
+    }
+
+    const value = Number(control.value);
+    if (control.value === null || control.value === undefined || control.value === '') {
+      return validationErrors;
+    }
+    if (!Number.isFinite(value)) {
+      return { number: { actual: control.value } };
+    }
+    if (step === 'any') {
+      return null;
+    }
+
+    if (step <= 0) {
+      return { step: { step, actual: value } };
+    }
+
+    const stepBase = this.min() ?? 0;
+    const stepsFromBase = (value - stepBase) / step;
+    if (Math.abs(stepsFromBase - Math.round(stepsFromBase)) > 1e-8) {
+      return { step: { step, actual: value } };
+    }
+
+    return null;
   }
 
   registerOnValidatorChange(fn: () => void): void {
