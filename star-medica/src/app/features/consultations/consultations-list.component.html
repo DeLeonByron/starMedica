@@ -6,7 +6,11 @@
     </div>
     <label class="sm-consultations__patient-select">
       <span>Paciente</span>
-      <select [value]="selectedPatientId() ?? ''" (change)="selectPatient($event)" [disabled]="isLoadingPatients()">
+      <select
+        [value]="selectedPatientId() ?? ''"
+        (change)="selectPatient($event)"
+        [disabled]="isLoadingPatients() || isSaving()"
+      >
         <option value="">Selecciona un paciente</option>
         @for (patient of patients(); track patient.id) {
           <option [value]="patient.id">{{ patient.fullName }}</option>
@@ -35,18 +39,30 @@
       @if (weightMeasurements().length > 0 || heightMeasurements().length > 0) {
         <section class="sm-consultations__measurements" aria-label="Evolución de medidas registradas">
           @if (weightMeasurements().length > 0) {
-            <sm-growth-chart
-              title="Evolución de peso"
-              unit="kg"
-              [measurements]="weightMeasurements()"
-            />
+            @defer (on viewport) {
+              <sm-growth-chart
+                title="Evolución de peso"
+                unit="kg"
+                [measurements]="weightMeasurements()"
+              />
+            } @placeholder {
+              <p class="sm-consultations__chart-placeholder" role="status">
+                Gráfico de peso pendiente de cargar.
+              </p>
+            }
           }
           @if (heightMeasurements().length > 0) {
-            <sm-growth-chart
-              title="Evolución de talla"
-              unit="cm"
-              [measurements]="heightMeasurements()"
-            />
+            @defer (on viewport) {
+              <sm-growth-chart
+                title="Evolución de talla"
+                unit="cm"
+                [measurements]="heightMeasurements()"
+              />
+            } @placeholder {
+              <p class="sm-consultations__chart-placeholder" role="status">
+                Gráfico de talla pendiente de cargar.
+              </p>
+            }
           }
         </section>
       }
@@ -87,8 +103,12 @@
 </section>
 
 @if (isFormOpen()) {
-  <div class="sm-consultations__backdrop" (click)="closeForm()">
-    <section class="sm-consultations__dialog" role="dialog" aria-modal="true" aria-labelledby="consultation-form-title" (click)="$event.stopPropagation()">
+  <sm-modal
+    [open]="isFormOpen()"
+    labelledBy="consultation-form-title"
+    size="large"
+    (dismissed)="closeForm()"
+  >
       <header class="sm-consultations__dialog-header">
         <div><p class="sm-consultations__eyebrow">Registro clínico</p><h2 id="consultation-form-title">Nueva consulta</h2></div>
         <button type="button" class="sm-consultations__close" aria-label="Cerrar" (click)="closeForm()">×</button>
@@ -175,6 +195,5 @@
           </sm-button>
         </footer>
       </form>
-    </section>
-  </div>
+  </sm-modal>
 }

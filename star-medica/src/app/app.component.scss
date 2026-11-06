@@ -16,6 +16,15 @@
   padding: 2rem;
 }
 
+.app-shell__error {
+  margin: 0 0 1rem;
+  border: 1px solid #e6aaa5;
+  border-radius: 0.5rem;
+  padding: 0.875rem 1rem;
+  background: #fff1f0;
+  color: #842b24;
+}
+
 @media (max-width: 680px) {
   .app-shell {
     flex-direction: column;

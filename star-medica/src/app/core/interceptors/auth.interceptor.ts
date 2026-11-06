@@ -20,14 +20,25 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
         return throwError(() => error);
       }
 
+      const currentToken = auth.getToken();
+      if (!currentToken) {
+        return throwError(() => error);
+      }
+
+      if (currentToken !== token) {
+        return next(request.clone({
+          setHeaders: { Authorization: `Bearer ${currentToken}` }
+        }));
+      }
+
       return auth.refreshSession().pipe(
-        switchMap((response) => next(request.clone({
-          setHeaders: { Authorization: `Bearer ${response.accessToken}` }
-        }))),
         catchError((refreshError: unknown) => {
           auth.expireSession();
           return throwError(() => refreshError);
-        })
+        }),
+        switchMap((response) => next(request.clone({
+          setHeaders: { Authorization: `Bearer ${response.accessToken}` }
+        }))),
       );
     })
   );

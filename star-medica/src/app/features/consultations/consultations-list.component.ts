@@ -17,6 +17,7 @@ import { SmButtonComponent } from '../../shared/components/sm-button/sm-button.c
 import { SmGrowthChartComponent, SmGrowthMeasurement } from '../../shared/components/sm-growth-chart/sm-growth-chart.component';
 import { SmInputComponent } from '../../shared/components/sm-input/sm-input.component';
 import { SmLoaderComponent } from '../../shared/components/sm-loader/sm-loader.component';
+import { SmModalComponent } from '../../shared/components/sm-modal/sm-modal.component';
 import { AvailableConsultationAppointment, Consultation, ConsultationPatient, CreateConsultationRequest } from './consultations.model';
 import { ConsultationsService } from './consultations.service';
 
@@ -30,7 +31,8 @@ import { ConsultationsService } from './consultations.service';
     SmButtonComponent,
     SmGrowthChartComponent,
     SmInputComponent,
-    SmLoaderComponent
+    SmLoaderComponent,
+    SmModalComponent
   ],
   templateUrl: './consultations-list.component.html',
   styleUrl: './consultations-list.component.scss',
@@ -78,10 +80,19 @@ export class ConsultationsListComponent implements OnInit {
       return;
     }
 
+    if (this.isSaving()) {
+      target.value = String(this.selectedPatientId() ?? '');
+      return;
+    }
+
     const patientId = Number(target.value);
     this.selectedPatientId.set(patientId > 0 ? patientId : null);
     this.consultations.set([]);
     this.appointments.set([]);
+    this.isLoadingHistory.set(false);
+    this.isFormOpen.set(false);
+    this.formError.set(null);
+    Object.assign(this.form, this.emptyForm());
     if (patientId > 0) {
       this.loadPatientData(patientId);
     }
@@ -93,10 +104,9 @@ export class ConsultationsListComponent implements OnInit {
       return;
     }
 
+    Object.assign(this.form, this.emptyForm());
     this.formError.set(null);
     this.form.patientId = patientId;
-    this.form.appointmentId = null;
-    this.form.consultedAt = null;
     this.isFormOpen.set(true);
   }
 
@@ -144,7 +154,9 @@ export class ConsultationsListComponent implements OnInit {
         next: () => {
           this.isSaving.set(false);
           this.isFormOpen.set(false);
-          this.loadPatientData(patientId);
+          if (this.selectedPatientId() === patientId) {
+            this.loadPatientData(patientId);
+          }
         },
         error: (error: unknown) => {
           this.formError.set(this.errorMessage(error, 'No se pudo guardar el expediente.'));
@@ -175,10 +187,18 @@ export class ConsultationsListComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (history) => {
+          if (this.selectedPatientId() !== patientId) {
+            return;
+          }
+
           this.consultations.set(history);
           this.isLoadingHistory.set(false);
         },
         error: (error: unknown) => {
+          if (this.selectedPatientId() !== patientId) {
+            return;
+          }
+
           this.error.set(this.errorMessage(error, 'No se pudo cargar el historial.'));
           this.isLoadingHistory.set(false);
         }
@@ -187,9 +207,17 @@ export class ConsultationsListComponent implements OnInit {
     this.service.getAvailableAppointments(patientId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (appointments) => this.appointments.set(
-          appointments.filter((appointment) => appointment.doctorId === this.auth.user()?.id)),
-        error: (error: unknown) => this.error.set(this.errorMessage(error, 'No se pudieron cargar las citas relacionadas.'))
+        next: (appointments) => {
+          if (this.selectedPatientId() === patientId) {
+            this.appointments.set(
+              appointments.filter((appointment) => appointment.doctorId === this.auth.user()?.id));
+          }
+        },
+        error: (error: unknown) => {
+          if (this.selectedPatientId() === patientId) {
+            this.error.set(this.errorMessage(error, 'No se pudieron cargar las citas relacionadas.'));
+          }
+        }
       });
   }
 

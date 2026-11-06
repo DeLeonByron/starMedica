@@ -20,6 +20,7 @@ import { AppointmentsService } from './appointments.service';
 import { SmAlertComponent } from '../../shared/components/sm-alert/sm-alert.component';
 import { SmBadgeComponent } from '../../shared/components/sm-badge/sm-badge.component';
 import { SmButtonComponent } from '../../shared/components/sm-button/sm-button.component';
+import { SmConfirmDialogComponent } from '../../shared/components/sm-confirm-dialog/sm-confirm-dialog.component';
 import { SmEmptyStateComponent } from '../../shared/components/sm-empty-state/sm-empty-state.component';
 import { SmInputComponent } from '../../shared/components/sm-input/sm-input.component';
 import { SmLoaderComponent } from '../../shared/components/sm-loader/sm-loader.component';
@@ -33,6 +34,7 @@ import { SmModalComponent } from '../../shared/components/sm-modal/sm-modal.comp
     SmAlertComponent,
     SmBadgeComponent,
     SmButtonComponent,
+    SmConfirmDialogComponent,
     SmEmptyStateComponent,
     SmInputComponent,
     SmLoaderComponent,
@@ -51,6 +53,8 @@ export class AppointmentsListComponent implements OnInit {
   readonly isLoading = signal(true);
   readonly isSaving = signal(false);
   readonly isFormOpen = signal(false);
+  readonly appointmentToCancel = signal<Appointment | null>(null);
+  readonly isCancelling = signal(false);
   readonly error = signal<string | null>(null);
   readonly formError = signal<string | null>(null);
   readonly dayLabel = computed(() => new Intl.DateTimeFormat('es-GT', {
@@ -143,6 +147,38 @@ export class AppointmentsListComponent implements OnInit {
       .subscribe({
         next: () => this.loadAppointments(),
         error: (error: unknown) => this.error.set(this.errorMessage(error, 'No se pudo actualizar la cita.'))
+      });
+  }
+
+  requestCancellation(appointment: Appointment): void {
+    this.appointmentToCancel.set(appointment);
+  }
+
+  cancelCancellation(): void {
+    if (!this.isCancelling()) {
+      this.appointmentToCancel.set(null);
+    }
+  }
+
+  confirmCancellation(): void {
+    const appointment = this.appointmentToCancel();
+    if (!appointment || this.isCancelling()) {
+      return;
+    }
+
+    this.isCancelling.set(true);
+    this.service.changeStatus(appointment.id, 'Cancelled')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.isCancelling.set(false);
+          this.appointmentToCancel.set(null);
+          this.loadAppointments();
+        },
+        error: (error: unknown) => {
+          this.error.set(this.errorMessage(error, 'No se pudo cancelar la cita.'));
+          this.isCancelling.set(false);
+        }
       });
   }
 

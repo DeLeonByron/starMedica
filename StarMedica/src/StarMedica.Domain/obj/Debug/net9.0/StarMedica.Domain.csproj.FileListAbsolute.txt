@@ -11,3 +11,4 @@ C:\repositorios\agente_ia\StarMedica\src\StarMedica.Domain\obj\Debug\net9.0\refi
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.Domain\obj\Debug\net9.0\StarMedica.Domain.pdb
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.Domain\obj\Debug\net9.0\ref\StarMedica.Domain.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.Domain\obj\Debug\net9.0\StarMedica.Domain.sourcelink.json
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.Domain\obj\Debug\net9.0\StarMedi.FD2B3034.Up2Date

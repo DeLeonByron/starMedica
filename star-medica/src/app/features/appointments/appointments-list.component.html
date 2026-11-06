@@ -69,7 +69,7 @@
               } @else {
                 <button type="button" (click)="changeStatus(appointment, 'Completed')">Completar</button>
               }
-              <button type="button" class="sm-appointment__cancel" (click)="changeStatus(appointment, 'Cancelled')">
+              <button type="button" class="sm-appointment__cancel" (click)="requestCancellation(appointment)">
                 Cancelar
               </button>
               @if (canMarkNoShow(appointment)) {
@@ -84,6 +84,19 @@
     </div>
   }
 </section>
+
+@if (appointmentToCancel(); as appointment) {
+  <sm-confirm-dialog
+    [id]="'cancel-appointment-' + appointment.id"
+    [open]="true"
+    title="Cancelar cita"
+    [message]="'La cita de ' + appointment.patientName + ' se marcará como cancelada. ¿Deseas continuar?'"
+    confirmText="Sí, cancelar cita"
+    [loading]="isCancelling()"
+    (confirmed)="confirmCancellation()"
+    (cancelled)="cancelCancellation()"
+  />
+}
 
 @if (isFormOpen()) {
   <sm-modal [open]="isFormOpen()" labelledBy="appointment-form-title" (dismissed)="closeForm()">

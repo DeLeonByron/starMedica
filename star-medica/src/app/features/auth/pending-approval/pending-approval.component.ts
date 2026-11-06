@@ -12,6 +12,6 @@ export class PendingApprovalComponent {
   protected readonly auth = inject(AuthService);
 
   protected logout(): void {
-    this.auth.logout().subscribe({ error: () => undefined });
+    this.auth.logout().subscribe();
   }
 }

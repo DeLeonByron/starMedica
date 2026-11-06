@@ -1,14 +1,17 @@
 ﻿<div class="app-shell">
-  @if (auth.isLoggedIn()) {
+  @if (auth.isLoggedIn() && navigation().length > 0) {
     <sm-sidebar
-      brandLink="/patients"
-      [items]="navigation"
+      [brandLink]="brandLink()"
+      [items]="navigation()"
       [userName]="auth.user()?.fullName ?? ''"
       (logout)="logout()"
     />
   }
 
   <main class="app-shell__content">
+    @if (auth.logoutError(); as logoutError) {
+      <p class="app-shell__error" role="alert">{{ logoutError }}</p>
+    }
     @if (auth.isLoggedIn() && breadcrumbs().length > 0) {
       <sm-breadcrumb [items]="breadcrumbs()" />
     }

@@ -60,8 +60,6 @@ CHECKPOINT OBLIGATORIO BACKEND:
     <!-- MediatR 12: DI INCLUIDO en paquete base — NO agregar Extensions -->
     <PackageReference Include="FluentValidation" Version="11.11.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
-    <PackageReference Include="AutoMapper" Version="13.0.1" />
-    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="13.0.1" />
     <ProjectReference Include="..\StarMedica.Domain\StarMedica.Domain.csproj" />
   </ItemGroup>
 </Project>
@@ -86,7 +84,6 @@ CHECKPOINT OBLIGATORIO BACKEND:
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
     <PackageReference Include="QuestPDF" Version="2024.12.0" />
-    <PackageReference Include="MailKit" Version="4.8.0" />
     <PackageReference Include="CloudinaryDotNet" Version="1.27.0" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <ProjectReference Include="..\StarMedica.Application\StarMedica.Application.csproj" />
@@ -343,7 +340,7 @@ public static class DependencyInjection
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         });
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
-        services.AddAutoMapper(typeof(DependencyInjection).Assembly);
+        // Add an object-mapping package only when the feature has concrete mapping profiles.
         return services;
     }
 }
@@ -1278,7 +1275,7 @@ Application:
   [ ] Validator con reglas GT: DPI 13 dígitos, teléfono 8 dígitos, montos decimal
   [ ] Query con PagedResult<T> para listas
   [ ] DTOs como records
-  [ ] AutoMapper profile actualizado en MappingProfile.cs
+  [ ] Map entity/DTO explicitly unless a concrete feature justifies a maintained mapper; add a vetted version only then.
   [ ] ✅ dotnet build — 0 errores 0 warnings
 
 API:
@@ -1292,4 +1289,4 @@ API:
 
 *Star Médica ERP — PROMPT-01 BACKEND v6.0*
 *Usar con: 00-MASTER + este archivo*
-*Stack: .NET 9 · EF Core 9 · MediatR 12.4.1 · FluentValidation 11 · AutoMapper 13*
+*Stack: .NET 9 · EF Core 9 · MediatR 12.4.1 · FluentValidation 11*

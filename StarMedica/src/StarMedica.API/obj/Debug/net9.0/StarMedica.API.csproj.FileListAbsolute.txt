@@ -230,3 +230,4 @@ C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\rjsmraz
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\staticwebassets.build.json.cache
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\swae.build.ex.cache
+C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

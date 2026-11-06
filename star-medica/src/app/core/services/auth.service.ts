@@ -2,7 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, finalize, map, Observable, of, tap, throwError } from 'rxjs';
+import { catchError, EMPTY, finalize, map, Observable, of, shareReplay, tap, throwError } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { AuthResponse, AuthUser } from '../models/auth.model';
@@ -17,12 +17,25 @@ export class AuthService {
     accessToken: null
   });
   private googleInitialized = false;
+  private refreshRequest: Observable<AuthResponse> | null = null;
 
   readonly user = computed(() => this.state().user);
   readonly accessToken = computed(() => this.state().accessToken);
   readonly isLoggedIn = computed(() => this.state().user !== null);
   readonly error = signal<string | null>(null);
+  readonly logoutError = signal<string | null>(null);
   readonly isLoading = signal(false);
+
+  getPostLoginRoute(user: AuthUser | null = this.state().user): string[] {
+    const roles = user?.roles ?? [];
+    if (roles.some((role) => ['SuperAdmin', 'Médico', 'Recepcionista'].includes(role))) {
+      return ['/patients'];
+    }
+    if (roles.includes('Farmacéutico')) {
+      return ['/pharmacy'];
+    }
+    return ['/auth/pending-approval'];
+  }
 
   getToken(): string | null {
     return this.state().accessToken ??
@@ -34,14 +47,14 @@ export class AuthService {
       return of(true);
     }
 
-    if (!this.isBrowser || !sessionStorage.getItem('sm_access_token')) {
+    if (!this.isBrowser) {
       return of(false);
     }
 
     return this.refreshSession().pipe(
       map(() => true),
       catchError(() => {
-        this.clearSession();
+        this.clearSession(false);
         return of(false);
       })
     );
@@ -49,6 +62,7 @@ export class AuthService {
 
   loginWithGoogle(idToken: string): Observable<AuthResponse> {
     this.error.set(null);
+    this.logoutError.set(null);
     this.isLoading.set(true);
 
     return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/google`, { idToken }, {
@@ -65,15 +79,38 @@ export class AuthService {
   }
 
   refreshSession(): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/refresh`, {}, {
+    if (this.refreshRequest) {
+      return this.refreshRequest;
+    }
+
+    let sharedRequest: Observable<AuthResponse>;
+    sharedRequest = this.http.post<AuthResponse>(`${environment.apiUrl}/auth/refresh`, {}, {
       withCredentials: true
-    }).pipe(tap((response) => this.setSession(response)));
+    }).pipe(
+      tap((response) => this.setSession(response)),
+      finalize(() => {
+        if (this.refreshRequest === sharedRequest) {
+          this.refreshRequest = null;
+        }
+      }),
+      shareReplay({ bufferSize: 1, refCount: false })
+    );
+    this.refreshRequest = sharedRequest;
+    return sharedRequest;
   }
 
   logout(): Observable<void> {
+    this.logoutError.set(null);
     return this.http.post<void>(`${environment.apiUrl}/auth/logout`, {}, {
       withCredentials: true
-    }).pipe(finalize(() => this.clearSession()));
+    }).pipe(
+      catchError(() => {
+        this.logoutError.set(
+          'La sesión se cerró en este dispositivo, pero no se pudo confirmar su revocación en el servidor.');
+        return EMPTY;
+      }),
+      finalize(() => this.clearSession())
+    );
   }
 
   expireSession(): void {
@@ -105,8 +142,7 @@ export class AuthService {
           callback: (response) => {
             this.loginWithGoogle(response.credential).subscribe({
               next: (result) => {
-                void this.router.navigate(
-                  result.user.roles.length > 0 ? ['/patients'] : ['/auth/pending-approval']);
+                void this.router.navigate(this.getPostLoginRoute(result.user));
               },
               error: () => undefined
             });
@@ -134,11 +170,13 @@ export class AuthService {
     this.state.set({ user: response.user, accessToken: response.accessToken });
   }
 
-  private clearSession(): void {
+  private clearSession(redirectToLogin = true): void {
     if (this.isBrowser) {
       sessionStorage.removeItem('sm_access_token');
     }
     this.state.set({ user: null, accessToken: null });
-    void this.router.navigate(['/auth/login']);
+    if (redirectToLogin) {
+      void this.router.navigate(['/auth/login']);
+    }
   }
 }
