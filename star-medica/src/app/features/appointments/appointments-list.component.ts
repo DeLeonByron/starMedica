@@ -47,15 +47,23 @@ import { SmModalComponent } from '../../shared/components/sm-modal/sm-modal.comp
 export class AppointmentsListComponent implements OnInit {
   private readonly service = inject(AppointmentsService);
   private readonly destroyRef = inject(DestroyRef);
+  private appointmentsRequestId = 0;
+  private optionsRequestId = 0;
   readonly appointments = signal<Appointment[]>([]);
   readonly options = signal<AppointmentOptions>({ patients: [], doctors: [] });
+  readonly optionsLoaded = signal(false);
+  readonly isOptionsLoading = signal(false);
+  readonly optionsError = signal<string | null>(null);
   readonly selectedDate = signal(this.formatDateInput(new Date()));
   readonly isLoading = signal(true);
   readonly isSaving = signal(false);
   readonly isFormOpen = signal(false);
   readonly appointmentToCancel = signal<Appointment | null>(null);
   readonly isCancelling = signal(false);
+  readonly updatingAppointmentId = signal<number | null>(null);
+  readonly cancellationError = signal<string | null>(null);
   readonly error = signal<string | null>(null);
+  readonly appointmentsError = signal<string | null>(null);
   readonly formError = signal<string | null>(null);
   readonly dayLabel = computed(() => new Intl.DateTimeFormat('es-GT', {
     timeZone: 'America/Guatemala',
@@ -109,6 +117,14 @@ export class AppointmentsListComponent implements OnInit {
     this.error.set(null);
   }
 
+  retryAppointments(): void {
+    this.loadAppointments();
+  }
+
+  retryOptions(): void {
+    this.loadOptions();
+  }
+
   clearFormError(): void {
     this.formError.set(null);
   }
@@ -119,11 +135,30 @@ export class AppointmentsListComponent implements OnInit {
     }
 
     this.formError.set(null);
+    const reason = this.form.reason.trim();
+    if (!reason) {
+      this.formError.set('Ingresa el motivo de la cita.');
+      return;
+    }
+
+    const startsAtInput = this.form.startsAt;
+    const startsAt = new Date(`${startsAtInput}:00-06:00`);
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(startsAtInput)
+      || !Number.isFinite(startsAt.getTime())
+      || this.formatDateTimeInput(startsAt) !== startsAtInput) {
+      this.formError.set('Ingresa una fecha y hora válidas.');
+      return;
+    }
+    if (startsAt.getTime() <= Date.now()) {
+      this.formError.set('La cita debe programarse en una fecha futura.');
+      return;
+    }
+
     this.isSaving.set(true);
     const request: CreateAppointmentRequest = {
       ...this.form,
-      startsAt: new Date(`${this.form.startsAt}:00-06:00`).toISOString(),
-      reason: this.form.reason.trim()
+      startsAt: startsAt.toISOString(),
+      reason
     };
 
     this.service.createAppointment(request)
@@ -142,41 +177,60 @@ export class AppointmentsListComponent implements OnInit {
   }
 
   changeStatus(appointment: Appointment, status: AppointmentStatus): void {
+    if (this.updatingAppointmentId() !== null || this.isCancelling()) {
+      return;
+    }
+
+    this.updatingAppointmentId.set(appointment.id);
     this.service.changeStatus(appointment.id, status)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.loadAppointments(),
-        error: (error: unknown) => this.error.set(this.errorMessage(error, 'No se pudo actualizar la cita.'))
+        next: () => {
+          this.updatingAppointmentId.set(null);
+          this.loadAppointments();
+        },
+        error: (error: unknown) => {
+          this.error.set(this.errorMessage(error, 'No se pudo actualizar la cita.'));
+          this.updatingAppointmentId.set(null);
+        }
       });
   }
 
   requestCancellation(appointment: Appointment): void {
+    if (this.updatingAppointmentId() !== null) {
+      return;
+    }
+
+    this.cancellationError.set(null);
     this.appointmentToCancel.set(appointment);
   }
 
   cancelCancellation(): void {
     if (!this.isCancelling()) {
+      this.cancellationError.set(null);
       this.appointmentToCancel.set(null);
     }
   }
 
   confirmCancellation(): void {
     const appointment = this.appointmentToCancel();
-    if (!appointment || this.isCancelling()) {
+    if (!appointment || this.isCancelling() || this.updatingAppointmentId() !== null) {
       return;
     }
 
     this.isCancelling.set(true);
+    this.cancellationError.set(null);
     this.service.changeStatus(appointment.id, 'Cancelled')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.isCancelling.set(false);
+          this.cancellationError.set(null);
           this.appointmentToCancel.set(null);
           this.loadAppointments();
         },
         error: (error: unknown) => {
-          this.error.set(this.errorMessage(error, 'No se pudo cancelar la cita.'));
+          this.cancellationError.set(this.errorMessage(error, 'No se pudo cancelar la cita.'));
           this.isCancelling.set(false);
         }
       });
@@ -228,30 +282,62 @@ export class AppointmentsListComponent implements OnInit {
   }
 
   private loadOptions(): void {
+    if (this.isOptionsLoading()) {
+      return;
+    }
+
+    const requestId = ++this.optionsRequestId;
+    this.isOptionsLoading.set(true);
+    this.optionsError.set(null);
     this.service.getOptions()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (options) => this.options.set(options),
-        error: (error: unknown) => this.error.set(this.errorMessage(error, 'No se pudieron cargar pacientes y médicos.'))
+        next: (options) => {
+          if (requestId !== this.optionsRequestId) {
+            return;
+          }
+
+          this.options.set(options);
+          this.optionsLoaded.set(true);
+          this.isOptionsLoading.set(false);
+        },
+        error: (error: unknown) => {
+          if (requestId !== this.optionsRequestId) {
+            return;
+          }
+
+          this.optionsError.set(this.errorMessage(error, 'No se pudieron cargar pacientes y médicos.'));
+          this.isOptionsLoading.set(false);
+        }
       });
   }
 
   private loadAppointments(): void {
+    const requestId = ++this.appointmentsRequestId;
     const start = new Date(`${this.selectedDate()}T00:00:00-06:00`);
     const end = new Date(`${this.selectedDate()}T00:00:00-06:00`);
     end.setUTCDate(end.getUTCDate() + 1);
     this.isLoading.set(true);
     this.error.set(null);
+    this.appointmentsError.set(null);
 
     this.service.getAppointments(start.toISOString(), end.toISOString())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (appointments) => {
+          if (requestId !== this.appointmentsRequestId) {
+            return;
+          }
+
           this.appointments.set(appointments);
           this.isLoading.set(false);
         },
         error: (error: unknown) => {
-          this.error.set(this.errorMessage(error, 'No se pudieron cargar las citas.'));
+          if (requestId !== this.appointmentsRequestId) {
+            return;
+          }
+
+          this.appointmentsError.set(this.errorMessage(error, 'No se pudieron cargar las citas.'));
           this.isLoading.set(false);
         }
       });

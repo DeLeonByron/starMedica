@@ -65,8 +65,10 @@ export class PatientsListComponent implements OnInit {
     }
   }
 
-  clearLoadError(): void {
-    this.error.set(null);
+  retryPatients(): void {
+    if (!this.isLoading()) {
+      this.loadPatients();
+    }
   }
 
   clearFormError(): void {
@@ -110,11 +112,14 @@ export class PatientsListComponent implements OnInit {
   }
 
   private loadPatients(): void {
+    this.isLoading.set(true);
+    this.error.set(null);
     this.patientsService.getPatients()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => {
           this.patients.set(data);
+          this.error.set(null);
           this.isLoading.set(false);
         },
         error: () => {

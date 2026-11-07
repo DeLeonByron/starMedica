@@ -9,6 +9,9 @@
   <section class="sm-confirm-dialog">
     <h2 class="sm-confirm-dialog__title" [id]="id() + '-title'">{{ title() }}</h2>
     <p class="sm-confirm-dialog__message" [id]="id() + '-description'">{{ message() }}</p>
+    @if (errorMessage()) {
+      <sm-alert type="error">{{ errorMessage() }}</sm-alert>
+    }
 
     <div class="sm-confirm-dialog__actions">
       <sm-button

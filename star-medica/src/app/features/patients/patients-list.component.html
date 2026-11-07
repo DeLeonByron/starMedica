@@ -12,8 +12,9 @@
   @if (isLoading()) {
     <sm-loader label="Cargando pacientes..." />
   } @else if (error()) {
-    <sm-alert type="error" [dismissible]="true" (dismissed)="clearLoadError()">
+    <sm-alert type="error">
       {{ error() }}
+      <sm-button variant="secondary" (click)="retryPatients()">Reintentar</sm-button>
     </sm-alert>
   } @else if (patients().length === 0) {
     <sm-empty-state

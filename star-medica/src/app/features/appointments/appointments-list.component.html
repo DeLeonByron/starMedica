@@ -6,7 +6,13 @@
     </div>
     <sm-button
       (click)="openForm()"
-      [disabled]="options().patients.length === 0 || options().doctors.length === 0"
+      [disabled]="
+        !optionsLoaded() ||
+        isOptionsLoading() ||
+        optionsError() !== null ||
+        options().patients.length === 0 ||
+        options().doctors.length === 0
+      "
     >
       Nueva cita
     </sm-button>
@@ -31,7 +37,14 @@
     </sm-alert>
   }
 
-  @if (options().patients.length === 0 || options().doctors.length === 0) {
+  @if (optionsError()) {
+    <sm-alert type="error">
+      {{ optionsError() }}
+      <sm-button variant="secondary" [disabled]="isOptionsLoading()" (click)="retryOptions()">
+        {{ isOptionsLoading() ? 'Reintentando...' : 'Reintentar' }}
+      </sm-button>
+    </sm-alert>
+  } @else if (optionsLoaded() && (options().patients.length === 0 || options().doctors.length === 0)) {
     <sm-alert type="warning">
       Para agendar, registra un paciente activo y un usuario con rol Médico.
     </sm-alert>
@@ -39,6 +52,11 @@
 
   @if (isLoading()) {
     <sm-loader label="Cargando agenda..." />
+  } @else if (appointmentsError()) {
+    <sm-alert type="error">
+      {{ appointmentsError() }}
+      <sm-button variant="secondary" (click)="retryAppointments()">Reintentar</sm-button>
+    </sm-alert>
   } @else if (appointments().length === 0) {
     <sm-empty-state
       title="No hay citas para este día"
@@ -65,15 +83,37 @@
           @if (canClose(appointment)) {
             <div class="sm-appointment__actions">
               @if (appointment.status === 'Scheduled') {
-                <button type="button" (click)="changeStatus(appointment, 'Confirmed')">Confirmar</button>
+                <button
+                  type="button"
+                  [disabled]="updatingAppointmentId() !== null || isCancelling()"
+                  (click)="changeStatus(appointment, 'Confirmed')"
+                >
+                  {{ updatingAppointmentId() === appointment.id ? 'Actualizando...' : 'Confirmar' }}
+                </button>
               } @else {
-                <button type="button" (click)="changeStatus(appointment, 'Completed')">Completar</button>
+                <button
+                  type="button"
+                  [disabled]="updatingAppointmentId() !== null || isCancelling()"
+                  (click)="changeStatus(appointment, 'Completed')"
+                >
+                  {{ updatingAppointmentId() === appointment.id ? 'Actualizando...' : 'Completar' }}
+                </button>
               }
-              <button type="button" class="sm-appointment__cancel" (click)="requestCancellation(appointment)">
+              <button
+                type="button"
+                class="sm-appointment__cancel"
+                [disabled]="updatingAppointmentId() !== null || isCancelling()"
+                (click)="requestCancellation(appointment)"
+              >
                 Cancelar
               </button>
               @if (canMarkNoShow(appointment)) {
-                <button type="button" class="sm-appointment__no-show" (click)="changeStatus(appointment, 'NoShow')">
+                <button
+                  type="button"
+                  class="sm-appointment__no-show"
+                  [disabled]="updatingAppointmentId() !== null || isCancelling()"
+                  (click)="changeStatus(appointment, 'NoShow')"
+                >
                   No asistió
                 </button>
               }
@@ -91,6 +131,7 @@
     [open]="true"
     title="Cancelar cita"
     [message]="'La cita de ' + appointment.patientName + ' se marcará como cancelada. ¿Deseas continuar?'"
+    [errorMessage]="cancellationError()"
     confirmText="Sí, cancelar cita"
     [loading]="isCancelling()"
     (confirmed)="confirmCancellation()"

@@ -12,6 +12,8 @@ import {
 } from '@angular/core';
 import * as L from 'leaflet';
 
+import { environment } from '../../../../environments/environment';
+
 export interface SmMapCoordinate {
   latitude: number;
   longitude: number;
@@ -32,8 +34,8 @@ export class SmMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   readonly locations = input<readonly SmMapLocation[]>([]);
   readonly center = input<SmMapCoordinate | null>(null);
   readonly zoom = input(13);
-  readonly tileLayerUrl = input('');
-  readonly tileAttribution = input('');
+  readonly tileLayerUrl = input(environment.mapTileLayerUrl);
+  readonly tileAttribution = input(environment.mapTileAttribution);
   readonly mapLabel = input('Mapa de ubicaciones');
   readonly status = signal('El mapa requiere un proveedor configurado y ubicaciones con coordenadas.');
   protected readonly mapAvailable = signal(false);

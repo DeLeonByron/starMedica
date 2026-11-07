@@ -19,11 +19,20 @@
     </label>
   </header>
 
-  @if (error()) {
+  @if (patientsError()) {
+    <sm-alert type="error">
+      {{ patientsError() }}
+      <sm-button type="button" variant="secondary" (click)="retryPatients()">Reintentar</sm-button>
+    </sm-alert>
+  } @else if (error()) {
     <sm-alert type="error" [dismissible]="false">{{ error() }}</sm-alert>
   }
 
-  @if (!selectedPatientId() && !isLoadingPatients()) {
+  @if (isLoadingPatients()) {
+    <sm-loader label="Cargando pacientes..." />
+  } @else if (patientsLoaded() && patients().length === 0) {
+    <p class="sm-consultations__empty">No hay pacientes disponibles para consultar.</p>
+  } @else if (!patientsError() && !selectedPatientId()) {
     <p class="sm-consultations__empty">Selecciona un paciente para consultar o crear su expediente.</p>
   } @else if (selectedPatientId()) {
     <div class="sm-consultations__section-heading">
@@ -33,6 +42,13 @@
 
     @if (isLoadingHistory()) {
       <sm-loader label="Cargando expediente..." />
+    } @else if (historyError()) {
+      <sm-alert type="error">
+        {{ historyError() }}
+        <sm-button type="button" variant="secondary" (click)="retryPatientData()">
+          Reintentar
+        </sm-button>
+      </sm-alert>
     } @else if (consultations().length === 0) {
       <p class="sm-consultations__empty">Este paciente aún no tiene consultas registradas.</p>
     } @else {

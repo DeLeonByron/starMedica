@@ -7,6 +7,49 @@ import { AvailableConsultationAppointment, Consultation } from './consultations.
 import { ConsultationsService } from './consultations.service';
 
 describe('ConsultationsListComponent', () => {
+  it('distinguishes patient-list failure from an empty patient catalog and allows retry', async () => {
+    const patientRequests: Subject<{ id: number; fullName: string }[]>[] = [];
+    const service = {
+      getPatients: () => {
+        const request = new Subject<{ id: number; fullName: string }[]>();
+        patientRequests.push(request);
+        return request;
+      },
+      getHistory: () => of([]),
+      getAvailableAppointments: () => of([]),
+      create: () => of({})
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [ConsultationsListComponent],
+      providers: [
+        { provide: ConsultationsService, useValue: service },
+        { provide: AuthService, useValue: { user: () => ({ id: 7 }) } }
+      ]
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ConsultationsListComponent);
+    fixture.detectChanges();
+    patientRequests[0].error(new Error('Error de conexión'));
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Error de conexión');
+    expect(fixture.nativeElement.textContent).toContain('Reintentar');
+    expect(fixture.nativeElement.textContent).not.toContain('No hay pacientes disponibles');
+    expect(fixture.nativeElement.textContent).not.toContain('Selecciona un paciente para consultar o crear su expediente.');
+
+    fixture.nativeElement.querySelector('sm-alert sm-button button').click();
+    fixture.detectChanges();
+    expect(patientRequests.length).toBe(2);
+    expect(fixture.componentInstance.isLoadingPatients()).toBeTrue();
+
+    patientRequests[1].next([]);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.patientsError()).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('No hay pacientes disponibles para consultar.');
+    fixture.destroy();
+  });
+
   it('loads growth charts only when their deferred blocks activate', async () => {
     await TestBed.configureTestingModule({
       imports: [ConsultationsListComponent],
@@ -14,7 +57,7 @@ describe('ConsultationsListComponent', () => {
         {
           provide: ConsultationsService,
           useValue: {
-            getPatients: () => of([]),
+            getPatients: () => of([{ id: 1, fullName: 'Paciente' }]),
             getHistory: () => of([]),
             getAvailableAppointments: () => of([])
           }
@@ -154,6 +197,143 @@ describe('ConsultationsListComponent', () => {
     expect(fixture.componentInstance.consultations().map(({ patientId }) => patientId)).toEqual([2]);
     expect(fixture.componentInstance.appointments().map(({ id }) => id)).toEqual([2]);
     expect(fixture.componentInstance.isLoadingHistory()).toBe(false);
+    fixture.destroy();
+  });
+
+  it('ignores stale history responses when the same patient data is reloaded', async () => {
+    const historyRequests: Subject<Consultation[]>[] = [];
+    const createRequest = new Subject<Consultation>();
+    const service = {
+      getPatients: () => of([{ id: 1, fullName: 'Paciente uno' }]),
+      getHistory: () => {
+        const request = new Subject<Consultation[]>();
+        historyRequests.push(request);
+        return request;
+      },
+      getAvailableAppointments: () => of([]),
+      create: () => createRequest
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [ConsultationsListComponent],
+      providers: [
+        { provide: ConsultationsService, useValue: service },
+        { provide: AuthService, useValue: { user: () => ({ id: 7 }) } }
+      ]
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ConsultationsListComponent);
+    fixture.detectChanges();
+    const patientSelect: HTMLSelectElement = fixture.nativeElement.querySelector(
+      '.sm-consultations__patient-select select'
+    );
+    patientSelect.value = '1';
+    patientSelect.dispatchEvent(new Event('change'));
+
+    fixture.componentInstance.openForm();
+    fixture.componentInstance.createConsultation();
+    createRequest.next({
+      id: 20,
+      patientId: 1,
+      patientName: 'Paciente uno',
+      doctorId: 7,
+      doctorName: 'Médico',
+      appointmentId: null,
+      consultedAt: '2026-03-15T12:00:00Z',
+      chiefComplaint: '',
+      presentIllness: '',
+      physicalExam: '',
+      diagnosisCode: '',
+      diagnosisDescription: '',
+      treatmentPlan: '',
+      notes: null,
+      weightKg: null,
+      heightCm: null,
+      temperatureCelsius: null,
+      heartRateBpm: null,
+      respiratoryRatePerMinute: null,
+      systolicBloodPressure: null,
+      diastolicBloodPressure: null,
+      oxygenSaturationPercent: null
+    });
+
+    expect(historyRequests.length).toBe(2);
+    const olderHistory: Consultation = {
+      id: 10,
+      patientId: 1,
+      patientName: 'Paciente uno',
+      doctorId: 7,
+      doctorName: 'Médico',
+      appointmentId: null,
+      consultedAt: '2026-03-15T12:00:00Z',
+      chiefComplaint: 'Antigua',
+      presentIllness: '',
+      physicalExam: '',
+      diagnosisCode: 'Z00.1',
+      diagnosisDescription: 'Control',
+      treatmentPlan: '',
+      notes: null,
+      weightKg: null,
+      heightCm: null,
+      temperatureCelsius: null,
+      heartRateBpm: null,
+      respiratoryRatePerMinute: null,
+      systolicBloodPressure: null,
+      diastolicBloodPressure: null,
+      oxygenSaturationPercent: null
+    };
+    const newerHistory = { ...olderHistory, id: 11, chiefComplaint: 'Actualizada' };
+
+    historyRequests[1].next([newerHistory]);
+    historyRequests[0].next([olderHistory]);
+
+    expect(fixture.componentInstance.consultations().map(({ chiefComplaint }) => chiefComplaint))
+      .toEqual(['Actualizada']);
+    fixture.destroy();
+  });
+
+  it('offers retry on history failure and does not display a false empty history', async () => {
+    const historyRequests: Subject<Consultation[]>[] = [];
+    const service = {
+      getPatients: () => of([{ id: 1, fullName: 'Paciente uno' }]),
+      getHistory: () => {
+        const request = new Subject<Consultation[]>();
+        historyRequests.push(request);
+        return request;
+      },
+      getAvailableAppointments: () => of([]),
+      create: () => of({})
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [ConsultationsListComponent],
+      providers: [
+        { provide: ConsultationsService, useValue: service },
+        { provide: AuthService, useValue: { user: () => ({ id: 7 }) } }
+      ]
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ConsultationsListComponent);
+    fixture.detectChanges();
+    const patientSelect: HTMLSelectElement = fixture.nativeElement.querySelector(
+      '.sm-consultations__patient-select select'
+    );
+    patientSelect.value = '1';
+    patientSelect.dispatchEvent(new Event('change'));
+    historyRequests[0].error(new Error('No se pudo cargar el historial.'));
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('No se pudo cargar el historial.');
+    expect(fixture.nativeElement.textContent).not.toContain('Este paciente aún no tiene consultas registradas.');
+
+    fixture.nativeElement.querySelector('sm-alert sm-button button').click();
+    fixture.detectChanges();
+    expect(historyRequests.length).toBe(2);
+    historyRequests[1].next([]);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Este paciente aún no tiene consultas registradas.');
+    expect(fixture.componentInstance.historyError()).toBeNull();
     fixture.destroy();
   });
 

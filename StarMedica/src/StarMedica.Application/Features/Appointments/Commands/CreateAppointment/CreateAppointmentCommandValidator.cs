@@ -11,6 +11,9 @@ public sealed class CreateAppointmentCommandValidator : AbstractValidator<Create
         RuleFor(command => command.DurationMinutes)
             .Must(duration => duration is 15 or 30 or 45 or 60)
             .WithMessage("La duración debe ser de 15, 30, 45 o 60 minutos.");
-        RuleFor(command => command.Reason).NotEmpty().MaximumLength(500);
+        RuleFor(command => command.Reason)
+            .Must(reason => !string.IsNullOrWhiteSpace(reason))
+            .WithMessage("El motivo es obligatorio.")
+            .MaximumLength(500);
     }
 }

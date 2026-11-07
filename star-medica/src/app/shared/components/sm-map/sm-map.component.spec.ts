@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { environment } from '../../../../environments/environment';
 import { SmMapComponent, SmMapCoordinate, SmMapLocation } from './sm-map.component';
 
 @Component({
@@ -18,8 +19,8 @@ import { SmMapComponent, SmMapCoordinate, SmMapLocation } from './sm-map.compone
 class SmMapHostComponent {
   locations: readonly SmMapLocation[] = [];
   center: SmMapCoordinate | null = null;
-  tileLayerUrl = '';
-  tileAttribution = '';
+  tileLayerUrl = environment.mapTileLayerUrl;
+  tileAttribution = environment.mapTileAttribution;
 }
 
 describe('SmMapComponent', () => {
@@ -36,12 +37,20 @@ describe('SmMapComponent', () => {
     fixture.detectChanges();
   });
 
-  it('does not contact a tile provider when no provider is configured', () => {
+  it('uses the configured OSM provider without contacting it until coordinates exist', () => {
     const status: HTMLElement = fixture.nativeElement.querySelector('[role="status"]');
     const canvas: HTMLElement = fixture.nativeElement.querySelector('.sm-map__canvas');
 
-    expect(status.textContent).toContain('configurar un proveedor cartográfico');
+    expect(status.textContent).toContain('No hay ubicaciones con coordenadas');
     expect(canvas.classList).toContain('sm-map__canvas--hidden');
+  });
+
+  it('keeps the public OSM tile URL and attribution available as provider configuration', () => {
+    expect(host.tileLayerUrl).toBe('https://tile.openstreetmap.org/{z}/{x}/{y}.png');
+    expect(host.tileAttribution).toContain('OpenStreetMap contributors');
+    expect(host.tileAttribution).toContain('openstreetmap.org/copyright');
+    expect(fixture.nativeElement.querySelector('[role="status"]').textContent)
+      .toContain('No hay ubicaciones con coordenadas');
   });
 
   it('reports the absence of authorized coordinates without displaying a map', () => {

@@ -42,15 +42,19 @@ export class ConsultationsListComponent implements OnInit {
   private readonly service = inject(ConsultationsService);
   private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
+  private patientDataRequestId = 0;
   readonly patients = signal<ConsultationPatient[]>([]);
   readonly consultations = signal<Consultation[]>([]);
   readonly appointments = signal<AvailableConsultationAppointment[]>([]);
   readonly selectedPatientId = signal<number | null>(null);
   readonly isLoadingPatients = signal(true);
+  readonly patientsLoaded = signal(false);
+  readonly patientsError = signal<string | null>(null);
   readonly isLoadingHistory = signal(false);
   readonly isSaving = signal(false);
   readonly isFormOpen = signal(false);
   readonly error = signal<string | null>(null);
+  readonly historyError = signal<string | null>(null);
   readonly formError = signal<string | null>(null);
   readonly form: CreateConsultationRequest = this.emptyForm();
   readonly weightMeasurements = computed<readonly SmGrowthMeasurement[]>(() =>
@@ -86,10 +90,12 @@ export class ConsultationsListComponent implements OnInit {
     }
 
     const patientId = Number(target.value);
+    this.patientDataRequestId++;
     this.selectedPatientId.set(patientId > 0 ? patientId : null);
     this.consultations.set([]);
     this.appointments.set([]);
     this.isLoadingHistory.set(false);
+    this.historyError.set(null);
     this.isFormOpen.set(false);
     this.formError.set(null);
     Object.assign(this.form, this.emptyForm());
@@ -125,6 +131,19 @@ export class ConsultationsListComponent implements OnInit {
   closeForm(): void {
     if (!this.isSaving()) {
       this.isFormOpen.set(false);
+    }
+  }
+
+  retryPatientData(): void {
+    const patientId = this.selectedPatientId();
+    if (patientId && !this.isLoadingHistory()) {
+      this.loadPatientData(patientId);
+    }
+  }
+
+  retryPatients(): void {
+    if (!this.isLoadingPatients()) {
+      this.loadPatients();
     }
   }
 
@@ -166,28 +185,33 @@ export class ConsultationsListComponent implements OnInit {
   }
 
   private loadPatients(): void {
+    this.isLoadingPatients.set(true);
+    this.patientsError.set(null);
     this.service.getPatients()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (patients) => {
           this.patients.set(patients.map((patient) => ({ id: patient.id, fullName: patient.fullName })));
+          this.patientsLoaded.set(true);
           this.isLoadingPatients.set(false);
         },
         error: (error: unknown) => {
-          this.error.set(this.errorMessage(error, 'No se pudieron cargar los pacientes.'));
+          this.patientsError.set(this.errorMessage(error, 'No se pudieron cargar los pacientes.'));
           this.isLoadingPatients.set(false);
         }
       });
   }
 
   private loadPatientData(patientId: number): void {
+    const requestId = ++this.patientDataRequestId;
     this.isLoadingHistory.set(true);
+    this.historyError.set(null);
     this.error.set(null);
     this.service.getHistory(patientId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (history) => {
-          if (this.selectedPatientId() !== patientId) {
+          if (this.selectedPatientId() !== patientId || requestId !== this.patientDataRequestId) {
             return;
           }
 
@@ -195,11 +219,11 @@ export class ConsultationsListComponent implements OnInit {
           this.isLoadingHistory.set(false);
         },
         error: (error: unknown) => {
-          if (this.selectedPatientId() !== patientId) {
+          if (this.selectedPatientId() !== patientId || requestId !== this.patientDataRequestId) {
             return;
           }
 
-          this.error.set(this.errorMessage(error, 'No se pudo cargar el historial.'));
+          this.historyError.set(this.errorMessage(error, 'No se pudo cargar el historial.'));
           this.isLoadingHistory.set(false);
         }
       });
@@ -208,13 +232,13 @@ export class ConsultationsListComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (appointments) => {
-          if (this.selectedPatientId() === patientId) {
+          if (this.selectedPatientId() === patientId && requestId === this.patientDataRequestId) {
             this.appointments.set(
               appointments.filter((appointment) => appointment.doctorId === this.auth.user()?.id));
           }
         },
         error: (error: unknown) => {
-          if (this.selectedPatientId() === patientId) {
+          if (this.selectedPatientId() === patientId && requestId === this.patientDataRequestId) {
             this.error.set(this.errorMessage(error, 'No se pudieron cargar las citas relacionadas.'));
           }
         }
