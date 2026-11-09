@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("StarMedica.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+72aa808a1e16c98f98b1288f3e3df279716bd2b1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+82512bd39b055547e3fdcfbb3deba0c1dc1d2e40")]
 [assembly: System.Reflection.AssemblyProductAttribute("StarMedica.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StarMedica.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

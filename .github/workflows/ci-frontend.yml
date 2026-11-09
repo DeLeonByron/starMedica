@@ -26,6 +26,14 @@ jobs:
         working-directory: star-medica
         run: npm ci
 
+      - name: Test
+        working-directory: star-medica
+        run: npm test -- --watch=false --browsers=ChromeHeadless
+
+      - name: Build development
+        working-directory: star-medica
+        run: npm run build:dev
+
       - name: Build staging
         working-directory: star-medica
         run: npm run build:staging

@@ -48,12 +48,18 @@ export class VaccinesListComponent implements OnInit {
   private readonly service = inject(VaccinesService);
   private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
+  private historyRequestId = 0;
   readonly catalog = signal<Vaccine[]>([]);
   readonly patients = signal<Patient[]>([]);
+  readonly isLoadingPatients = signal(true);
+  readonly patientsLoaded = signal(false);
+  readonly patientsError = signal<string | null>(null);
   readonly history = signal<PatientVaccination[]>([]);
   readonly selectedPatientId = signal<number | null>(null);
   readonly isLoading = signal(true);
+  readonly catalogError = signal<string | null>(null);
   readonly isLoadingHistory = signal(false);
+  readonly historyError = signal<string | null>(null);
   readonly isSaving = signal(false);
   readonly isAdministering = signal(false);
   readonly isCatalogFormOpen = signal(false);
@@ -76,9 +82,21 @@ export class VaccinesListComponent implements OnInit {
       return;
     }
 
+    if (this.isAdministering()) {
+      target.value = String(this.selectedPatientId() ?? '');
+      return;
+    }
+
     const patientId = Number(target.value);
+    if (patientId > 0 && !this.patients().some((patient) => patient.id === patientId)) {
+      target.value = String(this.selectedPatientId() ?? '');
+      return;
+    }
+
+    this.historyRequestId++;
     this.selectedPatientId.set(patientId > 0 ? patientId : null);
     this.history.set([]);
+    this.historyError.set(null);
     if (patientId > 0) {
       this.loadHistory(patientId);
     }
@@ -91,7 +109,7 @@ export class VaccinesListComponent implements OnInit {
 
   openAdministrationForm(): void {
     const patientId = this.selectedPatientId();
-    if (!patientId || this.catalog().length === 0) {
+    if (!this.isActivePatientSelected() || !patientId || !this.isCatalogAvailable()) {
       return;
     }
 
@@ -116,8 +134,36 @@ export class VaccinesListComponent implements OnInit {
     this.formError.set(null);
   }
 
+  retryHistory(): void {
+    const patientId = this.selectedPatientId();
+    if (patientId && !this.isLoadingHistory()) {
+      this.loadHistory(patientId);
+    }
+  }
+
+  retryCatalog(): void {
+    if (!this.isLoading()) {
+      this.loadCatalog();
+    }
+  }
+
+  retryPatients(): void {
+    if (!this.isLoadingPatients()) {
+      this.loadPatients();
+    }
+  }
+
   maxDoseNumber(): number {
     return this.catalog().find((vaccine) => vaccine.id === this.administrationForm.vaccineId)?.dosesRequired ?? 1;
+  }
+
+  isCatalogAvailable(): boolean {
+    return !this.isLoading() && this.catalogError() === null && this.catalog().length > 0;
+  }
+
+  isSelectedVaccineAvailable(): boolean {
+    return this.isCatalogAvailable()
+      && this.catalog().some((vaccine) => vaccine.id === this.administrationForm.vaccineId);
   }
 
   createVaccine(): void {
@@ -155,7 +201,10 @@ export class VaccinesListComponent implements OnInit {
 
   administer(): void {
     const patientId = this.selectedPatientId();
-    if (!patientId || this.isAdministering()) {
+    if (!this.isActivePatientSelected()
+      || !patientId
+      || !this.isSelectedVaccineAvailable()
+      || this.isAdministering()) {
       return;
     }
 
@@ -174,7 +223,9 @@ export class VaccinesListComponent implements OnInit {
         next: () => {
           this.isAdministering.set(false);
           this.isAdministrationFormOpen.set(false);
-          this.loadHistory(patientId);
+          if (this.selectedPatientId() === patientId) {
+            this.loadHistory(patientId);
+          }
         },
         error: (error: unknown) => {
           this.formError.set(this.errorMessage(error, 'No se pudo registrar la aplicación.'));
@@ -184,40 +235,79 @@ export class VaccinesListComponent implements OnInit {
   }
 
   private loadCatalog(): void {
+    this.isLoading.set(true);
+    this.catalogError.set(null);
     this.service.getCatalog()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (catalog) => {
           this.catalog.set(catalog);
+          this.catalogError.set(null);
           this.isLoading.set(false);
         },
         error: (error: unknown) => {
-          this.error.set(this.errorMessage(error, 'No se pudo cargar el catálogo de vacunas.'));
+          this.catalogError.set(this.errorMessage(error, 'No se pudo cargar el catálogo de vacunas.'));
           this.isLoading.set(false);
         }
       });
   }
 
   private loadPatients(): void {
+    this.isLoadingPatients.set(true);
+    this.patientsError.set(null);
     this.service.getPatients()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (patients) => this.patients.set(patients.filter((patient) => patient.isActive)),
-        error: (error: unknown) => this.error.set(this.errorMessage(error, 'No se pudieron cargar los pacientes.'))
+        next: (patients) => {
+          const activePatients = patients.filter((patient) => patient.isActive);
+          this.patients.set(activePatients);
+          this.patientsLoaded.set(true);
+          this.isLoadingPatients.set(false);
+
+          if (!activePatients.some((patient) => patient.id === this.selectedPatientId())) {
+            this.historyRequestId++;
+            this.selectedPatientId.set(null);
+            this.history.set([]);
+            this.historyError.set(null);
+          }
+        },
+        error: (error: unknown) => {
+          this.patientsError.set(this.errorMessage(error, 'No se pudieron cargar los pacientes.'));
+          this.isLoadingPatients.set(false);
+        }
       });
   }
 
+  isActivePatientSelected(): boolean {
+    const patientId = this.selectedPatientId();
+    return this.patientsLoaded()
+      && !this.isLoadingPatients()
+      && this.patientsError() === null
+      && patientId !== null
+      && this.patients().some((patient) => patient.id === patientId);
+  }
+
   private loadHistory(patientId: number): void {
+    const requestId = ++this.historyRequestId;
     this.isLoadingHistory.set(true);
+    this.historyError.set(null);
     this.service.getPatientHistory(patientId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (history) => {
+          if (this.selectedPatientId() !== patientId || requestId !== this.historyRequestId) {
+            return;
+          }
+
           this.history.set(history);
           this.isLoadingHistory.set(false);
         },
         error: (error: unknown) => {
-          this.error.set(this.errorMessage(error, 'No se pudo cargar el historial de vacunación.'));
+          if (this.selectedPatientId() !== patientId || requestId !== this.historyRequestId) {
+            return;
+          }
+
+          this.historyError.set(this.errorMessage(error, 'No se pudo cargar el historial de vacunación.'));
           this.isLoadingHistory.set(false);
         }
       });

@@ -1,7 +1,7 @@
 # Sprint 0 — Acta técnica de aceptación y checklist
 
-**Fecha de verificación:** 04/11/2026 (America/Guatemala)  
-**Ambiente verificado:** Development local  
+**Fecha de verificación:** 08/11/2026 (America/Guatemala)
+**Ambiente verificado:** Development local
 **Estado:** **PENDIENTE DE ACEPTACIÓN FORMAL**  
 **Alcance de esta evidencia:** compilación, pruebas existentes y disponibilidad local de la API/BD. No acredita despliegue en staging o producción.
 
@@ -13,12 +13,12 @@ El responsable del proyecto confirmó que **Sprint 0 incluye autenticación func
 
 | ID | Criterio | Resultado | Evidencia |
 |---|---|---|---|
-| S0-01 | Compilación Release de la solución .NET | ✅ Aprobado | `dotnet build C:\repositorios\agente_ia\StarMedica\StarMedica.sln --configuration Release --nologo`: 0 errores. |
-| S0-02 | Pruebas automatizadas del backend | ✅ Aprobado | `dotnet test C:\repositorios\agente_ia\StarMedica\StarMedica.sln --no-build --configuration Release --nologo`: 45 aprobadas, 0 fallidas, 0 omitidas. |
+| S0-01 | Compilación Release de la solución .NET | ✅ Aprobado | Revalidación 08/11/2026: `dotnet build C:\repositorios\agente_ia\StarMedica\StarMedica.sln --configuration Release --nologo`: 0 advertencias y 0 errores. |
+| S0-02 | Pruebas automatizadas del backend | ✅ Aprobado | Revalidación 08/11/2026: `dotnet test C:\repositorios\agente_ia\StarMedica\StarMedica.sln --no-build --configuration Release --nologo`: 50 aprobadas, 0 fallidas, 0 omitidas. |
 | S0-03 | Compilación Angular Development | ✅ Aprobado | `npm run build:dev -- --no-progress`, ejecutado desde `C:\repositorios\agente_ia\star-medica`: compilación completada. |
 | S0-04 | API local y conexión a base de datos | ✅ Aprobado, local | `GET http://localhost:5000/Health`: HTTP 200, `status=ok`, `database=connected`. La API se inició para la comprobación y se detuvo después. |
-| S0-05 | Migraciones EF y catálogo de departamentos | ✅ Aprobado, LocalDB | EF reportó las 9 migraciones aplicadas, incluida `20261103041211_20261102_CreateDepartmentsCatalog`, y `has-pending-model-changes` indicó que no hay cambios pendientes. SQL de solo lectura confirmó 22 departamentos activos, 22 nombres distintos y 9 migraciones en historial. |
-| S0-06 | Advertencias de dependencias | ✅ Resuelto localmente | AutoMapper y MailKit no tenían referencias de uso en el código; se retiraron las dependencias directas. MailKit introducía MimeKit y `System.Security.Cryptography.Pkcs` vulnerables. `dotnet list package --vulnerable --include-transitive` no reporta paquetes vulnerables en los proyectos; restore correcto, Release con 0 advertencias/0 errores y backend 45/45. |
+| S0-05 | Migraciones EF y catálogo de departamentos | ✅ Aprobado, LocalDB | EF reportó las 9 migraciones aplicadas y `has-pending-model-changes` indicó que no hay cambios pendientes. Revalidación SQL de solo lectura (08/11/2026) confirmó 22 departamentos activos, 22 nombres distintos y 9 migraciones en historial; última: `20261103041211_20261102_CreateDepartmentsCatalog`. |
+| S0-06 | Advertencias de dependencias | ✅ Resuelto localmente | AutoMapper y MailKit no tenían referencias de uso en el código; se retiraron las dependencias directas. MailKit introducía MimeKit y `System.Security.Cryptography.Pkcs` vulnerables. Revalidación 08/11/2026 de `dotnet list package --vulnerable --include-transitive`: ninguno de los cinco proyectos reporta paquetes vulnerables; Release con 0 advertencias/0 errores y backend 50/50. |
 | S0-07 | Compilaciones frontend Staging y Production | ✅ Aprobado, compilación | `npm run build:staging -- --no-progress` y `npm run build:prod -- --no-progress`: ambas compilaciones completadas. Esto no demuestra despliegue ni smoke test en esos ambientes. |
 | S0-08 | Alcance de autenticación | ✅ Decisión confirmada | Sprint 0 incluye autenticación funcional; Sprint 1 comienza después. |
 | S0-09 | Pruebas unitarias de handlers Auth | ✅ Aprobado, aplicación | Se agregaron nueve pruebas para correo no verificado, alta/bootstrap, usuario inactivo, vinculación y conflicto de cuenta Google, rechazo de refresh expirado/inactivo, rotación y revocación de refresh token. La suite completa pasa (45/45). |
@@ -35,6 +35,25 @@ El responsable del proyecto confirmó que **Sprint 0 incluye autenticación func
 | S0-20 | Manejo visible de fallo al cerrar sesión | ✅ Aprobado, pruebas locales | Si falla la revocación remota, se limpia la sesión local y se muestra aviso accesible indicando que no se pudo confirmar la revocación. Logout exitoso limpia la sesión sin aviso. Suite Angular completa: 67 aprobadas, 0 fallidas; build Development completado. |
 | S0-21 | Navegación lateral según permisos | ✅ Aprobado, pruebas locales | Los enlaces visibles se derivan de las mismas constantes de roles que protegen las rutas; se validó navegación para Médico, Recepcionista, Farmacéutico, SuperAdmin y cuenta sin rol. Marca y breadcrumb usan el primer destino permitido. Suite Angular completa: 72 aprobadas, 0 fallidas; build Development completado. |
 | S0-22 | Shell luego de perder sesión | ✅ Aprobado, pruebas locales | En error de logout, el shell oculta menú/breadcrumb al limpiar el usuario y mantiene visible el aviso de revocación no confirmada. Suite Angular completa: 73 aprobadas, 0 fallidas; build Development completado. |
+| S0-23 | Smoke test local API y rutas Auth sin sesión | ✅ Aprobado, local | El 08/11/2026, `GET /Health` respondió HTTP 200 con `status=ok` y `database=connected`; refresh sin cookie respondió 401 y logout sin cookie 204. Se ejecutó desde la salida Release, en loopback y con una clave JWT efímera limitada al proceso; API detenida al terminar. No se usó Google ni se validó un ambiente desplegado. |
+| S0-24 | CORS local y ruta protegida | ✅ Aprobado, local | En Development, el preflight del origen local permitido respondió 204 e incluyó `Access-Control-Allow-Origin`; un origen no listado respondió sin esa cabecera. `GET /api/patients` sin token devolvió 401 y `/swagger/v1/swagger.json` 200. API temporal en loopback con clave efímera, detenida al terminar. |
+
+## Revalidación local Sprint 0 (08/11/2026)
+
+- `dotnet build StarMedica\StarMedica.sln --configuration Release --nologo`: correcto, 0 advertencias y 0 errores.
+- `dotnet test StarMedica\StarMedica.sln --no-build --configuration Release --nologo`: 50 aprobadas, 0 fallidas y 0 omitidas.
+- Suite Angular: 104 aprobadas, 0 fallidas; build Development completado.
+- `npm run build:staging -- --no-progress` y `npm run build:prod -- --no-progress`: ambos builds completados.
+- `dotnet publish StarMedica\src\StarMedica.API\StarMedica.API.csproj --configuration Release --no-restore --nologo`: publicación completada; se retiró la salida temporal de validación.
+- `dotnet list StarMedica\StarMedica.sln package --vulnerable --include-transitive`: ninguno de los cinco proyectos reporta paquetes vulnerables en los orígenes NuGet actuales.
+- No hay Docker, Podman, nerdctl ni Buildah instalados; WSL tampoco está instalado. La construcción de imagen queda pendiente de un entorno con un motor de contenedores disponible; no se instaló software.
+- Base local Development verificada con consulta SQL de solo lectura, restringida a `LocalDB`: 22 departamentos activos y 22 nombres distintos; 9 migraciones aplicadas, incluida la migración más reciente de departamentos.
+- CI frontend actualizado para ejecutar `npm test -- --watch=false --browsers=ChromeHeadless` y compilar Development, Staging y Production. Pruebas: 104 aprobadas, 0 fallidas; el build Development se validó localmente. Los builds Staging/Production se revalidaron en esta sesión. La ejecución de GitHub Actions queda pendiente de push/PR.
+- `dotnet ef migrations has-pending-model-changes` (Infrastructure/API, Release): correcto; no hay cambios del modelo desde la última migración.
+- Smoke test local con la salida Release: `/Health` HTTP 200 (`database=connected`), refresh sin cookie HTTP 401 y logout sin cookie HTTP 204. Se usó una clave JWT aleatoria y efímera en el proceso para permitir el arranque; no se modificó ni se imprimió configuración sensible. El proceso se detuvo al terminar.
+- CORS y autorización local: preflight del origen permitido 204 con cabecera CORS; origen no listado sin cabecera de permiso; ruta protegida de pacientes sin token 401; documento Swagger Development 200. API temporal detenida al finalizar.
+- `git diff --check`: correcto.
+- Estos resultados solo acreditan compilación/publicación y smoke test local: no validan la imagen Docker ni un despliegue, ni el inicio de sesión Google real. No reemplazan los pendientes de infraestructura, configuración externa, smoke test desplegado ni aceptación formal indicados abajo.
 
 ## Checklist de aceptación formal
 
@@ -56,7 +75,7 @@ El responsable del proyecto confirmó que **Sprint 0 incluye autenticación func
 - [x] Un error de autorización posterior al refresh no borra una sesión renovada; la sesión se expira si falla el propio refresh.
 - [x] El cierre de sesión muestra un aviso cuando el servidor no confirma la revocación y limpia el estado local de forma explícita.
 - [x] Queda resuelta la discrepancia de alcance: Auth es requisito de Sprint 0.
-- [ ] Revalidar en la base de datos objetivo el estado de las migraciones y el catálogo de 22 departamentos.
+- [x] Revalidar en la base de datos local Development el estado de las migraciones y el catálogo de 22 departamentos (consulta de solo lectura, 08/11/2026).
 - [x] Configurar el mismo Client ID de Google en los tres ambientes Angular y compilar Staging y Production.
 - [x] Restaurar y probar límites y precisión numérica en el componente `sm-input` y sus formularios consumidores.
 - [x] Preparar Dockerfile y configuración como código de Railway; publicación .NET Release comprobada (sin validar imagen Docker).
@@ -73,7 +92,9 @@ El responsable del proyecto confirmó que **Sprint 0 incluye autenticación func
 
 ## Decisión actual
 
-**Sprint 0 no se declara cerrado.** La validación local confirmó 9 migraciones aplicadas, cero cambios EF pendientes, 22 departamentos activos distintos, API/BD saludables, rutas Swagger/Auth conectadas y los estados esperados para refresh/logout sin sesión. El Client ID está configurado en los tres ambientes Angular y Staging/Production compilan. También se revalidó `sm-input`: las pruebas focalizadas (5/5) cubren conversión a número, restricciones de mínimo, máximo y paso, la opción `any`, valores vacíos y rechazo de valores numéricos inválidos. Para Auth, las pruebas confirman restauración con cookie HttpOnly sin access token local, redirección desde login según rol, limpieza ante refresh 401, consolidación de renovaciones simultáneas, reintento de solicitudes protegidas y exclusión de endpoints Auth del reintento. Un 401 tardío usa el token ya renovado en lugar de rotar otra vez; un 403 posterior al refresh conserva la sesión, mientras que un refresh fallido la expira. Si falla logout remoto, se limpia la sesión local y se muestra el aviso de revocación no confirmada; el shell oculta menú/breadcrumb protegidos. La navegación lateral comparte las definiciones de roles de las rutas y muestra solo módulos permitidos; marca y breadcrumb mantienen un destino accesible para cada perfil. La suite Angular completa pasó (74/74, incluida la prueba de carga diferida de gráficos) y el build Development pasó. AutoMapper y MailKit se retiraron del proyecto; la auditoría NuGet local ya no reporta vulnerabilidades y el build Release pasó con 0 advertencias/0 errores, con las 45 pruebas backend aprobadas. El usuario decidió dejar el despliegue para el final; por ello no se intenta ahora vincular Railway. Continúan pendientes la configuración protegida de la API, autorización de orígenes Google, smoke test Google end-to-end, validación de ambientes desplegados y aceptación firmada. Docker no está instalado, así que la imagen tampoco se ha probado localmente.
+**Sprint 0 no se declara cerrado.** Evidencia local revalidada el 08/11/2026: backend Release correcto con 0 advertencias/0 errores y 50/50 pruebas; Angular Development 104/104, Staging/Production compilan; `dotnet publish` Release completado; auditoría NuGet sin vulnerabilidades reportadas; `dotnet ef migrations has-pending-model-changes` sin cambios; LocalDB con 9 migraciones y 22 departamentos activos distintos. La API local responde `/Health` 200 con base conectada, refresh sin cookie 401, logout sin cookie 204, CORS permite el origen Development y rechaza el origen no listado, la ruta de pacientes exige autorización (401 sin token) y Swagger Development responde 200. Las pruebas de Auth frontend y backend están registradas en la evidencia histórica de esta acta. Docker no está instalado y la imagen no se ha probado. Siguen pendientes la vinculación/despliegue Railway, la verificación de health en ambientes desplegados, la autorización Google Cloud de orígenes, la configuración protegida del API, el smoke test Google end-to-end, la aceptación de Staging/Production y la aprobación formal del responsable. La verificación local no equivale a aceptación de despliegue.
+
+**Revalidación 08/11/2026:** se volvió a consultar la base local Development en modo solo lectura: 22 departamentos activos distintos y 9 migraciones aplicadas, con `20261103041211_20261102_CreateDepartmentsCatalog` como última. El smoke test local y builds quedan registrados arriba. Esto no sustituye la verificación de una base desplegada ni cierra los bloqueos de Railway, Google Cloud, Docker y aceptación formal.
 
 ## Registro de aceptación
 

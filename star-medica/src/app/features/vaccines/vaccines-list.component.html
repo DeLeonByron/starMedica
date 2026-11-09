@@ -14,18 +14,37 @@
 
   <label class="sm-vaccines__patient-select">
     Paciente
-    <select [value]="selectedPatientId() ?? ''" (change)="selectPatient($event)">
+    <select
+      [value]="selectedPatientId() ?? ''"
+      [disabled]="isLoadingPatients() || patientsError() !== null || isAdministering()"
+      (change)="selectPatient($event)"
+    >
       <option value="">Selecciona un paciente</option>
       @for (patient of patients(); track patient.id) {
         <option [value]="patient.id">{{ patient.fullName }}</option>
       }
     </select>
   </label>
+  @if (isLoadingPatients()) {
+    <sm-loader label="Cargando pacientes..." />
+  } @else if (patientsError()) {
+    <sm-alert type="error">
+      {{ patientsError() }}
+      <sm-button type="button" variant="secondary" (click)="retryPatients()">Reintentar</sm-button>
+    </sm-alert>
+  } @else if (patientsLoaded() && patients().length === 0) {
+    <sm-alert type="warning">No hay pacientes activos disponibles para registrar vacunas.</sm-alert>
+  }
 
   <section class="sm-vaccines__catalog" aria-labelledby="vaccine-catalog-heading">
     <header class="sm-vaccines__section-header"><h2 id="vaccine-catalog-heading">Catálogo activo</h2></header>
     @if (isLoading()) {
       <sm-loader label="Cargando catálogo..." />
+    } @else if (catalogError()) {
+      <sm-alert type="error">
+        {{ catalogError() }}
+        <sm-button type="button" variant="secondary" (click)="retryCatalog()">Reintentar</sm-button>
+      </sm-alert>
     } @else if (catalog().length === 0) {
       <sm-empty-state
         title="El catálogo aún no tiene vacunas configuradas"
@@ -47,13 +66,18 @@
     <section class="sm-vaccines__history" aria-labelledby="vaccination-history-heading">
       <header class="sm-vaccines__section-header">
         <h2 id="vaccination-history-heading">Historial del paciente</h2>
-        @if (isDoctor() && catalog().length > 0) {
+        @if (isDoctor() && isCatalogAvailable()) {
           <sm-button (click)="openAdministrationForm()">Registrar aplicación</sm-button>
         }
       </header>
 
       @if (isLoadingHistory()) {
         <sm-loader label="Cargando historial..." />
+      } @else if (historyError()) {
+        <sm-alert type="error">
+          {{ historyError() }}
+          <sm-button type="button" variant="secondary" (click)="retryHistory()">Reintentar</sm-button>
+        </sm-alert>
       } @else if (history().length === 0) {
         <sm-empty-state
           title="No hay aplicaciones registradas"
@@ -120,6 +144,8 @@
           type="number"
           [(ngModel)]="catalogForm.dosesRequired"
           [required]="true"
+          [min]="1"
+          [max]="10"
         />
       </div>
       @if (formError()) {
@@ -157,7 +183,8 @@
           type="number"
           [(ngModel)]="administrationForm.doseNumber"
           [required]="true"
-          [maxLength]="2"
+          [min]="1"
+          [max]="maxDoseNumber()"
         />
         <sm-input
           id="vaccination-lot-number"
@@ -184,7 +211,7 @@
       }
       <footer class="sm-vaccines__form-actions">
         <sm-button variant="secondary" (click)="closeForms()">Cerrar</sm-button>
-        <sm-button type="submit" [disabled]="vaccinationForm.invalid || isAdministering()" [loading]="isAdministering()">
+        <sm-button type="submit" [disabled]="vaccinationForm.invalid || !isSelectedVaccineAvailable() || isAdministering()" [loading]="isAdministering()">
           {{ isAdministering() ? 'Guardando...' : 'Registrar aplicación' }}
         </sm-button>
       </footer>

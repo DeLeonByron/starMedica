@@ -202,7 +202,7 @@ describe('AppointmentsListComponent', () => {
   });
 
   it('submits the Guatemala local start time as UTC and trims the appointment reason', async () => {
-    const appointment = createAppointment(12, '2026-11-07T16:15:00Z');
+    const appointment = createAppointment(12, '2030-11-07T16:15:00Z');
     const service = jasmine.createSpyObj<AppointmentsService>(
       'AppointmentsService',
       ['getOptions', 'getAppointments', 'createAppointment']
@@ -224,7 +224,7 @@ describe('AppointmentsListComponent', () => {
       doctors: [{ id: 7, name: 'Médico de prueba' }]
     });
     component.openForm();
-    component.form.startsAt = '2026-11-07T10:15';
+    component.form.startsAt = '2030-11-07T10:15';
     component.form.reason = '  Control de seguimiento  ';
 
     component.createAppointment();
@@ -232,7 +232,7 @@ describe('AppointmentsListComponent', () => {
     expect(service.createAppointment).toHaveBeenCalledOnceWith({
       patientId: 3,
       doctorId: 7,
-      startsAt: '2026-11-07T16:15:00.000Z',
+      startsAt: '2030-11-07T16:15:00.000Z',
       durationMinutes: 30,
       reason: 'Control de seguimiento'
     });
