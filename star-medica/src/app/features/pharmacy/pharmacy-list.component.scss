@@ -19,6 +19,7 @@
 .sm-pharmacy__header h1 { margin: .3rem 0 0; font-size: 1.8rem; }
 .sm-pharmacy__eyebrow { margin: 0; color: var(--sm-primary); font-size: .76rem; font-weight: 700; text-transform: uppercase; }
 .sm-pharmacy__toolbar { display: flex; flex-wrap: wrap; gap: .5rem; }
+.sm-pharmacy__load-error { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin-top: 1rem; }
 .sm-pharmacy__primary, .sm-pharmacy__secondary { min-height: 40px; border: 0; border-radius: 8px; padding: .6rem .9rem; font: inherit; font-weight: 700; cursor: pointer; }
 .sm-pharmacy__primary { background: var(--sm-primary); color: var(--sm-surface); }
 .sm-pharmacy__secondary { border: 1px solid var(--sm-border); background: var(--sm-surface); color: var(--sm-ink); }

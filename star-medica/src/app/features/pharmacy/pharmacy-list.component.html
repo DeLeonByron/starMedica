@@ -4,107 +4,110 @@
       <p class="sm-pharmacy__eyebrow">Inventario clínico</p>
       <h1>Farmacia</h1>
     </div>
-    <div class="sm-pharmacy__toolbar">
-      @if (isSuperAdmin()) {
-        <sm-button variant="secondary" (click)="openMedicineForm()">Nuevo medicamento</sm-button>
-      }
-      @if (canManageStock() && medicines().length > 0) {
-        <sm-button variant="secondary" (click)="openReceiptForm()">Recibir lote</sm-button>
-        <sm-button (click)="openDispenseForm()">Despachar</sm-button>
-      }
-    </div>
-  </header>
-
-  @if (error()) {
-    <sm-alert type="error" [dismissible]="true" (dismissed)="clearError()">
-      {{ error() }}
-    </sm-alert>
-  }
-
-  @if (isLoading()) {
-    <sm-loader label="Cargando inventario..." />
-  } @else if (medicines().length === 0) {
-    <sm-empty-state
-      title="No hay medicamentos en el catálogo"
-      message="Un SuperAdmin puede agregar el primer medicamento para habilitar el control de inventario."
-    />
-  } @else {
-    <section class="sm-pharmacy__section" aria-labelledby="inventory-title">
-      <header class="sm-pharmacy__section-header">
-        <h2 id="inventory-title">Existencias por lote</h2>
-      </header>
-      <div class="sm-pharmacy__medicine-list">
-        @for (medicine of medicines(); track medicine.id) {
-          <article class="sm-medicine">
-            <header class="sm-medicine__header">
-              <div>
-                <span class="sm-medicine__code">{{ medicine.code }}</span>
-                <h3>{{ medicine.name }}</h3>
-                <p>{{ medicine.activeIngredient }} · {{ medicine.strength }} · {{ medicine.dosageForm }}</p>
-              </div>
-              <div class="sm-medicine__total" [class.sm-medicine__total--low]="isBelowReorderLevel(medicine)">
-                <strong>{{ availableQuantity(medicine.id) }} {{ medicine.stockUnit }}</strong>
-                <span>{{ isBelowReorderLevel(medicine) ? 'Bajo mínimo' : 'Disponible' }}</span>
-              </div>
-            </header>
-            @if (stockForMedicine(medicine.id).length === 0) {
-              <p class="sm-medicine__empty">Sin lotes registrados.</p>
-            } @else {
-              <div class="sm-medicine__batches">
-                @for (batch of stockForMedicine(medicine.id); track batch.id) {
-                  <div class="sm-batch" [class.sm-batch--expired]="isExpired(batch)">
-                    <span>Lote {{ batch.batchNumber }}</span>
-                    <span>{{ batch.quantityAvailable }} {{ medicine.stockUnit }}</span>
-                    <span>Vence {{ batch.expiresOn | date:'dd/MM/yyyy':'America/Guatemala' }}</span>
-                    @if (isExpired(batch)) {
-                      <strong>Vencido</strong>
-                    }
-                  </div>
-                }
-              </div>
-            }
-          </article>
+    @if (!isLoading() && !error()) {
+      <div class="sm-pharmacy__toolbar">
+        @if (isSuperAdmin()) {
+          <sm-button variant="secondary" (click)="openMedicineForm()">Nuevo medicamento</sm-button>
         }
-      </div>
-    </section>
-  }
-
-  <section class="sm-pharmacy__section" aria-labelledby="movement-title">
-    <header class="sm-pharmacy__section-header">
-      <h2 id="movement-title">Movimientos recientes</h2>
-    </header>
-    @if (movements().length === 0) {
-      <sm-empty-state
-        title="Aún no hay movimientos de inventario"
-        message="Cuando se reciba o despache stock, aparecerá el histórico aquí."
-      />
-    } @else {
-      <div class="sm-pharmacy__movement-list">
-        @for (movement of movements(); track movement.id) {
-          <article class="sm-movement">
-            <div>
-              <span class="sm-movement__type" [class.sm-movement__type--dispensed]="movement.type === 'Dispensed'">
-                {{ movementTypeLabel(movement.type) }}
-              </span>
-              <h3>{{ movement.medicineName }}</h3>
-              <span>Lote {{ movement.batchNumber }}</span>
-            </div>
-            <div class="sm-movement__meta">
-              <strong>{{ movement.quantity }}</strong>
-              <time>{{ movement.occurredAt | date:'dd/MM/yyyy HH:mm':'America/Guatemala' }}</time>
-              <span>{{ movement.performedByName }}</span>
-            </div>
-            @if (movement.patientName) {
-              <span class="sm-movement__patient">Paciente: {{ movement.patientName }}</span>
-            }
-            @if (movement.reference) {
-              <span class="sm-movement__reference">Ref. {{ movement.reference }}</span>
-            }
-          </article>
+        @if (canManageStock() && medicines().length > 0) {
+          <sm-button variant="secondary" (click)="openReceiptForm()">Recibir lote</sm-button>
+          <sm-button (click)="openDispenseForm()">Despachar</sm-button>
         }
       </div>
     }
-  </section>
+  </header>
+
+  @if (isLoading()) {
+    <sm-loader label="Cargando inventario..." />
+  } @else if (error()) {
+    <div class="sm-pharmacy__load-error">
+      <sm-alert type="error">{{ error() }}</sm-alert>
+      <sm-button variant="secondary" (click)="retryDashboard()">Reintentar</sm-button>
+    </div>
+  } @else {
+    @if (medicines().length === 0) {
+      <sm-empty-state
+        title="No hay medicamentos en el catálogo"
+        message="Un SuperAdmin puede agregar el primer medicamento para habilitar el control de inventario."
+      />
+    } @else {
+      <section class="sm-pharmacy__section" aria-labelledby="inventory-title">
+        <header class="sm-pharmacy__section-header">
+          <h2 id="inventory-title">Existencias por lote</h2>
+        </header>
+        <div class="sm-pharmacy__medicine-list">
+          @for (medicine of medicines(); track medicine.id) {
+            <article class="sm-medicine">
+              <header class="sm-medicine__header">
+                <div>
+                  <span class="sm-medicine__code">{{ medicine.code }}</span>
+                  <h3>{{ medicine.name }}</h3>
+                  <p>{{ medicine.activeIngredient }} · {{ medicine.strength }} · {{ medicine.dosageForm }}</p>
+                </div>
+                <div class="sm-medicine__total" [class.sm-medicine__total--low]="isBelowReorderLevel(medicine)">
+                  <strong>{{ availableQuantity(medicine.id) }} {{ medicine.stockUnit }}</strong>
+                  <span>{{ isBelowReorderLevel(medicine) ? 'Bajo mínimo' : 'Disponible' }}</span>
+                </div>
+              </header>
+              @if (stockForMedicine(medicine.id).length === 0) {
+                <p class="sm-medicine__empty">Sin lotes registrados.</p>
+              } @else {
+                <div class="sm-medicine__batches">
+                  @for (batch of stockForMedicine(medicine.id); track batch.id) {
+                    <div class="sm-batch" [class.sm-batch--expired]="isExpired(batch)">
+                      <span>Lote {{ batch.batchNumber }}</span>
+                      <span>{{ batch.quantityAvailable }} {{ medicine.stockUnit }}</span>
+                      <span>Vence {{ batch.expiresOn | date:'dd/MM/yyyy':'America/Guatemala' }}</span>
+                      @if (isExpired(batch)) {
+                        <strong>Vencido</strong>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </article>
+          }
+        </div>
+      </section>
+    }
+
+    <section class="sm-pharmacy__section" aria-labelledby="movement-title">
+      <header class="sm-pharmacy__section-header">
+        <h2 id="movement-title">Movimientos recientes</h2>
+      </header>
+      @if (movements().length === 0) {
+        <sm-empty-state
+          title="Aún no hay movimientos de inventario"
+          message="Cuando se reciba o despache stock, aparecerá el histórico aquí."
+        />
+      } @else {
+        <div class="sm-pharmacy__movement-list">
+          @for (movement of movements(); track movement.id) {
+            <article class="sm-movement">
+              <div>
+                <span class="sm-movement__type" [class.sm-movement__type--dispensed]="movement.type === 'Dispensed'">
+                  {{ movementTypeLabel(movement.type) }}
+                </span>
+                <h3>{{ movement.medicineName }}</h3>
+                <span>Lote {{ movement.batchNumber }}</span>
+              </div>
+              <div class="sm-movement__meta">
+                <strong>{{ movement.quantity }}</strong>
+                <time>{{ movement.occurredAt | date:'dd/MM/yyyy HH:mm':'America/Guatemala' }}</time>
+                <span>{{ movement.performedByName }}</span>
+              </div>
+              @if (movement.patientName) {
+                <span class="sm-movement__patient">Paciente: {{ movement.patientName }}</span>
+              }
+              @if (movement.reference) {
+                <span class="sm-movement__reference">Ref. {{ movement.reference }}</span>
+              }
+            </article>
+          }
+        </div>
+      }
+    </section>
+  }
 </section>
 
 @if (isMedicineFormOpen()) {
@@ -124,7 +127,7 @@
         <sm-input id="medicine-strength" name="strength" label="Concentración" [(ngModel)]="medicineForm.strength" [required]="true" [maxLength]="100" />
         <sm-input id="medicine-dosage-form" name="dosageForm" label="Forma farmacéutica" [(ngModel)]="medicineForm.dosageForm" [required]="true" [maxLength]="100" />
         <sm-input id="medicine-stock-unit" name="stockUnit" label="Unidad de inventario" [(ngModel)]="medicineForm.stockUnit" [required]="true" [maxLength]="40" />
-        <sm-input id="medicine-reorder-level" name="reorderLevel" label="Mínimo de reposición" type="number" [(ngModel)]="medicineForm.reorderLevel" [required]="true" />
+        <sm-input id="medicine-reorder-level" name="reorderLevel" label="Mínimo de reposición" type="number" [(ngModel)]="medicineForm.reorderLevel" [required]="true" [min]="0" [max]="1000000" [step]="0.001" />
       </div>
       @if (formError()) {
         <sm-alert type="error" [dismissible]="true" (dismissed)="clearFormError()">
@@ -160,8 +163,8 @@
           </select>
         </label>
         <sm-input id="receipt-batch-number" name="batchNumber" label="Lote" [(ngModel)]="receiptForm.batchNumber" [required]="true" [maxLength]="100" />
-        <sm-input id="receipt-quantity" name="quantity" label="Cantidad" type="number" [(ngModel)]="receiptForm.quantity" [required]="true" />
-        <sm-input id="receipt-expires-on" name="expiresOn" label="Vencimiento" type="date" [(ngModel)]="receiptForm.expiresOn" [required]="true" />
+        <sm-input id="receipt-quantity" name="quantity" label="Cantidad" type="number" [(ngModel)]="receiptForm.quantity" [required]="true" [min]="0.001" [max]="1000000" [step]="0.001" />
+        <sm-input id="receipt-expires-on" name="expiresOn" label="Vencimiento" type="date" [(ngModel)]="receiptForm.expiresOn" [required]="true" [min]="minimumExpiryDate" />
         <sm-input id="receipt-reference" name="reference" label="Referencia de recepción" [(ngModel)]="receiptForm.reference" [maxLength]="100" class="sm-pharmacy__wide" />
       </div>
       @if (formError()) {
@@ -204,7 +207,7 @@
             }
           </select>
         </label>
-        <sm-input id="dispense-quantity" name="quantity" label="Cantidad" type="number" [(ngModel)]="dispenseForm.quantity" [required]="true" />
+        <sm-input id="dispense-quantity" name="quantity" label="Cantidad" type="number" [(ngModel)]="dispenseForm.quantity" [required]="true" [min]="0.001" [max]="1000000" [step]="0.001" />
         <sm-input id="dispense-reference" name="reference" label="Referencia" [(ngModel)]="dispenseForm.reference" [maxLength]="100" class="sm-pharmacy__wide" />
       </div>
       @if (formError()) {

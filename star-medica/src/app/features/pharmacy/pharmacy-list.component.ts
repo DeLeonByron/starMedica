@@ -72,6 +72,10 @@ export class PharmacyListComponent implements OnInit {
   };
   readonly receiptForm: ReceiveStockRequest = this.emptyReceipt();
   readonly dispenseForm: DispenseStockRequest = this.emptyDispense();
+  get minimumExpiryDate(): string {
+    const [year, month, day] = this.todayInGuatemala().split('-').map(Number);
+    return new Date(Date.UTC(year, month - 1, day + 1)).toISOString().slice(0, 10);
+  }
 
   ngOnInit(): void {
     this.loadDashboard();
@@ -124,8 +128,8 @@ export class PharmacyListComponent implements OnInit {
     }
   }
 
-  clearError(): void {
-    this.error.set(null);
+  retryDashboard(): void {
+    this.loadDashboard();
   }
 
   clearFormError(): void {

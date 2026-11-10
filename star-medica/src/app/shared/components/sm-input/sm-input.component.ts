@@ -45,7 +45,7 @@ export class SmInputComponent implements ControlValueAccessor, Validator, OnChan
   readonly autocomplete = input('');
   readonly required = input(false);
   readonly maxLength = input<number | null>(null);
-  readonly min = input<number | null>(null);
+  readonly min = input<number | string | null>(null);
   readonly max = input<number | null>(null);
   readonly step = input<number | 'any'>(1);
   readonly hint = input('');
@@ -95,7 +95,7 @@ export class SmInputComponent implements ControlValueAccessor, Validator, OnChan
     if (this.type() === 'number') {
       const min = this.min();
       const max = this.max();
-      if (min !== null) {
+      if (typeof min === 'number') {
         validators.push(Validators.min(min));
       }
       if (max !== null) {
@@ -104,6 +104,18 @@ export class SmInputComponent implements ControlValueAccessor, Validator, OnChan
     }
 
     const validationErrors = Validators.compose(validators)?.(control) ?? null;
+    const minDate = this.min();
+    if (
+      !validationErrors &&
+      this.type() === 'date' &&
+      typeof minDate === 'string' &&
+      typeof control.value === 'string' &&
+      control.value !== '' &&
+      control.value < minDate
+    ) {
+      return { min: { min: minDate, actual: control.value } };
+    }
+
     const step = this.step();
     if (validationErrors || this.type() !== 'number') {
       return validationErrors;
@@ -124,7 +136,8 @@ export class SmInputComponent implements ControlValueAccessor, Validator, OnChan
       return { step: { step, actual: value } };
     }
 
-    const stepBase = this.min() ?? 0;
+    const min = this.min();
+    const stepBase = typeof min === 'number' ? min : 0;
     const stepsFromBase = (value - stepBase) / step;
     if (Math.abs(stepsFromBase - Math.round(stepsFromBase)) > 1e-8) {
       return { step: { step, actual: value } };

@@ -4,27 +4,101 @@ on:
   push:
     paths:
       - 'StarMedica/**'
+      - '.config/dotnet-tools.json'
+      - '.dockerignore'
+      - 'railway.toml'
       - '.github/workflows/ci-backend.yml'
   pull_request:
     paths:
       - 'StarMedica/**'
+      - '.config/dotnet-tools.json'
+      - '.dockerignore'
+      - 'railway.toml'
       - '.github/workflows/ci-backend.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
 
       - name: Restore
-        run: dotnet restore StarMedica/StarMedica.sln
+        run: dotnet restore StarMedica/StarMedica.sln -p:NuGetAudit=true -p:NuGetAuditLevel=low -p:WarningsAsErrors=NU1901%3BNU1902%3BNU1903%3BNU1904
 
       - name: Build
         run: dotnet build StarMedica/StarMedica.sln --no-restore --configuration Release
+
+      - name: Build container image
+        run: docker build --file StarMedica/Dockerfile --tag starmedica-api:ci .
+
+      - name: Run container smoke test
+        env:
+          ASPNETCORE_ENVIRONMENT: Production
+          ConnectionStrings__StarMedicaDB: Server=127.0.0.1,1;Database=Unavailable;User Id=ci;Password=not-a-secret;TrustServerCertificate=True;Connect Timeout=1
+          Jwt__Key: StarMedica-CI-only-not-a-secret-key-1234567890
+          Jwt__Issuer: StarMedica.CI
+          Jwt__Audience: StarMedica.CI
+          AllowedOrigins__0: https://ci.invalid
+        run: |
+          set -eu
+          container_name="starmedica-api-ci-${GITHUB_RUN_ID}"
+          response_file="$(mktemp)"
+          cleanup() {
+            docker rm --force "$container_name" >/dev/null 2>&1 || true
+            rm -f "$response_file"
+          }
+          trap cleanup EXIT
+
+          docker run --detach --name "$container_name" \
+            --publish 127.0.0.1:18080:8080 \
+            --env ASPNETCORE_ENVIRONMENT \
+            --env ConnectionStrings__StarMedicaDB \
+            --env Jwt__Key \
+            --env Jwt__Issuer \
+            --env Jwt__Audience \
+            --env AllowedOrigins__0 \
+            starmedica-api:ci
+
+          container_user="$(docker inspect --format '{{.Config.User}}' "$container_name")"
+          test -n "$container_user"
+          test "$container_user" != "0"
+
+          status="000"
+          for attempt in $(seq 1 30); do
+            status="$(curl --silent --output "$response_file" --write-out '%{http_code}' http://127.0.0.1:18080/Health || true)"
+            if [ "$status" = "503" ]; then
+              break
+            fi
+            sleep 1
+          done
+
+          test "$status" = "503"
+          grep -q 'unhealthy' "$response_file"
+          grep -q 'unavailable' "$response_file"
+
+      - name: Restore EF tools
+        run: dotnet tool restore
+
+      - name: Check EF model snapshot
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          Jwt__Key: StarMedica-CI-only-not-a-secret-key-1234567890
+          ConnectionStrings__StarMedicaDB: Server=127.0.0.1;Database=EfModelCheck;User Id=ci;Password=not-used;TrustServerCertificate=True
+        run: dotnet ef migrations has-pending-model-changes --project StarMedica/src/StarMedica.Infrastructure/StarMedica.Infrastructure.csproj --startup-project StarMedica/src/StarMedica.API/StarMedica.API.csproj --configuration Release
 
       - name: Test
         run: dotnet test StarMedica/StarMedica.sln --no-build --configuration Release

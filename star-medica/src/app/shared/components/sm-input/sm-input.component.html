@@ -15,7 +15,7 @@
     [placeholder]="placeholder()"
     [attr.autocomplete]="autocomplete() || null"
     [attr.maxlength]="maxLength()"
-    [attr.min]="type() === 'number' ? min() : null"
+    [attr.min]="min()"
     [attr.max]="type() === 'number' ? max() : null"
     [attr.step]="type() === 'number' ? step() : null"
     [required]="required()"

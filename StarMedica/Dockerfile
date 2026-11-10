@@ -20,4 +20,5 @@ RUN dotnet publish "StarMedica.API.csproj" --configuration Release --no-restore 
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
+USER $APP_UID
 ENTRYPOINT ["dotnet", "StarMedica.API.dll"]
