@@ -238,6 +238,83 @@ describe('AppointmentsListComponent', () => {
     });
     expect(component.isSaving()).toBeFalse();
     expect(component.isFormOpen()).toBeFalse();
+    expect(component.form).toEqual({
+      patientId: 0,
+      doctorId: 0,
+      startsAt: '',
+      durationMinutes: 30,
+      reason: ''
+    });
+    fixture.destroy();
+  });
+
+  it('locks appointment fields while saving and preserves them after a failure', async () => {
+    const createRequest = new Subject<Appointment>();
+    const service = jasmine.createSpyObj<AppointmentsService>(
+      'AppointmentsService',
+      ['getOptions', 'getAppointments', 'createAppointment']
+    );
+    service.getOptions.and.returnValue(of({ patients: [], doctors: [] }));
+    service.getAppointments.and.returnValue(of([]));
+    service.createAppointment.and.returnValue(createRequest);
+
+    await TestBed.configureTestingModule({
+      imports: [AppointmentsListComponent],
+      providers: [{ provide: AppointmentsService, useValue: service }]
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(AppointmentsListComponent);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    component.options.set({
+      patients: [{ id: 3, name: 'Paciente de prueba' }],
+      doctors: [{ id: 7, name: 'Médico de prueba' }]
+    });
+    component.openForm();
+    component.form.startsAt = '2030-11-07T10:15';
+    component.form.durationMinutes = 45;
+    component.form.reason = 'Control de seguimiento';
+    fixture.detectChanges();
+
+    component.createAppointment();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('form[aria-busy="true"]')).not.toBeNull();
+    const controls: HTMLInputElement[] = Array.from(
+      fixture.nativeElement.querySelectorAll('form input, form select')
+    );
+    expect(controls.length).toBe(5);
+    expect(controls.every((control) => control.disabled))
+      .withContext(controls.map((control) => `${control.name}:${control.disabled}`).join(', '))
+      .toBeTrue();
+    expect(fixture.nativeElement.querySelector('form sm-button button').disabled).toBeTrue();
+    expect(component.isFormOpen()).toBeTrue();
+
+    component.closeForm();
+    expect(component.isFormOpen()).toBeTrue();
+
+    createRequest.error(new Error('Conflicto al programar la cita.'));
+    fixture.detectChanges();
+
+    expect(component.isSaving()).toBeFalse();
+    expect(component.isFormOpen()).toBeTrue();
+    expect(component.form).toEqual({
+      patientId: 3,
+      doctorId: 7,
+      startsAt: '2030-11-07T10:15',
+      durationMinutes: 45,
+      reason: 'Control de seguimiento'
+    });
+    expect(fixture.nativeElement.querySelector('form input[name="startsAt"]').disabled).toBeFalse();
+    expect(fixture.nativeElement.textContent).toContain('Conflicto al programar la cita.');
+
+    component.closeForm();
+    expect(component.isFormOpen()).toBeFalse();
+    expect(component.form.reason).toBe('');
+
+    component.openForm();
+    expect(component.isFormOpen()).toBeTrue();
+    expect(component.form.reason).toBe('');
     fixture.destroy();
   });
 

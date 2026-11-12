@@ -73,11 +73,11 @@ export class BillingDraftsComponent implements OnInit {
         Number.isFinite(line.quantity) &&
         line.quantity > 0 &&
         line.quantity <= 100_000 &&
-        Math.round(line.quantity * 1000) === line.quantity * 1000 &&
+        this.hasDecimalPrecision(line.quantity, 3) &&
         Number.isFinite(line.unitPrice) &&
         line.unitPrice >= 0 &&
         line.unitPrice <= 100_000 &&
-        Math.round(line.unitPrice * 100) === line.unitPrice * 100
+        this.hasDecimalPrecision(line.unitPrice, 2)
       );
   });
 
@@ -86,18 +86,22 @@ export class BillingDraftsComponent implements OnInit {
   }
 
   updateCustomerName(value: string): void {
+    if (this.isSaving()) return;
     this.form.update((current) => ({ ...current, customerName: value }));
   }
 
   updateCustomerNit(value: string): void {
+    if (this.isSaving()) return;
     this.form.update((current) => ({ ...current, customerNit: value }));
   }
 
   updateCustomerAddress(value: string): void {
+    if (this.isSaving()) return;
     this.form.update((current) => ({ ...current, customerAddress: value }));
   }
 
   updateNotes(value: string): void {
+    if (this.isSaving()) return;
     this.form.update((current) => ({ ...current, notes: value }));
   }
 
@@ -142,7 +146,7 @@ export class BillingDraftsComponent implements OnInit {
   }
 
   addLine(): void {
-    if (this.form().lines.length >= 100) {
+    if (this.isSaving() || this.form().lines.length >= 100) {
       return;
     }
 
@@ -153,7 +157,7 @@ export class BillingDraftsComponent implements OnInit {
   }
 
   removeLine(index: number): void {
-    if (this.form().lines.length <= 1) {
+    if (this.isSaving() || this.form().lines.length <= 1) {
       return;
     }
 
@@ -164,6 +168,10 @@ export class BillingDraftsComponent implements OnInit {
   }
 
   startEditing(draft: BillingDraft): void {
+    if (this.isSaving() || this.editingDraftId() !== null) {
+      return;
+    }
+
     this.editingDraftId.set(draft.id);
     this.formError.set(null);
     this.notice.set(null);
@@ -190,8 +198,8 @@ export class BillingDraftsComponent implements OnInit {
     this.form.set(this.emptyForm());
   }
 
-  clearError(): void {
-    this.error.set(null);
+  retryDrafts(): void {
+    this.loadDrafts();
   }
 
   clearNotice(): void {
@@ -199,6 +207,10 @@ export class BillingDraftsComponent implements OnInit {
   }
 
   saveDraft(): void {
+    if (this.isSaving()) {
+      return;
+    }
+
     if (!this.canSubmit()) {
       this.formError.set('Completa el cliente y todos los conceptos con valores válidos.');
       return;
@@ -278,6 +290,8 @@ export class BillingDraftsComponent implements OnInit {
     index: number,
     update: (line: BillingDraftForm['lines'][number]) => BillingDraftForm['lines'][number]
   ): void {
+    if (this.isSaving()) return;
+
     this.form.update((current) => ({
       ...current,
       lines: current.lines.map((line, lineIndex) =>
@@ -294,6 +308,12 @@ export class BillingDraftsComponent implements OnInit {
     const unitPriceHundredths = Math.round(unitPrice * 100);
     const totalCents = Math.floor((quantityThousandths * unitPriceHundredths) / 1000 + 0.5);
     return totalCents / 100;
+  }
+
+  private hasDecimalPrecision(value: number, decimalPlaces: number): boolean {
+    const scaledValue = value * 10 ** decimalPlaces;
+    const tolerance = Number.EPSILON * Math.max(1, Math.abs(scaledValue)) * 2;
+    return Math.abs(scaledValue - Math.round(scaledValue)) <= tolerance;
   }
 
   private errorMessage(error: unknown, fallback: string): string {

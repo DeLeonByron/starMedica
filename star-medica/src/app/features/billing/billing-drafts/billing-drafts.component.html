@@ -11,9 +11,10 @@
   </aside>
 
   @if (error()) {
-    <sm-alert type="error" [dismissible]="true" (dismissed)="clearError()">
-      {{ error() }}
-    </sm-alert>
+    <div class="sm-billing__load-error">
+      <sm-alert type="error">{{ error() }}</sm-alert>
+      <sm-button variant="secondary" type="button" (click)="retryDrafts()">Reintentar</sm-button>
+    </div>
   }
 
   @if (notice()) {
@@ -32,30 +33,36 @@
       </div>
     </header>
 
-    <form (ngSubmit)="saveDraft()">
+    <form [attr.aria-busy]="isSaving()" (ngSubmit)="saveDraft()">
       <div class="sm-billing__form-grid">
         <sm-input
           id="billing-customer-name"
           name="customerName"
           label="Nombre del cliente"
-          [(ngModel)]="form().customerName"
+          [ngModel]="form().customerName"
+          (ngModelChange)="updateCustomerName($event)"
           [required]="true"
           [maxLength]="200"
+          [disabled]="isSaving()"
           class="sm-billing__wide"
         />
         <sm-input
           id="billing-customer-nit"
           name="customerNit"
           label="NIT (referencia interna)"
-          [(ngModel)]="form().customerNit"
+          [ngModel]="form().customerNit"
+          (ngModelChange)="updateCustomerNit($event)"
           [maxLength]="20"
+          [disabled]="isSaving()"
         />
         <sm-input
           id="billing-customer-address"
           name="customerAddress"
           label="Dirección"
-          [(ngModel)]="form().customerAddress"
+          [ngModel]="form().customerAddress"
+          (ngModelChange)="updateCustomerAddress($event)"
           [maxLength]="300"
+          [disabled]="isSaving()"
         />
         <label class="sm-billing__wide">
           Notas
@@ -65,13 +72,19 @@
             (ngModelChange)="updateNotes($event)"
             maxlength="500"
             rows="2"
+            [attr.disabled]="isSaving() ? '' : null"
           ></textarea>
         </label>
       </div>
 
       <div class="sm-billing__lines-header">
         <h3>Conceptos</h3>
-        <sm-button variant="secondary" type="button" (click)="addLine()" [disabled]="form().lines.length >= 100">
+        <sm-button
+          variant="secondary"
+          type="button"
+          (click)="addLine()"
+          [disabled]="isSaving() || form().lines.length >= 100"
+        >
           Agregar concepto
         </sm-button>
       </div>
@@ -87,6 +100,7 @@
               (ngModelChange)="updateDescription(index, $event)"
               [required]="true"
               [maxLength]="300"
+              [disabled]="isSaving()"
             />
             <sm-input
               [id]="'billing-line-quantity-' + index"
@@ -99,6 +113,7 @@
               [min]="0.001"
               [max]="100000"
               [step]="0.001"
+              [disabled]="isSaving()"
             />
             <sm-input
               [id]="'billing-line-unit-price-' + index"
@@ -111,6 +126,7 @@
               [min]="0"
               [max]="100000"
               [step]="0.01"
+              [disabled]="isSaving()"
             />
             <div class="sm-billing__line-total">
               <span>Total del concepto</span>
@@ -119,7 +135,7 @@
             <sm-button
               variant="secondary"
               type="button"
-              [disabled]="form().lines.length <= 1"
+              [disabled]="isSaving() || form().lines.length <= 1"
               [attr.aria-label]="'Quitar concepto ' + (index + 1)"
               (click)="removeLine(index)"
             >
@@ -219,7 +235,12 @@
               }
             </details>
             <footer class="sm-billing__draft-actions">
-              <sm-button variant="secondary" type="button" [disabled]="isSaving()" (click)="startEditing(draft)">
+              <sm-button
+                variant="secondary"
+                type="button"
+                [disabled]="isSaving() || editingDraftId() !== null"
+                (click)="startEditing(draft)"
+              >
                 Editar borrador
               </sm-button>
             </footer>

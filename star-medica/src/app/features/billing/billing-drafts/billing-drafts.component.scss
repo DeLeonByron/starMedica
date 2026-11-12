@@ -68,6 +68,13 @@
   color: var(--sm-warning);
 }
 
+.sm-billing__load-error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .sm-billing__section {
   margin-top: 1.5rem;
   padding: 1.15rem;

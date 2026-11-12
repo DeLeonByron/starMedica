@@ -557,4 +557,107 @@ describe('ConsultationsListComponent', () => {
     expect(component.formError()).toBeNull();
     fixture.destroy();
   });
+
+  it('locks consultation fields while saving, preserves rejected data, and resets after success', async () => {
+    const createRequests: Subject<Consultation>[] = [];
+    const service = {
+      getPatients: () => of([{ id: 2, fullName: 'Paciente de prueba' }]),
+      getHistory: () => of([]),
+      getAvailableAppointments: () => of([]),
+      create: () => {
+        const request = new Subject<Consultation>();
+        createRequests.push(request);
+        return request;
+      }
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [ConsultationsListComponent],
+      providers: [
+        { provide: ConsultationsService, useValue: service },
+        { provide: AuthService, useValue: { user: () => ({ id: 7 }) } }
+      ]
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ConsultationsListComponent);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    component.selectedPatientId.set(2);
+    component.openForm();
+    Object.assign(component.form, {
+      appointmentId: 15,
+      consultedAt: '2026-03-15T12:00:00Z',
+      chiefComplaint: 'Consulta de prueba',
+      presentIllness: 'Historia de prueba',
+      physicalExam: 'Examen de prueba',
+      diagnosisCode: 'Z00.1',
+      diagnosisDescription: 'Control',
+      treatmentPlan: 'Seguimiento',
+      notes: 'Nota de prueba',
+      weightKg: 12.5
+    });
+
+    component.createConsultation();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('form[aria-busy="true"]')).not.toBeNull();
+    const controls: HTMLInputElement[] = Array.from(
+      fixture.nativeElement.querySelectorAll('form input, form select, form textarea')
+    );
+    expect(controls.length).toBe(16);
+    expect(controls.every((control) => control.disabled)).toBeTrue();
+    expect(fixture.nativeElement.querySelector('form sm-button button').disabled).toBeTrue();
+    expect(fixture.nativeElement.querySelector('.sm-consultations__close').disabled).toBeTrue();
+
+    component.closeForm();
+    expect(component.isFormOpen()).toBeTrue();
+
+    createRequests[0].error(new Error('No se pudo guardar el expediente.'));
+    fixture.detectChanges();
+
+    expect(component.isSaving()).toBeFalse();
+    expect(component.isFormOpen()).toBeTrue();
+    expect(component.form.chiefComplaint).toBe('Consulta de prueba');
+    expect(component.form.appointmentId).toBe(15);
+    expect(component.form.weightKg).toBe(12.5);
+    expect(fixture.nativeElement.textContent).toContain('No se pudo guardar el expediente.');
+
+    component.closeForm();
+    expect(component.isFormOpen()).toBeFalse();
+    expect(component.form.chiefComplaint).toBe('');
+    expect(component.form.patientId).toBe(0);
+
+    component.openForm();
+    component.form.chiefComplaint = 'Nueva consulta';
+    component.createConsultation();
+    createRequests[1].next({
+      id: 20,
+      patientId: 2,
+      patientName: 'Paciente de prueba',
+      doctorId: 7,
+      doctorName: 'Médico',
+      appointmentId: null,
+      consultedAt: '2026-03-15T12:00:00Z',
+      chiefComplaint: 'Nueva consulta',
+      presentIllness: '',
+      physicalExam: '',
+      diagnosisCode: '',
+      diagnosisDescription: '',
+      treatmentPlan: '',
+      notes: null,
+      weightKg: null,
+      heightCm: null,
+      temperatureCelsius: null,
+      heartRateBpm: null,
+      respiratoryRatePerMinute: null,
+      systolicBloodPressure: null,
+      diastolicBloodPressure: null,
+      oxygenSaturationPercent: null
+    });
+
+    expect(component.isFormOpen()).toBeFalse();
+    expect(component.form.chiefComplaint).toBe('');
+    expect(component.form.patientId).toBe(0);
+    fixture.destroy();
+  });
 });

@@ -61,12 +61,18 @@
       <p class="sm-patients__eyebrow">Registro clínico</p>
       <h2 id="patient-form-title">Nuevo paciente</h2>
     </div>
-    <button type="button" class="sm-patients__close" aria-label="Cerrar" (click)="closeForm()">
+    <button
+      type="button"
+      class="sm-patients__close"
+      aria-label="Cerrar"
+      [disabled]="isSaving()"
+      (click)="closeForm()"
+    >
       ×
     </button>
   </header>
 
-  <form #patientForm="ngForm" (ngSubmit)="createPatient()">
+  <form #patientForm="ngForm" [attr.aria-busy]="isSaving()" (ngSubmit)="createPatient()">
     <div class="sm-patients__form-grid">
       <sm-input
         id="patient-code"
@@ -75,6 +81,7 @@
         [(ngModel)]="form.code"
         [required]="true"
         [maxLength]="50"
+        [disabled]="isSaving()"
       />
       <sm-input
         id="patient-full-name"
@@ -84,6 +91,7 @@
         [required]="true"
         [maxLength]="200"
         autocomplete="name"
+        [disabled]="isSaving()"
       />
       <sm-input
         id="patient-document"
@@ -92,6 +100,7 @@
         [(ngModel)]="form.documentNumber"
         [required]="true"
         [maxLength]="50"
+        [disabled]="isSaving()"
       />
       <sm-input
         id="patient-date-of-birth"
@@ -99,6 +108,7 @@
         label="Fecha de nacimiento"
         type="date"
         [(ngModel)]="form.dateOfBirth"
+        [disabled]="isSaving()"
       />
       <sm-input
         id="patient-phone"
@@ -109,6 +119,7 @@
         [required]="true"
         [maxLength]="30"
         autocomplete="tel"
+        [disabled]="isSaving()"
       />
       <sm-input
         id="patient-email"
@@ -118,6 +129,7 @@
         [(ngModel)]="form.email"
         [maxLength]="200"
         autocomplete="email"
+        [disabled]="isSaving()"
       />
       <sm-input
         id="patient-address"
@@ -127,6 +139,7 @@
         [(ngModel)]="form.address"
         [maxLength]="300"
         autocomplete="street-address"
+        [disabled]="isSaving()"
       />
     </div>
 
@@ -137,10 +150,10 @@
     }
 
     <footer class="sm-patients__actions">
-      <sm-button variant="secondary" (click)="closeForm()">
+      <sm-button variant="secondary" [disabled]="isSaving()" (click)="closeForm()">
         Cancelar
       </sm-button>
-      <sm-button type="submit" [disabled]="patientForm.invalid === true" [loading]="isSaving()">
+      <sm-button type="submit" [disabled]="patientForm.invalid === true || isSaving()" [loading]="isSaving()">
         {{ isSaving() ? 'Guardando...' : 'Guardar paciente' }}
       </sm-button>
     </footer>

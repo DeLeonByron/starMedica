@@ -149,11 +149,16 @@
       <button type="button" class="sm-appointments__close" aria-label="Cerrar" (click)="closeForm()">×</button>
     </header>
 
-    <form #appointmentForm="ngForm" (ngSubmit)="createAppointment()">
+    <form #appointmentForm="ngForm" [attr.aria-busy]="isSaving()" (ngSubmit)="createAppointment()">
       <div class="sm-appointments__form-grid">
         <label>
           Paciente
-          <select name="patientId" [(ngModel)]="form.patientId" required>
+          <select
+            name="patientId"
+            [(ngModel)]="form.patientId"
+            [attr.disabled]="isSaving() ? '' : null"
+            required
+          >
             @for (patient of options().patients; track patient.id) {
               <option [ngValue]="patient.id">{{ patient.name }}</option>
             }
@@ -161,7 +166,12 @@
         </label>
         <label>
           Médico
-          <select name="doctorId" [(ngModel)]="form.doctorId" required>
+          <select
+            name="doctorId"
+            [(ngModel)]="form.doctorId"
+            [attr.disabled]="isSaving() ? '' : null"
+            required
+          >
             @for (doctor of options().doctors; track doctor.id) {
               <option [ngValue]="doctor.id">{{ doctor.name }}</option>
             }
@@ -173,11 +183,17 @@
           label="Fecha y hora"
           type="datetime-local"
           [(ngModel)]="form.startsAt"
+          [disabled]="isSaving()"
           [required]="true"
         />
         <label>
           Duración
-          <select name="durationMinutes" [(ngModel)]="form.durationMinutes" required>
+          <select
+            name="durationMinutes"
+            [(ngModel)]="form.durationMinutes"
+            [attr.disabled]="isSaving() ? '' : null"
+            required
+          >
             <option [ngValue]="15">15 minutos</option>
             <option [ngValue]="30">30 minutos</option>
             <option [ngValue]="45">45 minutos</option>
@@ -191,6 +207,7 @@
           [(ngModel)]="form.reason"
           [required]="true"
           [maxLength]="500"
+          [disabled]="isSaving()"
           class="sm-appointments__form-wide"
         />
       </div>
@@ -202,7 +219,7 @@
       }
 
       <footer class="sm-appointments__form-actions">
-        <sm-button variant="secondary" (click)="closeForm()">
+        <sm-button variant="secondary" [disabled]="isSaving()" (click)="closeForm()">
           Cerrar
         </sm-button>
         <sm-button type="submit" [disabled]="appointmentForm.invalid || isSaving()" [loading]="isSaving()">

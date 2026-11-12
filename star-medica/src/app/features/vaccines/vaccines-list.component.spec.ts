@@ -36,12 +36,15 @@ describe('VaccinesListComponent', () => {
     adverseEventNotes: null
   });
 
-  const configure = async (service: Partial<VaccinesService>): Promise<void> => {
+  const configure = async (
+    service: Partial<VaccinesService>,
+    roles: string[] = ['Médico']
+  ): Promise<void> => {
     await TestBed.configureTestingModule({
       imports: [VaccinesListComponent],
       providers: [
         { provide: VaccinesService, useValue: service },
-        { provide: AuthService, useValue: { user: () => ({ id: 7, roles: ['Médico'] }) } }
+        { provide: AuthService, useValue: { user: () => ({ id: 7, roles }) } }
       ]
     }).compileComponents();
   };
@@ -227,6 +230,112 @@ describe('VaccinesListComponent', () => {
     );
     expect(doseInput.min).toBe('1');
     expect(doseInput.max).toBe('10');
+    fixture.destroy();
+  });
+
+  it('locks catalog fields while saving and preserves them after a failure', async () => {
+    const createRequest = new Subject<Vaccine>();
+    const service = {
+      getCatalog: () => of([]),
+      getPatients: () => of([]),
+      createVaccine: () => createRequest
+    };
+    await configure(service, ['SuperAdmin']);
+
+    const fixture = TestBed.createComponent(VaccinesListComponent);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    component.catalogForm.code = 'V-10';
+    component.catalogForm.name = 'Vacuna de prueba';
+    component.catalogForm.targetDisease = 'Enfermedad de prueba';
+    component.catalogForm.dosesRequired = 2;
+    component.openCatalogForm();
+    component.createVaccine();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('form[aria-busy="true"]')).not.toBeNull();
+    const inputs: HTMLInputElement[] = Array.from(fixture.nativeElement.querySelectorAll('form input'));
+    expect(inputs.length).toBe(4);
+    expect(inputs.every((input) => input.disabled)).toBeTrue();
+    expect(fixture.nativeElement.querySelector('form sm-button button').disabled).toBeTrue();
+
+    component.closeForms();
+    expect(component.isCatalogFormOpen()).toBeTrue();
+
+    createRequest.error(new Error('El código ya está registrado.'));
+    fixture.detectChanges();
+
+    expect(component.catalogForm).toEqual({
+      code: 'V-10',
+      name: 'Vacuna de prueba',
+      targetDisease: 'Enfermedad de prueba',
+      dosesRequired: 2
+    });
+    expect(component.isCatalogFormOpen()).toBeTrue();
+    expect(component.isSaving()).toBeFalse();
+    expect(fixture.nativeElement.textContent).toContain('El código ya está registrado.');
+    fixture.destroy();
+  });
+
+  it('locks administration fields while saving and preserves them after a failure', async () => {
+    const administrationRequest = new Subject<PatientVaccination>();
+    const service = {
+      getCatalog: () => of([{
+        id: 10,
+        code: 'V-10',
+        name: 'Vacuna',
+        targetDisease: 'Enfermedad',
+        dosesRequired: 2,
+        isActive: true
+      }]),
+      getPatients: () => of([createPatient(1)]),
+      getPatientHistory: () => of([]),
+      administer: () => administrationRequest
+    };
+    await configure(service);
+
+    const fixture = TestBed.createComponent(VaccinesListComponent);
+    fixture.detectChanges();
+    const patientSelect: HTMLSelectElement = fixture.nativeElement.querySelector(
+      '.sm-vaccines__patient-select select'
+    );
+    patientSelect.value = '1';
+    patientSelect.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    component.openAdministrationForm();
+    Object.assign(component.administrationForm, {
+      vaccineId: 10,
+      doseNumber: 2,
+      lotNumber: 'LOTE-PRUEBA',
+      expiresOn: '2027-12-31',
+      adverseEventNotes: 'Nota de prueba'
+    });
+    component.administer();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('form[aria-busy="true"]')).not.toBeNull();
+    const controls: HTMLInputElement[] = Array.from(
+      fixture.nativeElement.querySelectorAll('form select, form input, form textarea')
+    );
+    expect(controls.length).toBe(5);
+    expect(controls.every((control) => control.disabled)).toBeTrue();
+    expect(fixture.nativeElement.querySelector('form sm-button button').disabled).toBeTrue();
+
+    component.closeForms();
+    expect(component.isAdministrationFormOpen()).toBeTrue();
+
+    administrationRequest.error(new Error('No se pudo registrar la aplicación.'));
+    fixture.detectChanges();
+
+    expect(component.administrationForm.vaccineId).toBe(10);
+    expect(component.administrationForm.doseNumber).toBe(2);
+    expect(component.administrationForm.lotNumber).toBe('LOTE-PRUEBA');
+    expect(component.administrationForm.expiresOn).toBe('2027-12-31');
+    expect(component.administrationForm.adverseEventNotes).toBe('Nota de prueba');
+    expect(component.isAdministrationFormOpen()).toBeTrue();
+    expect(component.isAdministering()).toBeFalse();
+    expect(fixture.nativeElement.textContent).toContain('No se pudo registrar la aplicación.');
     fixture.destroy();
   });
 

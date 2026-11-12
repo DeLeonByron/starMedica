@@ -127,14 +127,25 @@
   >
       <header class="sm-consultations__dialog-header">
         <div><p class="sm-consultations__eyebrow">Registro clínico</p><h2 id="consultation-form-title">Nueva consulta</h2></div>
-        <button type="button" class="sm-consultations__close" aria-label="Cerrar" (click)="closeForm()">×</button>
+        <button
+          type="button"
+          class="sm-consultations__close"
+          aria-label="Cerrar"
+          [disabled]="isSaving()"
+          (click)="closeForm()"
+        >×</button>
       </header>
 
-      <form #consultationForm="ngForm" (ngSubmit)="createConsultation()">
+      <form #consultationForm="ngForm" [attr.aria-busy]="isSaving()" (ngSubmit)="createConsultation()">
         <div class="sm-consultations__form-grid">
           <label class="sm-consultations__wide">
             Cita relacionada (opcional)
-            <select name="appointmentId" [ngModel]="form.appointmentId" (change)="selectAppointment($event)">
+            <select
+              name="appointmentId"
+              [ngModel]="form.appointmentId"
+              [attr.disabled]="isSaving() ? '' : null"
+              (change)="selectAppointment($event)"
+            >
               <option [ngValue]="null">Consulta sin cita</option>
               @for (appointment of appointments(); track appointment.id) {
                 <option [ngValue]="appointment.id">
@@ -150,6 +161,7 @@
             [(ngModel)]="form.chiefComplaint"
             [required]="true"
             [maxLength]="300"
+            [disabled]="isSaving()"
           />
           <sm-input
             id="consultation-diagnosis-code"
@@ -159,6 +171,7 @@
             [required]="true"
             [maxLength]="10"
             placeholder="E10.9"
+            [disabled]="isSaving()"
           />
           <sm-input
             id="consultation-diagnosis-description"
@@ -167,36 +180,37 @@
             [(ngModel)]="form.diagnosisDescription"
             [required]="true"
             [maxLength]="500"
+            [disabled]="isSaving()"
             class="sm-consultations__wide"
           />
           <label class="sm-consultations__wide">
             Historia de la enfermedad actual <span>*</span>
-            <textarea name="presentIllness" [(ngModel)]="form.presentIllness" required maxlength="2000" rows="3"></textarea>
+            <textarea name="presentIllness" [(ngModel)]="form.presentIllness" required maxlength="2000" rows="3" [attr.disabled]="isSaving() ? '' : null"></textarea>
           </label>
           <label class="sm-consultations__wide">
             Examen físico <span>*</span>
-            <textarea name="physicalExam" [(ngModel)]="form.physicalExam" required maxlength="5000" rows="3"></textarea>
+            <textarea name="physicalExam" [(ngModel)]="form.physicalExam" required maxlength="5000" rows="3" [attr.disabled]="isSaving() ? '' : null"></textarea>
           </label>
           <fieldset class="sm-consultations__wide">
             <legend>Signos vitales</legend>
             <div class="sm-consultations__vital-grid">
-              <sm-input id="consultation-weight" name="weightKg" label="Peso (kg)" type="number" [(ngModel)]="form.weightKg" [min]="0.1" [max]="200" [step]="0.01" />
-              <sm-input id="consultation-height" name="heightCm" label="Talla (cm)" type="number" [(ngModel)]="form.heightCm" [min]="20" [max]="250" [step]="0.1" />
-              <sm-input id="consultation-temperature" name="temperatureCelsius" label="Temperatura (°C)" type="number" [(ngModel)]="form.temperatureCelsius" [min]="30" [max]="45" [step]="0.1" />
-              <sm-input id="consultation-heart-rate" name="heartRateBpm" label="Frecuencia cardíaca" type="number" [(ngModel)]="form.heartRateBpm" [min]="20" [max]="250" />
-              <sm-input id="consultation-respiratory-rate" name="respiratoryRatePerMinute" label="Frecuencia respiratoria" type="number" [(ngModel)]="form.respiratoryRatePerMinute" [min]="5" [max]="100" />
-              <sm-input id="consultation-systolic" name="systolicBloodPressure" label="Presión sistólica" type="number" [(ngModel)]="form.systolicBloodPressure" [min]="40" [max]="250" />
-              <sm-input id="consultation-diastolic" name="diastolicBloodPressure" label="Presión diastólica" type="number" [(ngModel)]="form.diastolicBloodPressure" [min]="20" [max]="150" />
-              <sm-input id="consultation-saturation" name="oxygenSaturationPercent" label="Saturación O₂ (%)" type="number" [(ngModel)]="form.oxygenSaturationPercent" [min]="50" [max]="100" />
+              <sm-input id="consultation-weight" name="weightKg" label="Peso (kg)" type="number" [(ngModel)]="form.weightKg" [min]="0.1" [max]="200" [step]="0.01" [disabled]="isSaving()" />
+              <sm-input id="consultation-height" name="heightCm" label="Talla (cm)" type="number" [(ngModel)]="form.heightCm" [min]="20" [max]="250" [step]="0.1" [disabled]="isSaving()" />
+              <sm-input id="consultation-temperature" name="temperatureCelsius" label="Temperatura (°C)" type="number" [(ngModel)]="form.temperatureCelsius" [min]="30" [max]="45" [step]="0.1" [disabled]="isSaving()" />
+              <sm-input id="consultation-heart-rate" name="heartRateBpm" label="Frecuencia cardíaca" type="number" [(ngModel)]="form.heartRateBpm" [min]="20" [max]="250" [disabled]="isSaving()" />
+              <sm-input id="consultation-respiratory-rate" name="respiratoryRatePerMinute" label="Frecuencia respiratoria" type="number" [(ngModel)]="form.respiratoryRatePerMinute" [min]="5" [max]="100" [disabled]="isSaving()" />
+              <sm-input id="consultation-systolic" name="systolicBloodPressure" label="Presión sistólica" type="number" [(ngModel)]="form.systolicBloodPressure" [min]="40" [max]="250" [disabled]="isSaving()" />
+              <sm-input id="consultation-diastolic" name="diastolicBloodPressure" label="Presión diastólica" type="number" [(ngModel)]="form.diastolicBloodPressure" [min]="20" [max]="150" [disabled]="isSaving()" />
+              <sm-input id="consultation-saturation" name="oxygenSaturationPercent" label="Saturación O₂ (%)" type="number" [(ngModel)]="form.oxygenSaturationPercent" [min]="50" [max]="100" [disabled]="isSaving()" />
             </div>
           </fieldset>
           <label class="sm-consultations__wide">
             Plan de tratamiento <span>*</span>
-            <textarea name="treatmentPlan" [(ngModel)]="form.treatmentPlan" required maxlength="3000" rows="3"></textarea>
+            <textarea name="treatmentPlan" [(ngModel)]="form.treatmentPlan" required maxlength="3000" rows="3" [attr.disabled]="isSaving() ? '' : null"></textarea>
           </label>
           <label class="sm-consultations__wide">
             Notas adicionales
-            <textarea name="notes" [(ngModel)]="form.notes" maxlength="2000" rows="2"></textarea>
+            <textarea name="notes" [(ngModel)]="form.notes" maxlength="2000" rows="2" [attr.disabled]="isSaving() ? '' : null"></textarea>
           </label>
         </div>
 
@@ -205,7 +219,7 @@
         }
 
         <footer class="sm-consultations__form-actions">
-          <sm-button variant="secondary" type="button" (click)="closeForm()">Cerrar</sm-button>
+          <sm-button variant="secondary" type="button" [disabled]="isSaving()" (click)="closeForm()">Cerrar</sm-button>
           <sm-button type="submit" [disabled]="consultationForm.invalid || isSaving()" [loading]="isSaving()">
             {{ isSaving() ? 'Guardando...' : 'Guardar expediente' }}
           </sm-button>

@@ -55,6 +55,7 @@ export class PatientsListComponent implements OnInit {
   }
 
   openForm(): void {
+    this.resetForm();
     this.formError.set(null);
     this.isFormOpen.set(true);
   }
@@ -62,6 +63,7 @@ export class PatientsListComponent implements OnInit {
   closeForm(): void {
     if (!this.isSaving()) {
       this.isFormOpen.set(false);
+      this.resetForm();
     }
   }
 
@@ -100,7 +102,7 @@ export class PatientsListComponent implements OnInit {
           this.patients.update((patients) =>
             [...patients, patient].sort((first, second) => first.fullName.localeCompare(second.fullName))
           );
-          Object.assign(this.form, this.emptyForm());
+          this.resetForm();
           this.isSaving.set(false);
           this.isFormOpen.set(false);
         },
@@ -151,5 +153,9 @@ export class PatientsListComponent implements OnInit {
       email: '',
       address: ''
     };
+  }
+
+  private resetForm(): void {
+    Object.assign(this.form, this.emptyForm());
   }
 }

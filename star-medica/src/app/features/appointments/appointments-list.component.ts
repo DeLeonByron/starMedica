@@ -100,6 +100,7 @@ export class AppointmentsListComponent implements OnInit {
   }
 
   openForm(): void {
+    this.resetForm();
     this.formError.set(null);
     this.form.startsAt = this.formatDateTimeInput(new Date(Date.now() + 60 * 60 * 1000));
     this.form.patientId = this.options().patients[0]?.id ?? 0;
@@ -110,6 +111,7 @@ export class AppointmentsListComponent implements OnInit {
   closeForm(): void {
     if (!this.isSaving()) {
       this.isFormOpen.set(false);
+      this.resetForm();
     }
   }
 
@@ -167,6 +169,7 @@ export class AppointmentsListComponent implements OnInit {
         next: () => {
           this.isSaving.set(false);
           this.isFormOpen.set(false);
+          this.resetForm();
           this.loadAppointments();
         },
         error: (error: unknown) => {
@@ -380,5 +383,9 @@ export class AppointmentsListComponent implements OnInit {
       durationMinutes: 30,
       reason: ''
     };
+  }
+
+  private resetForm(): void {
+    Object.assign(this.form, this.emptyForm());
   }
 }

@@ -131,6 +131,7 @@ export class ConsultationsListComponent implements OnInit {
   closeForm(): void {
     if (!this.isSaving()) {
       this.isFormOpen.set(false);
+      this.resetForm();
     }
   }
 
@@ -173,6 +174,7 @@ export class ConsultationsListComponent implements OnInit {
         next: () => {
           this.isSaving.set(false);
           this.isFormOpen.set(false);
+          this.resetForm();
           if (this.selectedPatientId() === patientId) {
             this.loadPatientData(patientId);
           }
@@ -270,5 +272,9 @@ export class ConsultationsListComponent implements OnInit {
       diastolicBloodPressure: null,
       oxygenSaturationPercent: null
     };
+  }
+
+  private resetForm(): void {
+    Object.assign(this.form, this.emptyForm());
   }
 }

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("StarMedica.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b411a382780b3c0acc66f71515910924683bbace")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+51d4921c75cf552a0103de65b4dc49a36555fd4f")]
 [assembly: System.Reflection.AssemblyProductAttribute("StarMedica.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StarMedica.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

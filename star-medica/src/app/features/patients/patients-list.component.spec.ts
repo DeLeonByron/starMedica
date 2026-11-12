@@ -74,4 +74,88 @@ describe('PatientsListComponent', () => {
     expect(fixture.nativeElement.querySelector('sm-empty-state')).toBeNull();
     fixture.destroy();
   });
+
+  it('locks patient fields while saving, preserves rejected data, and resets after success', async () => {
+    const createRequests: Subject<Patient>[] = [];
+    const service = jasmine.createSpyObj<PatientsService>(
+      'PatientsService',
+      ['getPatients', 'createPatient']
+    );
+    service.getPatients.and.returnValue(of([]));
+    service.createPatient.and.callFake(() => {
+      const request = new Subject<Patient>();
+      createRequests.push(request);
+      return request;
+    });
+
+    await TestBed.configureTestingModule({
+      imports: [PatientsListComponent],
+      providers: [{ provide: PatientsService, useValue: service }]
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(PatientsListComponent);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    component.openForm();
+    Object.assign(component.form, {
+      code: 'P-002',
+      fullName: 'Paciente de prueba',
+      dateOfBirth: '2020-05-10',
+      documentNumber: 'DOC-002',
+      phone: '5550101',
+      email: 'paciente@example.test',
+      address: 'Dirección de prueba'
+    });
+    component.createPatient();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('form[aria-busy="true"]')).not.toBeNull();
+    const inputs: HTMLInputElement[] = Array.from(fixture.nativeElement.querySelectorAll('form input'));
+    expect(inputs.length).toBe(7);
+    expect(inputs.every((input) => input.disabled)).toBeTrue();
+    expect(fixture.nativeElement.querySelector('.sm-patients__close').disabled).toBeTrue();
+    expect(fixture.nativeElement.querySelector('form sm-button button').disabled).toBeTrue();
+
+    component.closeForm();
+    expect(component.isFormOpen()).toBeTrue();
+
+    createRequests[0].error(new Error('El documento ya está registrado.'));
+    fixture.detectChanges();
+
+    expect(component.isSaving()).toBeFalse();
+    expect(component.isFormOpen()).toBeTrue();
+    expect(component.form.documentNumber).toBe('DOC-002');
+    expect(component.form.email).toBe('paciente@example.test');
+    expect(fixture.nativeElement.textContent).toContain('No se pudo registrar el paciente.');
+
+    component.closeForm();
+    expect(component.isFormOpen()).toBeFalse();
+    expect(component.form.fullName).toBe('');
+    expect(component.form.documentNumber).toBe('');
+
+    component.openForm();
+    expect(component.form.fullName).toBe('');
+    expect(component.form.email).toBe('');
+    expect(component.formError()).toBeNull();
+    Object.assign(component.form, {
+      code: 'P-003',
+      fullName: 'Paciente nuevo',
+      documentNumber: 'DOC-003',
+      phone: '5550102'
+    });
+    component.createPatient();
+    createRequests[1].next({
+      ...createPatient(),
+      id: 2,
+      code: 'P-003',
+      fullName: 'Paciente nuevo',
+      documentNumber: 'DOC-003'
+    });
+
+    expect(component.isFormOpen()).toBeFalse();
+    expect(component.form.fullName).toBe('');
+    expect(component.form.documentNumber).toBe('');
+    expect(component.patients().map(({ id }) => id)).toEqual([2]);
+    fixture.destroy();
+  });
 });
