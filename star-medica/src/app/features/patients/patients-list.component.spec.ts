@@ -97,6 +97,10 @@ describe('PatientsListComponent', () => {
     fixture.detectChanges();
     const component = fixture.componentInstance;
     component.openForm();
+    fixture.detectChanges();
+    const phoneInput: HTMLInputElement = fixture.nativeElement.querySelector('#patient-phone input');
+    expect(phoneInput.maxLength).toBe(25);
+
     Object.assign(component.form, {
       code: 'P-002',
       fullName: 'Paciente de prueba',

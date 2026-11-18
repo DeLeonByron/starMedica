@@ -8,15 +8,35 @@ public sealed class CreateConsultationCommandValidator : AbstractValidator<Creat
     {
         RuleFor(command => command.PatientId).GreaterThan(0);
         RuleFor(command => command.DoctorId).GreaterThan(0);
-        RuleFor(command => command.ChiefComplaint).NotEmpty().MaximumLength(300);
-        RuleFor(command => command.PresentIllness).NotEmpty().MaximumLength(2000);
-        RuleFor(command => command.PhysicalExam).NotEmpty().MaximumLength(5000);
+        RuleFor(command => command.ChiefComplaint)
+            .NotEmpty()
+            .Must(value => !string.IsNullOrWhiteSpace(value))
+            .WithMessage("El motivo de consulta es obligatorio.")
+            .MaximumLength(300);
+        RuleFor(command => command.PresentIllness)
+            .NotEmpty()
+            .Must(value => !string.IsNullOrWhiteSpace(value))
+            .WithMessage("La historia de la enfermedad es obligatoria.")
+            .MaximumLength(2000);
+        RuleFor(command => command.PhysicalExam)
+            .NotEmpty()
+            .Must(value => !string.IsNullOrWhiteSpace(value))
+            .WithMessage("El examen físico es obligatorio.")
+            .MaximumLength(5000);
         RuleFor(command => command.DiagnosisCode)
             .NotEmpty()
             .Matches("^[A-Z][0-9][0-9A-Z](\\.[0-9A-Z]{1,4})?$")
             .WithMessage("El código diagnóstico no tiene un formato CIE-10 válido.");
-        RuleFor(command => command.DiagnosisDescription).NotEmpty().MaximumLength(500);
-        RuleFor(command => command.TreatmentPlan).NotEmpty().MaximumLength(3000);
+        RuleFor(command => command.DiagnosisDescription)
+            .NotEmpty()
+            .Must(value => !string.IsNullOrWhiteSpace(value))
+            .WithMessage("La descripción diagnóstica es obligatoria.")
+            .MaximumLength(500);
+        RuleFor(command => command.TreatmentPlan)
+            .NotEmpty()
+            .Must(value => !string.IsNullOrWhiteSpace(value))
+            .WithMessage("El plan de tratamiento es obligatorio.")
+            .MaximumLength(3000);
         RuleFor(command => command.Notes).MaximumLength(2000);
         RuleFor(command => command.WeightKg).InclusiveBetween(0.1m, 200m).When(command => command.WeightKg.HasValue);
         RuleFor(command => command.HeightCm).InclusiveBetween(20m, 250m).When(command => command.HeightCm.HasValue);

@@ -8,14 +8,20 @@ public sealed class CreatePatientCommandValidator : AbstractValidator<CreatePati
     {
         RuleFor(x => x.Code)
             .NotEmpty()
+            .Must(value => !string.IsNullOrWhiteSpace(value))
+            .WithMessage("El código del paciente es obligatorio.")
             .MaximumLength(50);
 
         RuleFor(x => x.FullName)
             .NotEmpty()
+            .Must(value => !string.IsNullOrWhiteSpace(value))
+            .WithMessage("El nombre completo es obligatorio.")
             .MaximumLength(200);
 
         RuleFor(x => x.DocumentNumber)
             .NotEmpty()
+            .Must(value => !string.IsNullOrWhiteSpace(value))
+            .WithMessage("El documento del paciente es obligatorio.")
             .MaximumLength(50);
 
         RuleFor(x => x.Email)
@@ -23,6 +29,9 @@ public sealed class CreatePatientCommandValidator : AbstractValidator<CreatePati
             .When(x => !string.IsNullOrWhiteSpace(x.Email));
 
         RuleFor(x => x.Phone)
-            .NotEmpty();
+            .NotEmpty()
+            .Must(value => !string.IsNullOrWhiteSpace(value))
+            .WithMessage("El teléfono del paciente es obligatorio.")
+            .MaximumLength(25);
     }
 }

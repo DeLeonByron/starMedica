@@ -117,17 +117,17 @@
         <p class="sm-pharmacy__eyebrow">Catálogo</p>
         <h2 id="medicine-form-title">Nuevo medicamento</h2>
       </div>
-      <button type="button" class="sm-pharmacy__close" aria-label="Cerrar" (click)="closeForms()">×</button>
+      <button type="button" class="sm-pharmacy__close" aria-label="Cerrar" [disabled]="isSaving()" (click)="closeForms()">×</button>
     </header>
-    <form #medicineFormElement="ngForm" (ngSubmit)="createMedicine()">
+    <form #medicineFormElement="ngForm" [attr.aria-busy]="isSaving()" (ngSubmit)="createMedicine()">
       <div class="sm-pharmacy__form-grid">
-        <sm-input id="medicine-code" name="code" label="Código" [(ngModel)]="medicineForm.code" [required]="true" [maxLength]="40" />
-        <sm-input id="medicine-name" name="name" label="Nombre" [(ngModel)]="medicineForm.name" [required]="true" [maxLength]="200" />
-        <sm-input id="medicine-active-ingredient" name="activeIngredient" label="Principio activo" [(ngModel)]="medicineForm.activeIngredient" [required]="true" [maxLength]="200" />
-        <sm-input id="medicine-strength" name="strength" label="Concentración" [(ngModel)]="medicineForm.strength" [required]="true" [maxLength]="100" />
-        <sm-input id="medicine-dosage-form" name="dosageForm" label="Forma farmacéutica" [(ngModel)]="medicineForm.dosageForm" [required]="true" [maxLength]="100" />
-        <sm-input id="medicine-stock-unit" name="stockUnit" label="Unidad de inventario" [(ngModel)]="medicineForm.stockUnit" [required]="true" [maxLength]="40" />
-        <sm-input id="medicine-reorder-level" name="reorderLevel" label="Mínimo de reposición" type="number" [(ngModel)]="medicineForm.reorderLevel" [required]="true" [min]="0" [max]="1000000" [step]="0.001" />
+        <sm-input id="medicine-code" name="code" label="Código" [(ngModel)]="medicineForm.code" [required]="true" [maxLength]="40" [disabled]="isSaving()" />
+        <sm-input id="medicine-name" name="name" label="Nombre" [(ngModel)]="medicineForm.name" [required]="true" [maxLength]="200" [disabled]="isSaving()" />
+        <sm-input id="medicine-active-ingredient" name="activeIngredient" label="Principio activo" [(ngModel)]="medicineForm.activeIngredient" [required]="true" [maxLength]="200" [disabled]="isSaving()" />
+        <sm-input id="medicine-strength" name="strength" label="Concentración" [(ngModel)]="medicineForm.strength" [required]="true" [maxLength]="100" [disabled]="isSaving()" />
+        <sm-input id="medicine-dosage-form" name="dosageForm" label="Forma farmacéutica" [(ngModel)]="medicineForm.dosageForm" [required]="true" [maxLength]="100" [disabled]="isSaving()" />
+        <sm-input id="medicine-stock-unit" name="stockUnit" label="Unidad de inventario" [(ngModel)]="medicineForm.stockUnit" [required]="true" [maxLength]="40" [disabled]="isSaving()" />
+        <sm-input id="medicine-reorder-level" name="reorderLevel" label="Mínimo de reposición" type="number" [(ngModel)]="medicineForm.reorderLevel" [required]="true" [min]="0" [max]="1000000" [step]="0.001" [disabled]="isSaving()" />
       </div>
       @if (formError()) {
         <sm-alert type="error" [dismissible]="true" (dismissed)="clearFormError()">
@@ -135,7 +135,7 @@
         </sm-alert>
       }
       <footer class="sm-pharmacy__form-actions">
-        <sm-button variant="secondary" (click)="closeForms()">Cerrar</sm-button>
+        <sm-button variant="secondary" [disabled]="isSaving()" (click)="closeForms()">Cerrar</sm-button>
         <sm-button type="submit" [disabled]="medicineFormElement.invalid || isSaving()" [loading]="isSaving()">
           {{ isSaving() ? 'Guardando...' : 'Guardar medicamento' }}
         </sm-button>
@@ -151,21 +151,21 @@
         <p class="sm-pharmacy__eyebrow">Entrada de inventario</p>
         <h2 id="receipt-form-title">Recibir lote</h2>
       </div>
-      <button type="button" class="sm-pharmacy__close" aria-label="Cerrar" (click)="closeForms()">×</button>
+      <button type="button" class="sm-pharmacy__close" aria-label="Cerrar" [disabled]="isSaving()" (click)="closeForms()">×</button>
     </header>
-    <form #receiptFormElement="ngForm" (ngSubmit)="receiveStock()">
+    <form #receiptFormElement="ngForm" [attr.aria-busy]="isSaving()" (ngSubmit)="receiveStock()">
       <div class="sm-pharmacy__form-grid">
         <label class="sm-pharmacy__wide">Medicamento <span>*</span>
-          <select name="medicineId" [(ngModel)]="receiptForm.medicineId" required>
+          <select name="medicineId" [(ngModel)]="receiptForm.medicineId" [attr.disabled]="isSaving() ? '' : null" required>
             @for (medicine of medicines(); track medicine.id) {
               <option [ngValue]="medicine.id">{{ medicine.code }} · {{ medicine.name }}</option>
             }
           </select>
         </label>
-        <sm-input id="receipt-batch-number" name="batchNumber" label="Lote" [(ngModel)]="receiptForm.batchNumber" [required]="true" [maxLength]="100" />
-        <sm-input id="receipt-quantity" name="quantity" label="Cantidad" type="number" [(ngModel)]="receiptForm.quantity" [required]="true" [min]="0.001" [max]="1000000" [step]="0.001" />
-        <sm-input id="receipt-expires-on" name="expiresOn" label="Vencimiento" type="date" [(ngModel)]="receiptForm.expiresOn" [required]="true" [min]="minimumExpiryDate" />
-        <sm-input id="receipt-reference" name="reference" label="Referencia de recepción" [(ngModel)]="receiptForm.reference" [maxLength]="100" class="sm-pharmacy__wide" />
+        <sm-input id="receipt-batch-number" name="batchNumber" label="Lote" [(ngModel)]="receiptForm.batchNumber" [required]="true" [maxLength]="100" [disabled]="isSaving()" />
+        <sm-input id="receipt-quantity" name="quantity" label="Cantidad" type="number" [(ngModel)]="receiptForm.quantity" [required]="true" [min]="0.001" [max]="1000000" [step]="0.001" [disabled]="isSaving()" />
+        <sm-input id="receipt-expires-on" name="expiresOn" label="Vencimiento" type="date" [(ngModel)]="receiptForm.expiresOn" [required]="true" [min]="minimumExpiryDate" [disabled]="isSaving()" />
+        <sm-input id="receipt-reference" name="reference" label="Referencia de recepción" [(ngModel)]="receiptForm.reference" [maxLength]="100" [disabled]="isSaving()" class="sm-pharmacy__wide" />
       </div>
       @if (formError()) {
         <sm-alert type="error" [dismissible]="true" (dismissed)="clearFormError()">
@@ -173,7 +173,7 @@
         </sm-alert>
       }
       <footer class="sm-pharmacy__form-actions">
-        <sm-button variant="secondary" (click)="closeForms()">Cerrar</sm-button>
+        <sm-button variant="secondary" [disabled]="isSaving()" (click)="closeForms()">Cerrar</sm-button>
         <sm-button type="submit" [disabled]="receiptFormElement.invalid || isSaving()" [loading]="isSaving()">
           {{ isSaving() ? 'Guardando...' : 'Registrar recepción' }}
         </sm-button>
@@ -189,26 +189,26 @@
         <p class="sm-pharmacy__eyebrow">Salida de inventario</p>
         <h2 id="dispense-form-title">Despachar cantidad</h2>
       </div>
-      <button type="button" class="sm-pharmacy__close" aria-label="Cerrar" (click)="closeForms()">×</button>
+      <button type="button" class="sm-pharmacy__close" aria-label="Cerrar" [disabled]="isDispensing()" (click)="closeForms()">×</button>
     </header>
-    <form #dispenseFormElement="ngForm" (ngSubmit)="dispense()">
+    <form #dispenseFormElement="ngForm" [attr.aria-busy]="isDispensing()" (ngSubmit)="dispense()">
       <div class="sm-pharmacy__form-grid">
         <label class="sm-pharmacy__wide">Medicamento <span>*</span>
-          <select name="medicineId" [(ngModel)]="dispenseForm.medicineId" required>
+          <select name="medicineId" [(ngModel)]="dispenseForm.medicineId" [attr.disabled]="isDispensing() ? '' : null" required>
             @for (medicine of medicines(); track medicine.id) {
               <option [ngValue]="medicine.id">{{ medicine.code }} · {{ medicine.name }}</option>
             }
           </select>
         </label>
         <label>Paciente <span>*</span>
-          <select name="patientId" [(ngModel)]="dispenseForm.patientId" required>
+          <select name="patientId" [(ngModel)]="dispenseForm.patientId" [attr.disabled]="isDispensing() ? '' : null" required>
             @for (patient of patients(); track patient.id) {
               <option [ngValue]="patient.id">{{ patient.fullName }}</option>
             }
           </select>
         </label>
-        <sm-input id="dispense-quantity" name="quantity" label="Cantidad" type="number" [(ngModel)]="dispenseForm.quantity" [required]="true" [min]="0.001" [max]="1000000" [step]="0.001" />
-        <sm-input id="dispense-reference" name="reference" label="Referencia" [(ngModel)]="dispenseForm.reference" [maxLength]="100" class="sm-pharmacy__wide" />
+        <sm-input id="dispense-quantity" name="quantity" label="Cantidad" type="number" [(ngModel)]="dispenseForm.quantity" [required]="true" [min]="0.001" [max]="1000000" [step]="0.001" [disabled]="isDispensing()" />
+        <sm-input id="dispense-reference" name="reference" label="Referencia" [(ngModel)]="dispenseForm.reference" [maxLength]="100" [disabled]="isDispensing()" class="sm-pharmacy__wide" />
       </div>
       @if (formError()) {
         <sm-alert type="error" [dismissible]="true" (dismissed)="clearFormError()">
@@ -216,7 +216,7 @@
         </sm-alert>
       }
       <footer class="sm-pharmacy__form-actions">
-        <sm-button variant="secondary" (click)="closeForms()">Cerrar</sm-button>
+        <sm-button variant="secondary" [disabled]="isDispensing()" (click)="closeForms()">Cerrar</sm-button>
         <sm-button type="submit" [disabled]="dispenseFormElement.invalid || isDispensing()" [loading]="isDispensing()">
           {{ isDispensing() ? 'Procesando...' : 'Confirmar despacho' }}
         </sm-button>

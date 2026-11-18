@@ -101,6 +101,7 @@ export class PharmacyListComponent implements OnInit {
   }
 
   openMedicineForm(): void {
+    Object.assign(this.medicineForm, this.emptyMedicine());
     this.formError.set(null);
     this.isMedicineFormOpen.set(true);
   }
@@ -125,6 +126,9 @@ export class PharmacyListComponent implements OnInit {
       this.isMedicineFormOpen.set(false);
       this.isReceiptFormOpen.set(false);
       this.isDispenseFormOpen.set(false);
+      Object.assign(this.medicineForm, this.emptyMedicine());
+      Object.assign(this.receiptForm, this.emptyReceipt());
+      Object.assign(this.dispenseForm, this.emptyDispense());
     }
   }
 
@@ -155,9 +159,7 @@ export class PharmacyListComponent implements OnInit {
         next: () => {
           this.isSaving.set(false);
           this.isMedicineFormOpen.set(false);
-          Object.assign(this.medicineForm, {
-            code: '', name: '', activeIngredient: '', strength: '', dosageForm: '', stockUnit: 'unidad', reorderLevel: 0
-          });
+          Object.assign(this.medicineForm, this.emptyMedicine());
           this.loadDashboard();
         },
         error: (error: unknown) => {
@@ -178,6 +180,7 @@ export class PharmacyListComponent implements OnInit {
         next: () => {
           this.isSaving.set(false);
           this.isReceiptFormOpen.set(false);
+          Object.assign(this.receiptForm, this.emptyReceipt());
           this.loadDashboard();
         },
         error: (error: unknown) => {
@@ -198,6 +201,7 @@ export class PharmacyListComponent implements OnInit {
         next: () => {
           this.isDispensing.set(false);
           this.isDispenseFormOpen.set(false);
+          Object.assign(this.dispenseForm, this.emptyDispense());
           this.loadDashboard();
         },
         error: (error: unknown) => {
@@ -245,6 +249,18 @@ export class PharmacyListComponent implements OnInit {
 
   private emptyReceipt(): ReceiveStockRequest {
     return { medicineId: 0, batchNumber: '', expiresOn: '', quantity: 0, reference: null };
+  }
+
+  private emptyMedicine(): CreateMedicineRequest {
+    return {
+      code: '',
+      name: '',
+      activeIngredient: '',
+      strength: '',
+      dosageForm: '',
+      stockUnit: 'unidad',
+      reorderLevel: 0
+    };
   }
 
   private emptyDispense(): DispenseStockRequest {

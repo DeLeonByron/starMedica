@@ -1,6 +1,6 @@
 # Backlog de continuación — ERP Star Médica
 
-**Actualizado:** 11/11/2026
+**Actualizado:** 17/11/2026
 **Criterio de trabajo:** avanzar en tareas locales que no dependan de servicios, permisos o decisiones clínicas/legales pendientes; conservar el orden del proyecto cuando las dependencias lo permitan. El despliegue queda para la fase final. No sustituir bloqueos por demos ni datos ficticios.
 
 ## Evidencia reciente
@@ -22,6 +22,13 @@
 | Bloquear formularios de vacunas durante el guardado | ✅ Hecha | Los campos y acciones de cierre del catálogo y la aplicación quedan deshabilitados durante cada petición. Ante rechazo, los formularios permanecen abiertos con los valores para permitir corregir o reintentar. Prueba focalizada: 12/12; suite Angular: 118/118; build Development y `git diff --check` aprobados. Sin cambios a esquemas de vacunación o reglas clínicas. |
 | Proteger el formulario de consulta clínica durante el guardado | ✅ Hecha | Se bloquean campos, selección de cita y cierre mientras se guarda. Ante rechazo se conservan los datos; al cerrar o guardar con éxito se limpia el formulario para no arrastrar información clínica a la consulta siguiente. Prueba focalizada: 10/10; suite Angular: 119/119; build Development y `git diff --check` aprobados. Sin cambios a criterios clínicos. |
 | Proteger el alta de pacientes durante el guardado | ✅ Hecha | Los campos y acciones de cierre se bloquean durante la petición; ante error se conservan para corregir/reintentar y al cancelar o guardar con éxito se limpian para que datos personales no queden en el siguiente alta. Prueba focalizada 3/3; suite Angular: 120/120; build Development y `git diff --check` aprobados. |
+| Bloquear formularios de farmacia mientras se procesan movimientos | ✅ Hecha | Alta de medicamento, recepción de lote y despacho deshabilitan campos/cierre durante sus solicitudes. Los errores conservan datos para reintento; cierres y éxitos limpian los formularios, incluida la referencia de paciente del despacho. Pruebas focalizadas: 5/5; suite Angular: 120/120; build Development y `git diff --check` aprobados. Sin cambios en cantidades ni reglas de inventario. |
+| Alinear validación de alta de pacientes con persistencia | ✅ Hecha | UI y API limitan el teléfono a los 25 caracteres definidos en SQL Server. La comprobación de duplicados recorta código/documento antes de comparar y persiste las formas normalizadas. Prueba focalizada API: 4/4; suite .NET: 54/54; Angular: 120/120; build Development y `git diff --check` aprobados. |
+| Alinear precisión decimal de inventario en la API | ✅ Hecha | Alta de medicamento, recepción y despacho rechazan valores con más de tres decimales, conforme a `decimal(12,3)` en SQL; valores de hasta tres decimales y límites previos siguen aceptándose. Prueba focalizada: 16/16; suite .NET: 63/63; `git diff --check` aprobado. |
+| Cubrir rechazo backend de lotes vencidos | ✅ Hecha | Pruebas del handler de recepción confirman que una fecha vencida se rechaza antes de llamar al repositorio y que un lote con vencimiento futuro se recibe correctamente, usando la fecha de Guatemala. Prueba focalizada: 2/2; suite .NET: 65/65; `git diff --check` aprobado. |
+| Rechazar cadenas vacías al crear inventario | ✅ Hecha | Los validators API de medicamento y recepción de lotes rechazan campos obligatorios compuestos solo por espacios, que el handler recortaría y permitiría persistir vacíos. Prueba focalizada: 18/18; suite .NET: 67/67; `git diff --check` aprobado. |
+| Rechazar campos vacíos al crear pacientes | ✅ Hecha | El validator de alta ahora rechaza código, nombre, documento y teléfono compuestos solo por espacios; en particular, evita persistir documento/teléfono vacíos después del recorte. Pruebas focalizadas: 7/7; suite .NET: 70/70; `git diff --check` aprobado. |
+| Rechazar textos vacíos en consultas clínicas | ✅ Hecha | La API rechaza motivo, historia, examen físico, descripción diagnóstica y plan de tratamiento compuestos solo por espacios antes de recortarlos; los campos ya eran obligatorios. Prueba focalizada: 11/11; suite .NET: 71/71; `git diff --check` aprobado. Sin cambios a criterios clínicos. |
 
 ## Pendientes y bloqueos
 

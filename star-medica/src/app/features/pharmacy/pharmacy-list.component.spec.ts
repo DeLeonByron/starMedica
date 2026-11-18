@@ -62,6 +62,14 @@ describe('PharmacyListComponent', () => {
     fixture.componentInstance.createMedicine();
     fixture.detectChanges();
 
+    expect(fixture.nativeElement.querySelector('form[aria-busy="true"]')).not.toBeNull();
+    const medicineInputs: HTMLInputElement[] = Array.from(fixture.nativeElement.querySelectorAll('form input'));
+    expect(medicineInputs.length).toBe(7);
+    expect(medicineInputs.every((input) => input.disabled)).toBeTrue();
+    expect(fixture.nativeElement.querySelector('.sm-pharmacy__close').disabled).toBeTrue();
+    fixture.componentInstance.closeForms();
+    expect(fixture.componentInstance.isMedicineFormOpen()).toBeTrue();
+
     expect(service.createMedicine).toHaveBeenCalledOnceWith({
       code: 'MED-009',
       name: 'Medicamento',
@@ -160,6 +168,15 @@ describe('PharmacyListComponent', () => {
     fixture.componentInstance.receiveStock();
     fixture.detectChanges();
 
+    expect(fixture.nativeElement.querySelector('form[aria-busy="true"]')).not.toBeNull();
+    const receiptControls: Array<HTMLInputElement | HTMLSelectElement> = Array.from(
+      fixture.nativeElement.querySelectorAll('form input, form select')
+    );
+    expect(receiptControls.length).toBe(5);
+    expect(receiptControls.every((control) => control.disabled)).toBeTrue();
+    fixture.componentInstance.closeForms();
+    expect(fixture.componentInstance.isReceiptFormOpen()).toBeTrue();
+
     expect(service.receiveStock).toHaveBeenCalledOnceWith({
       medicineId: medicine.id,
       batchNumber: 'LOTE-3',
@@ -184,6 +201,13 @@ describe('PharmacyListComponent', () => {
 
     expect(fixture.componentInstance.isReceiptFormOpen()).toBeFalse();
     expect(fixture.componentInstance.isSaving()).toBeFalse();
+    expect(fixture.componentInstance.receiptForm).toEqual({
+      medicineId: 0,
+      batchNumber: '',
+      expiresOn: '',
+      quantity: 0,
+      reference: null
+    });
     expect(service.getDashboardData).toHaveBeenCalledTimes(2);
     fixture.destroy();
   });
@@ -237,6 +261,15 @@ describe('PharmacyListComponent', () => {
     fixture.componentInstance.dispense();
     fixture.detectChanges();
 
+    expect(fixture.nativeElement.querySelector('form[aria-busy="true"]')).not.toBeNull();
+    const dispenseControls: Array<HTMLInputElement | HTMLSelectElement> = Array.from(
+      fixture.nativeElement.querySelectorAll('form input, form select')
+    );
+    expect(dispenseControls.length).toBe(4);
+    expect(dispenseControls.every((control) => control.disabled)).toBeTrue();
+    fixture.componentInstance.closeForms();
+    expect(fixture.componentInstance.isDispenseFormOpen()).toBeTrue();
+
     expect(service.dispense).toHaveBeenCalledOnceWith({
       medicineId: medicine.id,
       quantity: 1.25,
@@ -261,6 +294,13 @@ describe('PharmacyListComponent', () => {
 
     expect(fixture.componentInstance.isDispenseFormOpen()).toBeFalse();
     expect(fixture.componentInstance.isDispensing()).toBeFalse();
+    expect(fixture.componentInstance.dispenseForm).toEqual({
+      medicineId: 0,
+      quantity: 0,
+      patientId: 0,
+      consultationId: null,
+      reference: null
+    });
     expect(service.getDashboardData).toHaveBeenCalledTimes(2);
     fixture.destroy();
   });

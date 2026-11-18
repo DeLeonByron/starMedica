@@ -43,9 +43,11 @@ public sealed class CreatePatientCommandHandler : IRequestHandler<CreatePatientC
             return Result<PatientDto>.Failure("El nombre completo es obligatorio.", 400);
         }
 
+        var code = request.Code.Trim();
+        var documentNumber = request.DocumentNumber.Trim();
         var existingPatients = await _patientRepository.GetAllAsync(cancellationToken);
         var exists = existingPatients.Any(patient =>
-            patient.Code == request.Code || patient.DocumentNumber == request.DocumentNumber);
+            patient.Code.Trim() == code || patient.DocumentNumber.Trim() == documentNumber);
 
         if (exists)
         {
@@ -54,10 +56,10 @@ public sealed class CreatePatientCommandHandler : IRequestHandler<CreatePatientC
 
         var patient = new Patient
         {
-            Code = request.Code.Trim(),
+            Code = code,
             FullName = request.FullName.Trim(),
             DateOfBirth = request.DateOfBirth,
-            DocumentNumber = request.DocumentNumber.Trim(),
+            DocumentNumber = documentNumber,
             Phone = request.Phone.Trim(),
             Email = request.Email.Trim(),
             Address = request.Address.Trim(),

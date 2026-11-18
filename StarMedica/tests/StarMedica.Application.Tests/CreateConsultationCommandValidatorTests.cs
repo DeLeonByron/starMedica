@@ -28,6 +28,25 @@ public sealed class CreateConsultationCommandValidatorTests
         Assert.Contains(result.Errors, error => error.PropertyName == "DiagnosisCode");
     }
 
+    [Fact]
+    public async Task ValidateAsync_RejectsWhitespaceOnlyRequiredClinicalText()
+    {
+        var result = await _validator.ValidateAsync(CreateValidCommand() with
+        {
+            ChiefComplaint = " ",
+            PresentIllness = " ",
+            PhysicalExam = " ",
+            DiagnosisDescription = " ",
+            TreatmentPlan = " "
+        });
+
+        Assert.Contains(result.Errors, error => error.PropertyName == "ChiefComplaint");
+        Assert.Contains(result.Errors, error => error.PropertyName == "PresentIllness");
+        Assert.Contains(result.Errors, error => error.PropertyName == "PhysicalExam");
+        Assert.Contains(result.Errors, error => error.PropertyName == "DiagnosisDescription");
+        Assert.Contains(result.Errors, error => error.PropertyName == "TreatmentPlan");
+    }
+
     [Theory]
     [InlineData(0.09)]
     [InlineData(200.01)]

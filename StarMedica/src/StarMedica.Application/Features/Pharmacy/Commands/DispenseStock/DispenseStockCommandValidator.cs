@@ -7,7 +7,11 @@ public sealed class DispenseStockCommandValidator : AbstractValidator<DispenseSt
     public DispenseStockCommandValidator()
     {
         RuleFor(command => command.MedicineId).GreaterThan(0);
-        RuleFor(command => command.Quantity).GreaterThan(0m).LessThanOrEqualTo(1_000_000m);
+        RuleFor(command => command.Quantity)
+            .GreaterThan(0m)
+            .LessThanOrEqualTo(1_000_000m)
+            .Must(value => decimal.Round(value, 3) == value)
+            .WithMessage("La cantidad admite hasta tres decimales.");
         RuleFor(command => command.PerformedById).GreaterThan(0);
         RuleFor(command => command.PatientId).GreaterThan(0);
         RuleFor(command => command.ConsultationId).GreaterThan(0).When(command => command.ConsultationId.HasValue);
