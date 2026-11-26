@@ -42,6 +42,7 @@ import { PatientsService } from './patients.service';
 export class PatientsListComponent implements OnInit {
   private readonly patientsService = inject(PatientsService);
   private readonly destroyRef = inject(DestroyRef);
+  private patientsRequestId = 0;
   readonly isLoading = signal(true);
   readonly isSaving = signal(false);
   readonly patients = signal<Patient[]>([]);
@@ -99,9 +100,20 @@ export class PatientsListComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (patient) => {
-          this.patients.update((patients) =>
-            [...patients, patient].sort((first, second) => first.fullName.localeCompare(second.fullName))
-          );
+          const shouldReloadPatients = this.isLoading() || this.error() !== null;
+          this.patientsRequestId++;
+          if (shouldReloadPatients) {
+            this.loadPatients();
+          } else {
+            this.patients.update((patients) => {
+              if (patients.some((existingPatient) => existingPatient.id === patient.id)) {
+                return patients;
+              }
+
+              return [...patients, patient]
+                .sort((first, second) => first.fullName.localeCompare(second.fullName));
+            });
+          }
           this.resetForm();
           this.isSaving.set(false);
           this.isFormOpen.set(false);
@@ -114,17 +126,26 @@ export class PatientsListComponent implements OnInit {
   }
 
   private loadPatients(): void {
+    const requestId = ++this.patientsRequestId;
     this.isLoading.set(true);
     this.error.set(null);
     this.patientsService.getPatients()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => {
+          if (requestId !== this.patientsRequestId) {
+            return;
+          }
+
           this.patients.set(data);
           this.error.set(null);
           this.isLoading.set(false);
         },
         error: () => {
+          if (requestId !== this.patientsRequestId) {
+            return;
+          }
+
           this.error.set('No se pudo cargar la lista de pacientes.');
           this.isLoading.set(false);
         }

@@ -8,6 +8,9 @@ public sealed class CreateConsultationCommandValidator : AbstractValidator<Creat
     {
         RuleFor(command => command.PatientId).GreaterThan(0);
         RuleFor(command => command.DoctorId).GreaterThan(0);
+        RuleFor(command => command.AppointmentId)
+            .GreaterThan(0)
+            .When(command => command.AppointmentId.HasValue);
         RuleFor(command => command.ChiefComplaint)
             .NotEmpty()
             .Must(value => !string.IsNullOrWhiteSpace(value))
@@ -38,9 +41,24 @@ public sealed class CreateConsultationCommandValidator : AbstractValidator<Creat
             .WithMessage("El plan de tratamiento es obligatorio.")
             .MaximumLength(3000);
         RuleFor(command => command.Notes).MaximumLength(2000);
-        RuleFor(command => command.WeightKg).InclusiveBetween(0.1m, 200m).When(command => command.WeightKg.HasValue);
-        RuleFor(command => command.HeightCm).InclusiveBetween(20m, 250m).When(command => command.HeightCm.HasValue);
-        RuleFor(command => command.TemperatureCelsius).InclusiveBetween(30m, 45m).When(command => command.TemperatureCelsius.HasValue);
+        RuleFor(command => command.WeightKg)
+            .InclusiveBetween(0.1m, 200m)
+            .When(command => command.WeightKg.HasValue);
+        RuleFor(command => command.WeightKg)
+            .Must(value => !value.HasValue || decimal.Round(value.Value, 2) == value.Value)
+            .WithMessage("El peso admite hasta dos decimales.");
+        RuleFor(command => command.HeightCm)
+            .InclusiveBetween(20m, 250m)
+            .When(command => command.HeightCm.HasValue);
+        RuleFor(command => command.HeightCm)
+            .Must(value => !value.HasValue || decimal.Round(value.Value, 2) == value.Value)
+            .WithMessage("La talla admite hasta dos decimales.");
+        RuleFor(command => command.TemperatureCelsius)
+            .InclusiveBetween(30m, 45m)
+            .When(command => command.TemperatureCelsius.HasValue);
+        RuleFor(command => command.TemperatureCelsius)
+            .Must(value => !value.HasValue || decimal.Round(value.Value, 1) == value.Value)
+            .WithMessage("La temperatura admite hasta un decimal.");
         RuleFor(command => command.HeartRateBpm).InclusiveBetween(20, 250).When(command => command.HeartRateBpm.HasValue);
         RuleFor(command => command.RespiratoryRatePerMinute).InclusiveBetween(5, 100)
             .When(command => command.RespiratoryRatePerMinute.HasValue);

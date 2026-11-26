@@ -15,6 +15,40 @@ public sealed class CreatePatientCommandTests
         Assert.Contains(result.Errors, error => error.PropertyName == "Phone");
     }
 
+    [Theory]
+    [InlineData("Email")]
+    [InlineData("Address")]
+    public async Task Validator_RejectsEmailAndAddressLongerThanDatabaseColumnLimit(string field)
+    {
+        var command = field switch
+        {
+            "Email" => CreateValidCommand() with
+            {
+                Email = $"user1@{new string('a', 63)}.{new string('b', 63)}.{new string('c', 63)}.com"
+            },
+            "Address" => CreateValidCommand() with { Address = new string('a', 501) },
+            _ => throw new ArgumentOutOfRangeException(nameof(field))
+        };
+
+        var result = await new CreatePatientCommandValidator().ValidateAsync(command);
+
+        Assert.Contains(result.Errors, error => error.PropertyName == field);
+    }
+
+    [Fact]
+    public async Task Validator_AcceptsEmailAndAddressAtDatabaseColumnLimits()
+    {
+        var command = CreateValidCommand() with
+        {
+            Email = $"user@{new string('a', 63)}.{new string('b', 63)}.{new string('c', 63)}.com",
+            Address = new string('a', 500)
+        };
+
+        var result = await new CreatePatientCommandValidator().ValidateAsync(command);
+
+        Assert.True(result.IsValid);
+    }
+
     [Fact]
     public async Task Validator_RejectsWhitespaceOnlyRequiredFields()
     {
@@ -39,7 +73,6 @@ public sealed class CreatePatientCommandTests
     public async Task Handler_RejectsWhitespaceOnlyDocumentAndPhoneBeforePersistence(string field)
     {
         var repository = new CapturingPatientRepository();
-        var unitOfWork = new CapturingUnitOfWork();
         var command = field switch
         {
             "DocumentNumber" => CreateValidCommand() with { DocumentNumber = " " },
@@ -48,7 +81,6 @@ public sealed class CreatePatientCommandTests
         };
         var handler = new CreatePatientCommandHandler(
             repository,
-            unitOfWork,
             new CreatePatientCommandValidator());
 
         var result = await handler.Handle(command, CancellationToken.None);
@@ -56,7 +88,7 @@ public sealed class CreatePatientCommandTests
         Assert.False(result.IsSuccess);
         Assert.Equal(400, result.StatusCode);
         Assert.Null(repository.AddedPatient);
-        Assert.Equal(0, unitOfWork.SaveChangesCount);
+        Assert.Equal(0, repository.TryAddCalls);
     }
 
     [Theory]
@@ -75,10 +107,8 @@ public sealed class CreatePatientCommandTests
                 new Patient { Code = existingCode, DocumentNumber = existingDocumentNumber }
             ]
         };
-        var unitOfWork = new CapturingUnitOfWork();
         var handler = new CreatePatientCommandHandler(
             repository,
-            unitOfWork,
             new CreatePatientCommandValidator());
 
         var result = await handler.Handle(
@@ -88,7 +118,7 @@ public sealed class CreatePatientCommandTests
         Assert.False(result.IsSuccess);
         Assert.Equal(409, result.StatusCode);
         Assert.Null(repository.AddedPatient);
-        Assert.Equal(0, unitOfWork.SaveChangesCount);
+        Assert.Equal(1, repository.TryAddCalls);
     }
 
     [Fact]
@@ -97,7 +127,6 @@ public sealed class CreatePatientCommandTests
         var repository = new CapturingPatientRepository();
         var handler = new CreatePatientCommandHandler(
             repository,
-            new CapturingUnitOfWork(),
             new CreatePatientCommandValidator());
 
         var result = await handler.Handle(
@@ -125,10 +154,11 @@ public sealed class CreatePatientCommandTests
         "paciente@example.com",
         "Dirección de prueba");
 
-    private sealed class CapturingPatientRepository : IRepository<Patient>
+    private sealed class CapturingPatientRepository : IPatientRepository
     {
         public IReadOnlyList<Patient> ExistingPatients { get; init; } = [];
         public Patient? AddedPatient { get; private set; }
+        public int TryAddCalls { get; private set; }
 
         public Task<Patient?> GetByIdAsync(int id, CancellationToken cancellationToken = default) =>
             Task.FromResult<Patient?>(null);
@@ -136,26 +166,26 @@ public sealed class CreatePatientCommandTests
         public Task<IReadOnlyList<Patient>> GetAllAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(ExistingPatients);
 
-        public Task AddAsync(Patient entity, CancellationToken cancellationToken = default)
+        public Task<bool> TryAddPatientAsync(Patient patient, CancellationToken cancellationToken = default)
         {
-            entity.Id = 1;
-            AddedPatient = entity;
-            return Task.CompletedTask;
+            TryAddCalls++;
+            var duplicate = ExistingPatients.Any(existing =>
+                existing.Code.Trim() == patient.Code || existing.DocumentNumber.Trim() == patient.DocumentNumber);
+            if (duplicate)
+            {
+                return Task.FromResult(false);
+            }
+
+            patient.Id = 1;
+            AddedPatient = patient;
+            return Task.FromResult(true);
         }
+
+        public Task AddAsync(Patient entity, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
 
         public void Update(Patient entity) { }
 
         public void Delete(Patient entity) { }
-    }
-
-    private sealed class CapturingUnitOfWork : IUnitOfWork
-    {
-        public int SaveChangesCount { get; private set; }
-
-        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            SaveChangesCount++;
-            return Task.FromResult(1);
-        }
     }
 }

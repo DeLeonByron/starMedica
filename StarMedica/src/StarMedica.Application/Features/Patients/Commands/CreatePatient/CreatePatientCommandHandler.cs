@@ -9,17 +9,14 @@ namespace StarMedica.Application.Features.Patients.Commands.CreatePatient;
 
 public sealed class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, Result<PatientDto>>
 {
-    private readonly IRepository<Patient> _patientRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IPatientRepository _patientRepository;
     private readonly IValidator<CreatePatientCommand> _validator;
 
     public CreatePatientCommandHandler(
-        IRepository<Patient> patientRepository,
-        IUnitOfWork unitOfWork,
+        IPatientRepository patientRepository,
         IValidator<CreatePatientCommand> validator)
     {
         _patientRepository = patientRepository;
-        _unitOfWork = unitOfWork;
         _validator = validator;
     }
 
@@ -45,15 +42,6 @@ public sealed class CreatePatientCommandHandler : IRequestHandler<CreatePatientC
 
         var code = request.Code.Trim();
         var documentNumber = request.DocumentNumber.Trim();
-        var existingPatients = await _patientRepository.GetAllAsync(cancellationToken);
-        var exists = existingPatients.Any(patient =>
-            patient.Code.Trim() == code || patient.DocumentNumber.Trim() == documentNumber);
-
-        if (exists)
-        {
-            return Result<PatientDto>.Failure("Ya existe un paciente con ese código o documento.", 409);
-        }
-
         var patient = new Patient
         {
             Code = code,
@@ -67,8 +55,10 @@ public sealed class CreatePatientCommandHandler : IRequestHandler<CreatePatientC
             CreatedAt = DateTime.UtcNow
         };
 
-        await _patientRepository.AddAsync(patient, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        if (!await _patientRepository.TryAddPatientAsync(patient, cancellationToken))
+        {
+            return Result<PatientDto>.Failure("Ya existe un paciente con ese código o documento.", 409);
+        }
 
         var dto = new PatientDto(
             patient.Id,

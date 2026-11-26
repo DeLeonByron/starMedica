@@ -48,6 +48,25 @@ public sealed class CreateConsultationCommandValidatorTests
     }
 
     [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task ValidateAsync_RejectsNonPositiveAppointmentId(int appointmentId)
+    {
+        var result = await _validator.ValidateAsync(
+            CreateValidCommand() with { AppointmentId = appointmentId });
+
+        Assert.Contains(result.Errors, error => error.PropertyName == "AppointmentId");
+    }
+
+    [Fact]
+    public async Task ValidateAsync_AcceptsPositiveAppointmentId()
+    {
+        var result = await _validator.ValidateAsync(CreateValidCommand() with { AppointmentId = 12 });
+
+        Assert.True(result.IsValid);
+    }
+
+    [Theory]
     [InlineData(0.09)]
     [InlineData(200.01)]
     public async Task ValidateAsync_RejectsWeightOutsidePediatricBounds(decimal weightKg)
@@ -55,6 +74,39 @@ public sealed class CreateConsultationCommandValidatorTests
         var result = await _validator.ValidateAsync(CreateValidCommand() with { WeightKg = weightKg });
 
         Assert.Contains(result.Errors, error => error.PropertyName == "WeightKg");
+    }
+
+    [Theory]
+    [InlineData(12.34, true)]
+    [InlineData(12.345, false)]
+    public async Task ValidateAsync_EnforcesWeightStoragePrecision(decimal weightKg, bool expectedValid)
+    {
+        var result = await _validator.ValidateAsync(CreateValidCommand() with { WeightKg = weightKg });
+
+        Assert.Equal(expectedValid, result.IsValid);
+    }
+
+    [Theory]
+    [InlineData(110.25, true)]
+    [InlineData(110.256, false)]
+    public async Task ValidateAsync_EnforcesHeightStoragePrecision(decimal heightCm, bool expectedValid)
+    {
+        var result = await _validator.ValidateAsync(CreateValidCommand() with { HeightCm = heightCm });
+
+        Assert.Equal(expectedValid, result.IsValid);
+    }
+
+    [Theory]
+    [InlineData(37.1, true)]
+    [InlineData(37.15, false)]
+    public async Task ValidateAsync_EnforcesTemperatureStoragePrecision(
+        decimal temperatureCelsius,
+        bool expectedValid)
+    {
+        var result = await _validator.ValidateAsync(
+            CreateValidCommand() with { TemperatureCelsius = temperatureCelsius });
+
+        Assert.Equal(expectedValid, result.IsValid);
     }
 
     [Fact]

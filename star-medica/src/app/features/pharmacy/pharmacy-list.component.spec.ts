@@ -19,6 +19,73 @@ interface PharmacyDashboard {
 }
 
 describe('PharmacyListComponent', () => {
+  it('compares unexpired available stock at millesimal precision without floating-point drift', async () => {
+    const medicine: Medicine = {
+      id: 11,
+      code: 'MED-011',
+      name: 'Medicamento',
+      activeIngredient: 'Principio activo',
+      strength: '5 mg',
+      dosageForm: 'Tableta',
+      stockUnit: 'unidad',
+      reorderLevel: 0.3
+    };
+    const stock: MedicineBatch[] = [
+      {
+        id: 21,
+        medicineId: medicine.id,
+        medicineName: medicine.name,
+        medicineCode: medicine.code,
+        batchNumber: 'LOT-021',
+        expiresOn: '2099-12-31',
+        quantityAvailable: 0.1,
+        stockUnit: medicine.stockUnit
+      },
+      {
+        id: 22,
+        medicineId: medicine.id,
+        medicineName: medicine.name,
+        medicineCode: medicine.code,
+        batchNumber: 'LOT-022',
+        expiresOn: '2099-12-31',
+        quantityAvailable: 0.2,
+        stockUnit: medicine.stockUnit
+      },
+      {
+        id: 23,
+        medicineId: medicine.id,
+        medicineName: medicine.name,
+        medicineCode: medicine.code,
+        batchNumber: 'LOT-023',
+        expiresOn: '2020-01-01',
+        quantityAvailable: 100,
+        stockUnit: medicine.stockUnit
+      }
+    ];
+    const service = jasmine.createSpyObj<PharmacyService>('PharmacyService', ['getDashboardData']);
+    service.getDashboardData.and.returnValue(of({
+      medicines: [medicine],
+      stock,
+      movements: [],
+      patients: []
+    }));
+
+    await TestBed.configureTestingModule({
+      imports: [PharmacyListComponent],
+      providers: [
+        { provide: PharmacyService, useValue: service },
+        { provide: AuthService, useValue: { user: () => ({ id: 9, roles: ['SuperAdmin'] }) } }
+      ]
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(PharmacyListComponent);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.availableQuantity(medicine.id)).toBe(0.3);
+    expect(fixture.componentInstance.isBelowReorderLevel(medicine)).toBeTrue();
+    fixture.destroy();
+  });
+
   it('prevents duplicate medicine creation and preserves the catalog form after rejection', async () => {
     const createRequests: Subject<Medicine>[] = [];
     const service = jasmine.createSpyObj<PharmacyService>(
@@ -485,6 +552,70 @@ describe('PharmacyListComponent', () => {
     expect(fixture.nativeElement.querySelector('sm-alert')).toBeNull();
     expect(fixture.nativeElement.textContent).toContain('No hay medicamentos en el catálogo');
     expect(fixture.nativeElement.textContent).toContain('Aún no hay movimientos de inventario');
+    fixture.destroy();
+  });
+
+  it('ignores a stale dashboard response after a medicine is created', async () => {
+    const dashboardRequests: Subject<PharmacyDashboard>[] = [];
+    const createRequest = new Subject<Medicine>();
+    const service = jasmine.createSpyObj<PharmacyService>(
+      'PharmacyService',
+      ['getDashboardData', 'createMedicine']
+    );
+    service.getDashboardData.and.callFake(() => {
+      const request = new Subject<PharmacyDashboard>();
+      dashboardRequests.push(request);
+      return request;
+    });
+    service.createMedicine.and.returnValue(createRequest);
+
+    await TestBed.configureTestingModule({
+      imports: [PharmacyListComponent],
+      providers: [
+        { provide: PharmacyService, useValue: service },
+        { provide: AuthService, useValue: { user: () => ({ id: 1, roles: ['SuperAdmin'] }) } }
+      ]
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(PharmacyListComponent);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    component.openMedicineForm();
+    Object.assign(component.medicineForm, {
+      code: 'MED-002',
+      name: 'Medicamento nuevo',
+      activeIngredient: 'Principio activo',
+      strength: '10 mg',
+      dosageForm: 'Tableta',
+      stockUnit: 'unidad',
+      reorderLevel: 0
+    });
+    component.createMedicine();
+
+    const createdMedicine: Medicine = {
+      id: 2,
+      code: 'MED-002',
+      name: 'Medicamento nuevo',
+      activeIngredient: 'Principio activo',
+      strength: '10 mg',
+      dosageForm: 'Tableta',
+      stockUnit: 'unidad',
+      reorderLevel: 0
+    };
+    createRequest.next(createdMedicine);
+    expect(service.getDashboardData).toHaveBeenCalledTimes(2);
+
+    dashboardRequests[1].next({
+      medicines: [createdMedicine],
+      stock: [],
+      movements: [],
+      patients: []
+    });
+    dashboardRequests[0].next({ medicines: [], stock: [], movements: [], patients: [] });
+    fixture.detectChanges();
+
+    expect(component.medicines()).toEqual([createdMedicine]);
+    expect(component.isLoading()).toBeFalse();
     fixture.destroy();
   });
 });

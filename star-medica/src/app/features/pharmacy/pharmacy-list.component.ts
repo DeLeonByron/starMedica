@@ -50,6 +50,7 @@ export class PharmacyListComponent implements OnInit {
   private readonly service = inject(PharmacyService);
   private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
+  private dashboardRequestId = 0;
   readonly medicines = signal<Medicine[]>([]);
   readonly batches = signal<MedicineBatch[]>([]);
   readonly movements = signal<StockMovement[]>([]);
@@ -86,18 +87,22 @@ export class PharmacyListComponent implements OnInit {
   }
 
   availableQuantity(medicineId: number): number {
-    const today = this.todayInGuatemala();
-    return this.stockForMedicine(medicineId)
-      .filter((batch) => batch.expiresOn > today)
-      .reduce((total, batch) => total + batch.quantityAvailable, 0);
+    return this.availableQuantityInThousandths(medicineId) / 1000;
   }
 
   isBelowReorderLevel(medicine: Medicine): boolean {
-    return this.availableQuantity(medicine.id) <= medicine.reorderLevel;
+    return this.availableQuantityInThousandths(medicine.id) <= Math.round(medicine.reorderLevel * 1000);
   }
 
   isExpired(batch: MedicineBatch): boolean {
     return batch.expiresOn <= this.todayInGuatemala();
+  }
+
+  private availableQuantityInThousandths(medicineId: number): number {
+    const today = this.todayInGuatemala();
+    return this.stockForMedicine(medicineId)
+      .filter((batch) => batch.expiresOn > today)
+      .reduce((total, batch) => total + Math.round(batch.quantityAvailable * 1000), 0);
   }
 
   openMedicineForm(): void {
@@ -216,12 +221,17 @@ export class PharmacyListComponent implements OnInit {
   }
 
   private loadDashboard(): void {
+    const requestId = ++this.dashboardRequestId;
     this.isLoading.set(true);
     this.error.set(null);
     this.service.getDashboardData()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => {
+          if (requestId !== this.dashboardRequestId) {
+            return;
+          }
+
           this.medicines.set(data.medicines);
           this.batches.set(data.stock);
           this.movements.set(data.movements);
@@ -229,6 +239,10 @@ export class PharmacyListComponent implements OnInit {
           this.isLoading.set(false);
         },
         error: (error: unknown) => {
+          if (requestId !== this.dashboardRequestId) {
+            return;
+          }
+
           this.error.set(this.errorMessage(error, 'No se pudo cargar farmacia.'));
           this.isLoading.set(false);
         }

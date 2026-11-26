@@ -27,11 +27,9 @@ C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\StarMed
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\StarMedica.API.runtimeconfig.json
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\StarMedica.API.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\StarMedica.API.pdb
-C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\AutoMapper.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\Azure.Core.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\Azure.Identity.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\BCrypt.Net-Next.dll
-C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\BouncyCastle.Cryptography.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\CloudinaryDotNet.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\FluentValidation.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\FluentValidation.AspNetCore.dll
@@ -39,7 +37,6 @@ C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\FluentV
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\Google.Apis.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\Google.Apis.Auth.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\Google.Apis.Core.dll
-C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\MailKit.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\MediatR.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\MediatR.Contracts.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
@@ -61,7 +58,6 @@ C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\Microso
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\Microsoft.OpenApi.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\Microsoft.SqlServer.Server.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\Microsoft.Win32.SystemEvents.dll
-C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\MimeKit.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\Newtonsoft.Json.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\QuestPDF.dll
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\bin\Debug\net9.0\Serilog.dll
@@ -230,4 +226,3 @@ C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\rjsmraz
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\staticwebassets.build.json.cache
 C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\swae.build.ex.cache
-C:\repositorios\agente_ia\StarMedica\src\StarMedica.API\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

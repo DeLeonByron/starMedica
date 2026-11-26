@@ -75,6 +75,88 @@ describe('PatientsListComponent', () => {
     fixture.destroy();
   });
 
+  it('reloads after create and ignores a stale initial patient response', async () => {
+    const patientRequests: Subject<Patient[]>[] = [];
+    const createRequest = new Subject<Patient>();
+    const service = jasmine.createSpyObj<PatientsService>(
+      'PatientsService',
+      ['getPatients', 'createPatient']
+    );
+    service.getPatients.and.callFake(() => {
+      const request = new Subject<Patient[]>();
+      patientRequests.push(request);
+      return request;
+    });
+    service.createPatient.and.returnValue(createRequest);
+
+    await TestBed.configureTestingModule({
+      imports: [PatientsListComponent],
+      providers: [{ provide: PatientsService, useValue: service }]
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(PatientsListComponent);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    component.openForm();
+    Object.assign(component.form, {
+      code: 'P-002',
+      fullName: 'Paciente nuevo',
+      documentNumber: 'DOC-002',
+      phone: '5550101'
+    });
+    component.createPatient();
+
+    const createdPatient = { ...createPatient(), id: 2, code: 'P-002', fullName: 'Paciente nuevo' };
+    createRequest.next(createdPatient);
+    expect(service.getPatients).toHaveBeenCalledTimes(2);
+
+    patientRequests[0].next([]);
+    fixture.detectChanges();
+    expect(component.isLoading()).toBeTrue();
+    expect(component.patients()).toEqual([]);
+
+    patientRequests[1].next([createdPatient]);
+    fixture.detectChanges();
+    expect(component.isLoading()).toBeFalse();
+    expect(component.patients()).toEqual([createdPatient]);
+    fixture.destroy();
+  });
+
+  it('does not duplicate a patient already returned by the concurrent list request', async () => {
+    const patientRequest = new Subject<Patient[]>();
+    const createRequest = new Subject<Patient>();
+    const service = jasmine.createSpyObj<PatientsService>(
+      'PatientsService',
+      ['getPatients', 'createPatient']
+    );
+    service.getPatients.and.returnValue(patientRequest);
+    service.createPatient.and.returnValue(createRequest);
+
+    await TestBed.configureTestingModule({
+      imports: [PatientsListComponent],
+      providers: [{ provide: PatientsService, useValue: service }]
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(PatientsListComponent);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    component.openForm();
+    Object.assign(component.form, {
+      code: 'P-002',
+      fullName: 'Paciente nuevo',
+      documentNumber: 'DOC-002',
+      phone: '5550101'
+    });
+    component.createPatient();
+
+    const createdPatient = { ...createPatient(), id: 2, code: 'P-002', fullName: 'Paciente nuevo' };
+    patientRequest.next([createdPatient]);
+    createRequest.next(createdPatient);
+
+    expect(component.patients()).toEqual([createdPatient]);
+    fixture.destroy();
+  });
+
   it('locks patient fields while saving, preserves rejected data, and resets after success', async () => {
     const createRequests: Subject<Patient>[] = [];
     const service = jasmine.createSpyObj<PatientsService>(
@@ -99,7 +181,11 @@ describe('PatientsListComponent', () => {
     component.openForm();
     fixture.detectChanges();
     const phoneInput: HTMLInputElement = fixture.nativeElement.querySelector('#patient-phone input');
+    const emailInput: HTMLInputElement = fixture.nativeElement.querySelector('#patient-email input');
+    const addressInput: HTMLInputElement = fixture.nativeElement.querySelector('#patient-address input');
     expect(phoneInput.maxLength).toBe(25);
+    expect(emailInput.maxLength).toBe(200);
+    expect(addressInput.maxLength).toBe(500);
 
     Object.assign(component.form, {
       code: 'P-002',

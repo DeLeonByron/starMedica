@@ -26,12 +26,16 @@ public sealed class CreatePatientCommandValidator : AbstractValidator<CreatePati
 
         RuleFor(x => x.Email)
             .EmailAddress()
-            .When(x => !string.IsNullOrWhiteSpace(x.Email));
+            .When(x => !string.IsNullOrWhiteSpace(x.Email))
+            .MaximumLength(200);
 
         RuleFor(x => x.Phone)
             .NotEmpty()
             .Must(value => !string.IsNullOrWhiteSpace(value))
             .WithMessage("El teléfono del paciente es obligatorio.")
             .MaximumLength(25);
+
+        RuleFor(x => x.Address)
+            .MaximumLength(500);
     }
 }

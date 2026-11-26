@@ -47,6 +47,33 @@ public sealed class BillingDraftCommandTests
     }
 
     [Fact]
+    public async Task Validator_RejectsNullLineItemsWithoutThrowing()
+    {
+        var createResult = await new CreateBillingDraftCommandValidator().ValidateAsync(
+            new CreateBillingDraftCommand(
+                "Cliente",
+                null,
+                null,
+                null,
+                new CreateBillingDraftLineCommand[] { null! },
+                7));
+        var updateResult = await new UpdateBillingDraftCommandValidator().ValidateAsync(
+            new UpdateBillingDraftCommand(
+                12,
+                "Cliente",
+                null,
+                null,
+                null,
+                new CreateBillingDraftLineCommand[] { null! },
+                7));
+
+        Assert.False(createResult.IsValid);
+        Assert.Contains(createResult.Errors, error => error.PropertyName == "Lines[0]");
+        Assert.False(updateResult.IsValid);
+        Assert.Contains(updateResult.Errors, error => error.PropertyName == "Lines[0]");
+    }
+
+    [Fact]
     public async Task Handler_RoundsLineTotalsAndPersistsAuthenticatedActor()
     {
         var repository = new CapturingBillingRepository();
